@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-const editorUrl =
-  "http://127.0.0.1:5177/editor?template=blank-circuit-board"
+const editorUrl = "http://127.0.0.1:5177/editor?template=blank-circuit-board"
 
 test("local autosave preference can be disabled and survives reload", async ({
   page,
@@ -65,6 +64,7 @@ test("browser autosave preserves edits without creating a package build", async 
     page.getByRole("heading", { name: "Restore local draft?" }),
   ).toBeVisible()
   await page.getByRole("button", { name: "Restore draft" }).click()
-  await expect(page.getByRole("heading", { name: "Restore local draft?" }))
-    .not.toBeVisible()
+  await expect(
+    page.getByRole("heading", { name: "Restore local draft?" }),
+  ).not.toBeVisible()
 })

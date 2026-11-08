@@ -460,7 +460,10 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
-            title="Autosave in this browser only; it does not run or build">
+          <label
+            className="ml-2 inline-flex items-center gap-1 text-xs text-gray-700"
+            title="Autosave in this browser only; it does not run or build"
+          >
             <Switch
               checked={localAutoSaveEnabled}
               onCheckedChange={onLocalAutoSaveChange}
