@@ -83,7 +83,7 @@ export default function MainContentViewSelector({
               <Tooltip key={view.id}>
                 <TooltipTrigger asChild>
                   <button
-                    className={`${previewFiles.length > 1 && activeView !== "files" ? "px-2.5" : "px-4"} py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
+                    className={`${previewFiles.length > 1 ? "px-2.5" : "px-4"} py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
                       activeView === view.id && !isDisabled
                         ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
                         : isDisabled

@@ -146,6 +146,20 @@ test("picker is limited to preview tabs and updates the system diagram, URL and 
     ),
   ).toBeLessThan(8)
   expect(pickerBounds.x + pickerBounds.width).toBeLessThan(downloadBounds.x)
+  const headerLayout = async () => ({
+    tabs: await page
+      .getByRole("button", { name: "Files", exact: true })
+      .locator("..")
+      .boundingBox(),
+    download: await page
+      .getByRole("button", { name: "Download", exact: true })
+      .boundingBox(),
+    code: await page
+      .getByRole("button", { name: "Code", exact: true })
+      .boundingBox(),
+  })
+  const initialHeaderLayout = await headerLayout()
+
   await selectLed(page)
   await expect(page).toHaveURL(
     /preview_file=dist%2Fexamples%2Fled%2Fcircuit.json#system$/,
@@ -186,12 +200,14 @@ test("picker is limited to preview tabs and updates the system diagram, URL and 
   for (const view of ["PCB", "Schematic", "3D"]) {
     await page.getByRole("button", { name: view, exact: true }).click()
     await expect(picker(page)).toHaveText("2 Builds")
+    await expect.poll(headerLayout).toEqual(initialHeaderLayout)
     await expect(page).toHaveURL(
       /preview_file=dist%2Fexamples%2Fled%2Fcircuit.json#/,
     )
   }
   await page.getByRole("button", { name: "Files", exact: true }).click()
   await expect(picker(page)).toHaveCount(0)
+  await expect.poll(headerLayout).toEqual(initialHeaderLayout)
 })
 
 test("picker is hidden for a single output", async ({ page }) => {
