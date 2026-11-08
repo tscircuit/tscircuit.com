@@ -95,3 +95,14 @@ test("missing, denied, corrupt and truncated downloads reject so the caller can 
     "Invalid preview GLB",
   )
 })
+
+test("a selected circuit output never falls back to the main board assembly", () => {
+  const root = file("dist/3d.glb")
+  const selected = file("dist/examples/led/3d.glb")
+  expect(
+    findPackagePreviewGlb([root], "dist/examples/led/circuit.json"),
+  ).toBeUndefined()
+  expect(
+    findPackagePreviewGlb([root, selected], "dist/examples/led/circuit.json"),
+  ).toBe(selected)
+})

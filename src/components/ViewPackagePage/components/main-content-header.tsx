@@ -35,6 +35,7 @@ import {
 import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
+import PreviewFileSelector from "./preview-file-selector"
 import ReleaseVersionSelector from "./release-version-selector"
 
 interface MainContentHeaderProps {
@@ -139,6 +140,9 @@ export default function MainContentHeader({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {["3d", "pcb", "schematic", "system"].includes(activeView) && (
+            <PreviewFileSelector />
+          )}
           <DownloadButtonAndMenu
             offerMultipleImageFormats
             unscopedName={packageInfo?.unscoped_name}

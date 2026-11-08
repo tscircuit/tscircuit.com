@@ -106,11 +106,16 @@ export default function RepoPageContent({
   const {
     circuitJson,
     circuitJsonFound,
+    hasPreviewFiles,
+    previewFilePath,
+    error: circuitJsonError,
     isLoading: isCircuitJsonLoading,
   } = useCurrentPackageCircuitJson()
   const hasSystemPage =
-    circuitJson?.some((element) => element.type === "system_block_page") ??
-    false
+    (circuitJson?.some((element) => element.type === "system_block_page") ??
+      false) ||
+    (activeView === "system" &&
+      (isCircuitJsonLoading || Boolean(circuitJsonError)))
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
   const { controller: schematicController, focusSchematicComponent } =
     useSchematicViewerController()
@@ -149,9 +154,10 @@ export default function RepoPageContent({
       "bom",
       ...(hasSystemPage ? ["system"] : []),
     ]
-    const availableViews = circuitJsonExists
-      ? validViews
-      : validViews.filter((view) => !circuitDependentViews.has(view))
+    const availableViews =
+      circuitJsonExists || hasPreviewFiles
+        ? validViews
+        : validViews.filter((view) => !circuitDependentViews.has(view))
 
     const availableViewSet = new Set(availableViews)
 
@@ -186,6 +192,7 @@ export default function RepoPageContent({
     packageInfo?.default_view,
     arePackageFilesFetched,
     circuitJsonExists,
+    hasPreviewFiles,
     hasSystemPage,
     isCircuitJsonLoading,
     fileBrowserMode,
@@ -318,7 +325,7 @@ export default function RepoPageContent({
 
             {/* Dynamic Content based on active view */}
             <KeepMountedView
-              key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
+              key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
               active={activeView === "3d"}
             >
               <ThreeDView
@@ -335,7 +342,7 @@ export default function RepoPageContent({
               />
             </KeepMountedView>
             <KeepMountedView
-              key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
+              key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
               active={activeView === "pcb"}
             >
               <PCBView
