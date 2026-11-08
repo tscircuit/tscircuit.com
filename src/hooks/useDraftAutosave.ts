@@ -29,12 +29,14 @@ const serialize = (files: DraftFile[]): string => JSON.stringify(files)
 export function useDraftAutosave({
   packageId,
   enabled,
+  autoSaveEnabled,
   files,
   initialFiles,
   onRestore,
 }: {
   packageId?: string
   enabled: boolean
+  autoSaveEnabled: boolean
   files: PackageFile[]
   initialFiles: PackageFile[]
   onRestore: (files: PackageFile[]) => void
@@ -212,7 +214,7 @@ export function useDraftAutosave({
   }, [active, packageId])
 
   useEffect(() => {
-    if (!active || !ready || currentSnapshot === state.current.confirmed) return
+    if (!active || !autoSaveEnabled || !ready || currentSnapshot === state.current.confirmed) return
     // Never autosave while React is still displaying files from the release
     // instead of a restored draft.
     if (state.current.latest !== currentSnapshot) return
@@ -222,7 +224,7 @@ export function useDraftAutosave({
       })
     }, 1500)
     return () => clearTimeout(timer)
-  }, [active, ready, currentSnapshot, flush])
+  }, [active, autoSaveEnabled, ready, currentSnapshot, flush])
 
   const buildAndExit = useCallback(async () => {
     if (!active || !packageId) throw new Error("Draft feature unavailable")

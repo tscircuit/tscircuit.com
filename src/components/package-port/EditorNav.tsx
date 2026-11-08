@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
@@ -64,6 +65,8 @@ export default function EditorNav({
   fsMap,
   hasUnsavedChanges,
   draftStatus,
+  autoSaveEnabled,
+  onAutoSaveChange,
   draftBuildOutdated,
   onBuildAndExit,
   onTogglePreview,
@@ -87,6 +90,8 @@ export default function EditorNav({
   packageType?: string
   hasUnsavedChanges: boolean
   draftStatus?: "loading" | "editing" | "saving" | "saved" | "error"
+  autoSaveEnabled?: boolean
+  onAutoSaveChange?: (enabled: boolean) => void
   draftBuildOutdated?: boolean
   onBuildAndExit?: () => void
   previewOpen: boolean
@@ -450,6 +455,16 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
+          {onAutoSaveChange && (
+            <label className="ml-2 inline-flex items-center gap-2 text-xs text-gray-700">
+              <Switch
+                checked={autoSaveEnabled}
+                onCheckedChange={onAutoSaveChange}
+                aria-label="AutoSave drafts"
+              />
+              AutoSave {autoSaveEnabled ? "On" : "Off"}
+            </label>
+          )}
           {draftStatus && (
             <div role="status" className="ml-2 text-xs text-gray-700">
               {draftStatus === "loading"

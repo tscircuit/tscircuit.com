@@ -71,6 +71,13 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const [, navigate] = useLocation()
   const isUsingFakeApi = useIsUsingFakeApi()
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(
+    () => window.localStorage.getItem("tscircuit:editor:auto-save") !== "false",
+  )
+  const changeAutoSaveEnabled = (enabled: boolean) => {
+    window.localStorage.setItem("tscircuit:editor:auto-save", String(enabled))
+    setAutoSaveEnabled(enabled)
+  }
   const [showExitDialog, setShowExitDialog] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
   const [exitError, setExitError] = useState<string | null>(null)
@@ -147,6 +154,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const draft = useDraftAutosave({
     packageId: pkg?.package_id,
+    autoSaveEnabled,
     enabled: Boolean(
       pkg &&
         sessionToken &&
@@ -439,6 +447,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           }
         }}
         draftStatus={draft.active ? draft.status : undefined}
+        autoSaveEnabled={draft.active ? autoSaveEnabled : undefined}
+        onAutoSaveChange={draft.active ? changeAutoSaveEnabled : undefined}
         draftBuildOutdated={draft.active && draft.isBuildOutdated}
         onBuildAndExit={
           draft.active
