@@ -63,11 +63,12 @@ async function mockPreviews(
     return route.fulfill({
       json: {
         package_file: {
-          content_text: options.invalid
-            ? "invalid json"
-            : JSON.stringify(
-                circuit(id === "preview-1" ? "LED board" : "Main board"),
-              ),
+          content_text:
+            options.invalid && id === "preview-1"
+              ? "invalid json"
+              : JSON.stringify(
+                  circuit(id === "preview-1" ? "LED board" : "Main board"),
+                ),
         },
       },
     })
@@ -80,13 +81,20 @@ const picker = (page: Page) =>
 async function selectLed(page: Page) {
   await picker(page).click()
   await expect(page.getByRole("option", { name: /^dist\// })).toHaveCount(0)
+  await expect(
+    page.getByRole("option", { name: "Package default", exact: true }),
+  ).toHaveCount(0)
+  await expect(page.locator("[cmdk-group-heading]")).toHaveCount(0)
   await page.getByPlaceholder("Find a preview file…").fill("led")
-  await page
-    .getByRole("option", {
-      name: outputs[1].replace(/^dist\//, ""),
-      exact: true,
-    })
-    .click()
+  const entry = page.getByRole("option", {
+    name: outputs[1].replace(/^dist\//, ""),
+    exact: true,
+  })
+  await entry.hover()
+  await expect(entry).toHaveCSS("cursor", "pointer")
+  await expect(entry).toHaveAttribute("data-selected", "true")
+  await expect(entry).toHaveCSS("background-color", "rgb(243, 244, 246)")
+  await page.getByPlaceholder("Find a preview file…").press("Enter")
 }
 
 test("picker is limited to preview tabs and updates the system diagram, URL and history", async ({
@@ -157,7 +165,10 @@ test("picker is limited to preview tabs and updates the system diagram, URL and 
   ).toBeVisible()
   await picker(page).click()
   await page
-    .getByRole("option", { name: "Package default", exact: true })
+    .getByRole("option", {
+      name: outputs[0].replace(/^dist\//, ""),
+      exact: true,
+    })
     .click()
   await expect(
     page.getByRole("button", {
@@ -222,10 +233,13 @@ for (const view of ["schematic", "system"]) {
     await expect(page).toHaveURL(new RegExp(`#${view}$`))
     await picker(page).click()
     await page
-      .getByRole("option", { name: "Package default", exact: true })
+      .getByRole("option", {
+        name: outputs[0].replace(/^dist\//, ""),
+        exact: true,
+      })
       .click()
     await expect(picker(page)).toHaveText("2 Builds")
-    await expect(page).not.toHaveURL(/preview_file=/)
+    await expect(page).toHaveURL(/preview_file=dist%2Findex%2Fcircuit.json#/)
   })
 }
 
@@ -250,7 +264,10 @@ test("picker fits on mobile and preserves a pinned release", async ({
   )
   await picker(page).click()
   await expect(
-    page.getByRole("option", { name: "Package default", exact: true }),
+    page.getByRole("option", {
+      name: outputs[0].replace(/^dist\//, ""),
+      exact: true,
+    }),
   ).toBeVisible()
   expect(
     await page.evaluate(

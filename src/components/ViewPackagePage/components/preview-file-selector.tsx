@@ -24,10 +24,9 @@ export default function PreviewFileSelector() {
 
   if (previewFiles.length < 2) return null
 
-  const selectFile = (path?: string) => {
+  const selectFile = (path: string) => {
     const url = new URL(window.location.href)
-    if (path) url.searchParams.set("preview_file", path)
-    else url.searchParams.delete("preview_file")
+    url.searchParams.set("preview_file", path)
     window.history.pushState({}, "", url)
     window.dispatchEvent(new Event("popstate"))
     setOpen(false)
@@ -63,13 +62,7 @@ export default function PreviewFileSelector() {
           />
           <CommandList>
             <CommandEmpty>No matching preview files.</CommandEmpty>
-            <CommandGroup heading="Preview files">
-              <CommandItem
-                value="Package default"
-                onSelect={() => selectFile()}
-              >
-                Package default
-              </CommandItem>
+            <CommandGroup>
               {previewFiles.map((file) => {
                 const path = normalizePreviewPath(file.file_path)
                 return (
@@ -77,7 +70,7 @@ export default function PreviewFileSelector() {
                     key={file.package_file_id}
                     value={path}
                     onSelect={() => selectFile(path)}
-                    className="gap-2"
+                    className="cursor-pointer gap-2 hover:bg-gray-100 data-[selected=true]:bg-gray-100 dark:hover:bg-gray-800 dark:data-[selected=true]:bg-gray-800"
                   >
                     <span className="break-all text-xs font-mono flex-1">
                       {path.replace(/^dist\//, "")}
