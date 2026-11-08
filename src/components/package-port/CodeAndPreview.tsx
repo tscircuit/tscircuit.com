@@ -14,6 +14,9 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { useLocalDraftAutosave } from "@/hooks/use-local-draft-autosave"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -59,6 +62,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const accountId = useGlobalStore((s) => s.session?.account_id ?? "guest")
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
@@ -128,6 +132,23 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     releaseId: releaseIdForVersion,
   })
 
+  const localDraft = useLocalDraftAutosave({
+    accountId,
+    projectId: pkg?.package_id
+      ? `package:${pkg.package_id}`
+      : urlParams.package_id
+        ? null
+        : `scratch:${urlParams.template ?? urlParams.snippet_type ?? "default"}`,
+    ready: Boolean(
+      !versionFromUrl &&
+      isFullyLoaded &&
+      (!pkg || loadedFilesCount >= totalFilesCount),
+    ),
+    files: localFiles,
+    initialFiles,
+    onRestore: setLocalFiles,
+  })
+
   const hasUnsavedChanges = useMemo(
     () =>
       (!isSaving &&
@@ -179,6 +200,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const handleDiscardChanges = () => {
     setLocalFiles([...initialFiles])
+    localDraft.discardStoredDraft()
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     toast({
       title: "Changes discarded",
@@ -379,6 +401,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isSaving={isSaving}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={saveFiles}
+        localAutoSaveEnabled={localDraft.enabled}
+        onLocalAutoSaveChange={localDraft.changeEnabled}
+        localAutoSaveStatus={localDraft.canSaveLocally ? localDraft.status : undefined}
+        localAutoSaveError={localDraft.error}
         onDiscard={() => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
@@ -499,6 +525,23 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <Dialog open={Boolean(localDraft.restoreCandidate)}>
+        <DialogContent onEscapeKeyDown={(event) => event.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Restore local draft?</DialogTitle>
+            <DialogDescription>
+              Unsaved edits from this browser were found. Restore them or discard
+              the local copy. No server files or builds will be changed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={localDraft.discardStoredDraft}>
+              Discard local draft
+            </Button>
+            <Button onClick={localDraft.restoreDraft}>Restore draft</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
       {importComponentDialog}

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
@@ -63,6 +64,10 @@ export default function EditorNav({
   code,
   fsMap,
   hasUnsavedChanges,
+  localAutoSaveEnabled,
+  onLocalAutoSaveChange,
+  localAutoSaveStatus,
+  localAutoSaveError,
   onTogglePreview,
   previewOpen,
   onSave,
@@ -83,6 +88,10 @@ export default function EditorNav({
   fsMap: Record<string, string>
   packageType?: string
   hasUnsavedChanges: boolean
+  localAutoSaveEnabled: boolean
+  onLocalAutoSaveChange: (enabled: boolean) => void
+  localAutoSaveStatus?: "loading" | "restore" | "editing" | "saved" | "off" | "error" | "conflict"
+  localAutoSaveError?: string | null
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
@@ -444,6 +453,27 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
+          <label className="ml-2 inline-flex items-center gap-1 text-xs text-gray-700"
+            title="Autosave in this browser only; it does not run or build">
+            <Switch
+              checked={localAutoSaveEnabled}
+              onCheckedChange={onLocalAutoSaveChange}
+              aria-label="Local AutoSave"
+            />
+            Local AutoSave {localAutoSaveEnabled ? "On" : "Off"}
+          </label>
+          {localAutoSaveStatus && (
+            <span role="status" title={localAutoSaveError ?? undefined}
+              className="ml-2 text-xs text-gray-600">
+              {localAutoSaveStatus === "saved" ? "Saved in browser" :
+               localAutoSaveStatus === "off" ? "Local save off" :
+               localAutoSaveStatus === "editing" ? "Local changes pending" :
+               localAutoSaveStatus === "restore" ? "Restore draft available" :
+               localAutoSaveStatus === "conflict" ? "Draft changed in another tab" :
+               localAutoSaveStatus === "error" ? "Local save failed" :
+               "Checking local draft"}
+            </span>
+          )}
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
