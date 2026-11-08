@@ -95,6 +95,7 @@ export default function EditorNav({
     | "restore"
     | "editing"
     | "saved"
+    | "idle"
     | "off"
     | "error"
     | "conflict"
@@ -472,15 +473,26 @@ export default function EditorNav({
             Local AutoSave {localAutoSaveEnabled ? "On" : "Off"}
           </label>
           {localAutoSaveStatus && (
-            <span role="status" title={localAutoSaveError ?? undefined}
-              className="ml-2 text-xs text-gray-600">
-              {localAutoSaveStatus === "saved" ? "Saved in browser" :
-               localAutoSaveStatus === "off" ? "Local save off" :
-               localAutoSaveStatus === "editing" ? "Local changes pending" :
-               localAutoSaveStatus === "restore" ? "Restore draft available" :
-               localAutoSaveStatus === "conflict" ? "Draft changed in another tab" :
-               localAutoSaveStatus === "error" ? "Local save failed" :
-               "Checking local draft"}
+            <span
+              role="status"
+              title={localAutoSaveError ?? undefined}
+              className="ml-2 text-xs text-gray-600"
+            >
+              {localAutoSaveStatus === "saved"
+                ? "Saved in browser"
+                : localAutoSaveStatus === "off"
+                  ? "Local save off"
+                  : localAutoSaveStatus === "idle"
+                    ? "No local changes"
+                    : localAutoSaveStatus === "editing"
+                      ? "Local changes pending"
+                      : localAutoSaveStatus === "restore"
+                        ? "Restore draft available"
+                        : localAutoSaveStatus === "conflict"
+                          ? "Draft changed in another tab"
+                          : localAutoSaveStatus === "error"
+                            ? "Local save failed"
+                            : "Checking local draft"}
             </span>
           )}
           {isSaving && (

@@ -16,6 +16,7 @@ type LocalStatus =
   | "restore"
   | "editing"
   | "saved"
+  | "idle"
   | "off"
   | "error"
   | "conflict"
@@ -55,8 +56,15 @@ export function useLocalDraftAutosave({
     key: string | null
     phase: "initial" | "prompt" | "restoring" | "active" | "conflict" | "error"
     persisted: string | null
+    starting: string | null
     expectedRestore: string | null
-  }>({ key: null, phase: "initial", persisted: null, expectedRestore: null })
+  }>({
+    key: null,
+    phase: "initial",
+    persisted: null,
+    starting: null,
+    expectedRestore: null,
+  })
   const editableFiles = snapshotEditableFiles(files)
   const fingerprint = draftFingerprint(editableFiles)
   const baseline = draftFingerprint(snapshotEditableFiles(initialFiles))
@@ -72,19 +80,23 @@ export function useLocalDraftAutosave({
       key,
       phase: "initial",
       persisted: null,
+      starting: initialFiles.length > 0 ? baseline : fingerprint,
       expectedRestore: null,
     }
     try {
       const draft = readLocalDraft(window.localStorage, key)
       phaseRef.current.persisted = draft ? draftFingerprint(draft.files) : null
-      if (draft && draftFingerprint(draft.files) !== baseline) {
+      if (
+        draft &&
+        draftFingerprint(draft.files) !== phaseRef.current.starting
+      ) {
         phaseRef.current.phase = "prompt"
         setRestoreCandidate(draft)
         setStatus("restore")
       } else {
         phaseRef.current.phase = "active"
         setRestoreCandidate(null)
-        setStatus(enabled ? "editing" : "off")
+        setStatus(enabled ? (draft ? "saved" : "idle") : "off")
       }
       setError(null)
     } catch (cause) {
@@ -94,7 +106,7 @@ export function useLocalDraftAutosave({
         cause instanceof Error ? cause.message : "Local draft read failed",
       )
     }
-  }, [key, ready, baseline, enabled])
+  }, [key, ready, baseline, fingerprint, initialFiles.length, enabled])
 
   const restoreDraft = useCallback(() => {
     const draft = restoreCandidate
@@ -119,7 +131,7 @@ export function useLocalDraftAutosave({
       phaseRef.current.expectedRestore = null
       setRestoreCandidate(null)
       setError(null)
-      setStatus(enabled ? "editing" : "off")
+      setStatus(enabled ? "idle" : "off")
     } catch (cause) {
       setStatus("error")
       setError(
@@ -140,6 +152,22 @@ export function useLocalDraftAutosave({
     if (!ready || !key || phaseRef.current.phase !== "active") return
     if (!enabled) {
       setStatus("off")
+      return
+    }
+    if (fingerprint === phaseRef.current.starting) {
+      if (phaseRef.current.persisted !== null) {
+        try {
+          window.localStorage.removeItem(key)
+          phaseRef.current.persisted = null
+        } catch (cause) {
+          setStatus("error")
+          setError(
+            cause instanceof Error ? cause.message : "Local draft cleanup failed",
+          )
+          return
+        }
+      }
+      setStatus("idle")
       return
     }
     if (fingerprint === phaseRef.current.persisted) {
