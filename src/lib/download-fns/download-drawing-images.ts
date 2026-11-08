@@ -1,3 +1,4 @@
+import type { DrawingPageOutput } from "@tscircuit/drawing-viewer"
 import type { CircuitJson, DrawingPage } from "circuit-json"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
@@ -12,19 +13,34 @@ interface DrawingImageDownloadOptions {
   format: DrawingImageFormat
 }
 
-const getDrawingImageFileName = ({
-  drawingPage,
+const createDrawingImageFile = async ({
+  renderedPage,
+  drawingPages,
   fileName,
   format,
 }: {
-  drawingPage: DrawingPage
+  renderedPage: DrawingPageOutput
+  drawingPages: DrawingPage[]
   fileName: string
   format: DrawingImageFormat
 }) => {
-  const pageName = drawingPage.name?.trim() || drawingPage.drawing_page_id
-  return (
-    `${fileName}-${pageName}`.replace(/[^a-zA-Z0-9_.-]+/g, "-") + `.${format}`
+  const drawingPage = drawingPages.find(
+    (drawingPage) => drawingPage.drawing_page_id === renderedPage.drawingPageId,
   )
+  if (!drawingPage) throw new Error("A rendered drawing page was not found.")
+  const blob =
+    format === "png"
+      ? await convertSvgToPng(renderedPage.svg)
+      : new Blob([renderedPage.svg], { type: "image/svg+xml" })
+  const pageName = drawingPage.name?.trim() || drawingPage.drawing_page_id
+  const imageFileName = `${fileName}-${pageName}`.replace(
+    /[^a-zA-Z0-9_.-]+/g,
+    "-",
+  )
+  return {
+    blob,
+    fileName: `${imageFileName}.${format}`,
+  }
 }
 
 export const createDrawingImageDownload = async ({
@@ -40,29 +56,30 @@ export const createDrawingImageDownload = async ({
   }
   const { renderDrawingPages } = await import("@tscircuit/drawing-viewer")
   const pages = await renderDrawingPages(circuitJson)
-  const zip = new JSZip()
-  for (const page of pages) {
-    const drawingPage = drawingPages.find(
-      (drawingPage) => drawingPage.drawing_page_id === page.drawingPageId,
-    )
-    if (!drawingPage) throw new Error("A rendered drawing page was not found.")
-    const blob =
-      format === "png"
-        ? await convertSvgToPng(page.svg)
-        : new Blob([page.svg], { type: "image/svg+xml" })
-    const imageFileName = getDrawingImageFileName({
-      drawingPage,
+  if (pages.length === 1) {
+    return createDrawingImageFile({
+      renderedPage: pages[0],
+      drawingPages,
       fileName,
       format,
     })
-    if (pages.length === 1) return { blob, fileName: imageFileName }
+  }
 
-    let uniqueFileName = imageFileName
+  const zip = new JSZip()
+  for (const renderedPage of pages) {
+    const imageFile = await createDrawingImageFile({
+      renderedPage,
+      drawingPages,
+      fileName,
+      format,
+    })
+    let uniqueFileName = imageFile.fileName
     let duplicateIndex = 2
     while (zip.file(uniqueFileName)) {
-      uniqueFileName = `${imageFileName.slice(0, -4)}-${duplicateIndex++}.${format}`
+      const baseName = imageFile.fileName.slice(0, -(format.length + 1))
+      uniqueFileName = `${baseName}-${duplicateIndex++}.${format}`
     }
-    zip.file(uniqueFileName, await blob.arrayBuffer())
+    zip.file(uniqueFileName, await imageFile.blob.arrayBuffer())
   }
   const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" })
   const zipFileName = `${fileName}-drawings-${format}.zip`.replace(
