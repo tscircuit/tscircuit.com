@@ -10,12 +10,16 @@ test("local autosave preference can be disabled and survives reload", async ({
   const toggle = page.getByRole("switch", { name: "Local AutoSave" })
   await expect(toggle).toBeVisible()
   await expect(toggle).toBeChecked()
-  await expect(page.getByTestId("local-autosave-status")).toHaveText("Not saved")
+  await expect(page.getByTestId("local-autosave-status")).toHaveText(
+    "Not saved",
+  )
   await expect(page.getByText("Local AutoSave Off")).toHaveCount(0)
 
   await toggle.click()
   await expect(toggle).not.toBeChecked()
-  await expect(page.getByTestId("local-autosave-status")).toHaveText("Not saved")
+  await expect(page.getByTestId("local-autosave-status")).toHaveText(
+    "Not saved",
+  )
   expect(
     await page.evaluate(() =>
       window.localStorage.getItem("tscircuit:editor:local-autosave:enabled"),
