@@ -11,8 +11,24 @@ export function findPackagePreviewGlb<T extends PreviewFile>(
   const candidates: string[] = []
   if (componentPath) {
     const path = normalizePath(componentPath)
-    if (path.startsWith("dist/") || path.endsWith("/circuit.json"))
-      candidates.push(`${path.slice(0, path.lastIndexOf("/"))}/3d.glb`)
+    if (
+      path === "circuit.json" ||
+      path.endsWith("/circuit.json") ||
+      path.startsWith("dist/")
+    ) {
+      const directory = path.slice(0, path.lastIndexOf("/") + 1)
+      candidates.push(`${directory}3d.glb`)
+    }
+    // A built output may only use the assembly beside that output.
+    if (
+      path === "circuit.json" ||
+      path.endsWith("/circuit.json") ||
+      (path.startsWith("dist/") && path.endsWith(".circuit.json"))
+    ) {
+      return files.find(
+        (file) => normalizePath(file.file_path) === candidates[0],
+      )
+    }
     // CLI versions differ on whether the .circuit suffix remains in dist.
     candidates.push(
       `dist/${path.replace(/\.circuit\.(tsx|json)$/, "").replace(/\.tsx$/, "")}/3d.glb`,
