@@ -32,8 +32,12 @@ test("ordinary package pages render all four cloud-built circuits after sharing 
     (response) =>
       response.url().includes("/package_files/list?") &&
       response.status() === 200,
+    { timeout: 60000 },
   )
-  await page.goto(`/${packageName}#pcb`)
+  await page.goto(`/${packageName}#pcb`, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  })
   await expect(page).toHaveURL(new RegExp(`/${packageName}#pcb$`))
   const { package_files: files } = await (await listResponse).json()
   await expect(picker(page)).toHaveText("4 Builds")

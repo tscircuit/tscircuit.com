@@ -259,6 +259,7 @@ export function DatasheetReferenceDesigns({ chipName }: { chipName: string }) {
                 reference_design: event.target.value,
                 reference_file: undefined,
                 reference_release: undefined,
+                reference_sheet: undefined,
               })
             }
             className="max-w-full rounded-md border p-2 text-sm"
