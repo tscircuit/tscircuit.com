@@ -13,7 +13,12 @@ const picker = (page: Page) =>
 async function interactWithViewer(page: Page) {
   const overlay = page.getByText("Click to Interact", { exact: true })
   if (await overlay.isVisible()) {
-    await overlay.click()
+    const bounds = await overlay.boundingBox()
+    if (!bounds) throw new Error("Viewer interaction overlay has no bounds")
+    await page.mouse.click(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height / 2,
+    )
     await expect(overlay).not.toBeVisible()
   }
 }
