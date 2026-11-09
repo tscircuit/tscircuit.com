@@ -158,12 +158,12 @@ export const DatasheetPage = () => {
                 )}
               </SectionCard>
             </div>
+            <DatasheetReferenceDesigns chipName={chipName} />
             <DatasheetViews
               chipName={chipName}
               datasheet={datasheetQuery.data}
             />
             {hasTsx && <DatasheetComponentTsx source={componentTsx!} />}
-            <DatasheetReferenceDesigns chipName={chipName} />
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (

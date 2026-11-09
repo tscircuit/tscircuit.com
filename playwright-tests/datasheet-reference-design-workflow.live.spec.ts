@@ -10,6 +10,14 @@ const presets = ["", "full_board", "slow", "without_led"]
 const picker = (page: Page) =>
   page.getByRole("combobox", { name: "Preview file" })
 
+async function interactWithViewer(page: Page) {
+  const overlay = page.getByText("Click to Interact", { exact: true })
+  if (await overlay.isVisible()) {
+    await overlay.click()
+    await expect(overlay).not.toBeVisible()
+  }
+}
+
 test("datasheet opens the real package and all four cloud-built circuits render in its ordinary views", async ({
   page,
 }, testInfo) => {
@@ -89,6 +97,7 @@ test("datasheet opens the real package and all four cloud-built circuits render 
       page.getByText("Loading PCB view...", { exact: true }),
     ).toHaveCount(0)
     await expect(page.locator("canvas:visible").first()).toBeVisible()
+    await interactWithViewer(page)
     await page.screenshot({
       path: testInfo.outputPath(`${preset || "default"}-pcb.png`),
     })
@@ -106,6 +115,7 @@ test("datasheet opens the real package and all four cloud-built circuits render 
         )
         .first(),
     ).toBeVisible()
+    await interactWithViewer(page)
     await page.screenshot({
       path: testInfo.outputPath(`${preset || "default"}-schematic.png`),
     })
@@ -122,6 +132,17 @@ test("datasheet opens the real package and all four cloud-built circuits render 
       page.getByText("Loading 3D view...", { exact: true }),
     ).toHaveCount(0)
     await expect(page.locator("canvas:visible").last()).toBeVisible()
+    await interactWithViewer(page)
+    const bounds = await page.locator("canvas:visible").last().boundingBox()
+    if (!bounds) throw new Error("3D viewer has no bounds")
+    const center = {
+      x: bounds.x + bounds.width / 2,
+      y: bounds.y + bounds.height / 2,
+    }
+    await page.mouse.move(center.x, center.y)
+    await page.mouse.down()
+    await page.mouse.move(center.x + 50, center.y + 25, { steps: 8 })
+    await page.mouse.up()
     await page.screenshot({
       path: testInfo.outputPath(`${preset || "default"}-3d.png`),
     })

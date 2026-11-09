@@ -70,6 +70,7 @@ export function DatasheetReferenceDesigns({ chipName }: { chipName: string }) {
 
   return (
     <section
+      id="reference-designs"
       aria-labelledby="reference-designs-heading"
       className="mb-6 rounded-lg border bg-white p-6 shadow-sm"
     >
