@@ -1,0 +1,16 @@
+name: Reference design dependency lockfile
+on:
+  pull_request:
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --lockfile-only
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reference-design-lockfile
+          path: bun.lock

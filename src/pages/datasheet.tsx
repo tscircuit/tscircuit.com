@@ -7,6 +7,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { DatasheetViews } from "@/components/DatasheetViews"
+import { DatasheetReferenceDesigns } from "@/components/DatasheetReferenceDesigns"
 import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
 import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -157,6 +158,7 @@ export const DatasheetPage = () => {
                 )}
               </SectionCard>
             </div>
+            <DatasheetReferenceDesigns chipName={chipName} />
             <DatasheetViews
               chipName={chipName}
               datasheet={datasheetQuery.data}
