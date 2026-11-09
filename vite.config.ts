@@ -10,6 +10,10 @@ import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
 import { parsePackagePageRoute } from "./server/package-page-ssr.js"
+import {
+  isReferenceDesignPreviewEnabled,
+  referenceDesignPreviewPlugin,
+} from "./scripts/reference-design-preview-plugin"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -158,6 +162,12 @@ function vercelSsrDevPlugin(): Plugin {
 }
 
 export default defineConfig(async (): Promise<UserConfig> => {
+  const referenceDesignPreviewEnabled = isReferenceDesignPreviewEnabled(
+    process.env,
+  )
+  process.env.VITE_REFERENCE_DESIGN_PREVIEW_ENABLED = String(
+    referenceDesignPreviewEnabled,
+  )
   let proxyConfig: Record<string, any> | undefined
 
   // Polyfill Node's `process` global for browser bundles. Some transitive
@@ -255,6 +265,9 @@ export default defineConfig(async (): Promise<UserConfig> => {
     }),
     vercelSsrDevPlugin(),
   ]
+
+  if (referenceDesignPreviewEnabled)
+    plugins.push(referenceDesignPreviewPlugin())
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
     const { visualizer } = await import("rollup-plugin-visualizer")

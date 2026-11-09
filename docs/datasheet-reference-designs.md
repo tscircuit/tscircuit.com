@@ -27,3 +27,18 @@ Datasheets without published designs have no reference-design section.
 
 The API fixture uses actual package upload, datasheet, discovery, and download
 routes with an isolated in-memory database. Production credentials are unnecessary.
+
+## Hosted PR preview
+
+Open `/datasheets/NE555DR?reference_design_preview=ne555` on the website PR's
+Vercel preview to use the CLI-built sample independently of the API deployment.
+The existing datasheet still loads normally. Reference-design discovery uses a
+static sample, and the normal viewer verifies the Circuit JSON and GLB hashes.
+
+The compressed fixture in `playwright-tests/fixtures/ne555-reference-design.json.gz`
+records its source URL and CLI commit. It contains the three actual builds from
+CLI commit `e45cc4c`, their manifest, and a static discovery response. The Vite
+plugin emits these files only for Vercel Preview builds, or local development
+with `REFERENCE_DESIGN_PREVIEW=true`. Production builds disable the sample and
+exclude its files. This is a UI preview; the API integration is tested separately
+through the real-route local fixture above.

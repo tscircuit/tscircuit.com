@@ -5,17 +5,13 @@ import type {
 } from "@tscircuit/runframe/reference-designs"
 
 async function downloadReferenceDesignFile(request: {
-  apiBaseUrl: string
-  packageFileId: string
+  url: string
   sha256: string
   signal: AbortSignal
 }) {
-  const response = await fetch(
-    `${request.apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: request.packageFileId })}`,
-    {
-      signal: AbortSignal.any([request.signal, AbortSignal.timeout(30_000)]),
-    },
-  )
+  const response = await fetch(request.url, {
+    signal: AbortSignal.any([request.signal, AbortSignal.timeout(30_000)]),
+  })
   if (!response.ok) throw new Error("Unable to load configuration")
   const bytes = await response.arrayBuffer()
   const digest = await crypto.subtle.digest("SHA-256", bytes)
@@ -31,12 +27,18 @@ async function downloadReferenceDesignFile(request: {
 
 export async function loadReferenceDesignArtifacts(request: {
   apiBaseUrl: string
+  artifactBaseUrl?: string
   publishedReferenceDesign: PublishedReferenceDesign
   configuration: ReferenceDesignConfiguration
   signal: AbortSignal
 }) {
-  const { configuration, publishedReferenceDesign, apiBaseUrl, signal } =
-    request
+  const {
+    configuration,
+    publishedReferenceDesign,
+    apiBaseUrl,
+    artifactBaseUrl,
+    signal,
+  } = request
   const circuitFile = publishedReferenceDesign.files.find(
     (file) => file.file_path === configuration.circuit_json_path,
   )
@@ -47,14 +49,16 @@ export async function loadReferenceDesignArtifacts(request: {
     throw new Error("Configuration files are missing")
   const [circuitBytes, glbData] = await Promise.all([
     downloadReferenceDesignFile({
-      apiBaseUrl,
-      packageFileId: circuitFile.package_file_id,
+      url: artifactBaseUrl
+        ? `${artifactBaseUrl}/${configuration.circuit_json_path}`
+        : `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: circuitFile.package_file_id })}`,
       sha256: configuration.circuit_json_sha256,
       signal,
     }),
     downloadReferenceDesignFile({
-      apiBaseUrl,
-      packageFileId: glbFile.package_file_id,
+      url: artifactBaseUrl
+        ? `${artifactBaseUrl}/${configuration.glb_path}`
+        : `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: glbFile.package_file_id })}`,
       sha256: configuration.glb_sha256,
       signal,
     }),

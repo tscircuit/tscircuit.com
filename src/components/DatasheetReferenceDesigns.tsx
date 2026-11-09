@@ -15,8 +15,10 @@ const ReferenceDesignViewer = lazy(async () => ({
 
 function DatasheetReferenceDesign({
   publishedReferenceDesign,
+  artifactBaseUrl,
 }: {
   publishedReferenceDesign: PublishedReferenceDesign
+  artifactBaseUrl?: string
 }) {
   const apiBaseUrl = useApiBaseUrl()
   const loadConfiguration = useCallback(
@@ -28,8 +30,9 @@ function DatasheetReferenceDesign({
         ...request,
         apiBaseUrl,
         publishedReferenceDesign,
+        artifactBaseUrl,
       }),
-    [apiBaseUrl, publishedReferenceDesign],
+    [apiBaseUrl, publishedReferenceDesign, artifactBaseUrl],
   )
   return (
     <Suspense
@@ -117,6 +120,7 @@ export function DatasheetReferenceDesigns({ chipName }: { chipName: string }) {
               <DatasheetReferenceDesign
                 key={`${selectedDesign.package_release_id}:${selectedDesign.reference_design.name}`}
                 publishedReferenceDesign={selectedDesign}
+                artifactBaseUrl={query.artifactBaseUrl}
               />
             </>
           )
