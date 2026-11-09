@@ -30,7 +30,8 @@ export default function MainContentViewSelector({
   activeView,
   onViewChange,
 }: MainContentViewSelectorProps) {
-  const { circuitJson } = useCurrentPackageCircuitJson()
+  const { circuitJson, hasPreviewFiles, previewFiles, isLoading, error } =
+    useCurrentPackageCircuitJson()
 
   const views = [
     {
@@ -39,7 +40,8 @@ export default function MainContentViewSelector({
       icon: <Code className="h-4 w-4 mr-1" />,
       requiresCircuitJson: false,
     },
-    ...(circuitJson?.some((element) => element.type === "system_block_page")
+    ...(circuitJson?.some((element) => element.type === "system_block_page") ||
+    (activeView === "system" && (isLoading || error))
       ? [
           {
             id: "system",
@@ -75,12 +77,13 @@ export default function MainContentViewSelector({
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
         <TooltipProvider>
           {views.map((view) => {
-            const isDisabled = !circuitJson && view.requiresCircuitJson
+            const isDisabled =
+              !circuitJson && !hasPreviewFiles && view.requiresCircuitJson
             return (
               <Tooltip key={view.id}>
                 <TooltipTrigger asChild>
                   <button
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
+                    className={`${previewFiles.length > 1 ? "px-2.5" : "px-4"} py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
                       activeView === view.id && !isDisabled
                         ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
                         : isDisabled
@@ -137,7 +140,8 @@ export default function MainContentViewSelector({
           <DropdownMenuContent align="start" className="z-[101]">
             <TooltipProvider>
               {views.map((view) => {
-                const isDisabled = !circuitJson && view.requiresCircuitJson
+                const isDisabled =
+                  !circuitJson && !hasPreviewFiles && view.requiresCircuitJson
                 return (
                   <Tooltip key={view.id}>
                     <TooltipTrigger asChild>
