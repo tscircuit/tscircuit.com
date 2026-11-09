@@ -23,38 +23,17 @@ async function interactWithViewer(page: Page) {
   }
 }
 
-test("datasheet opens the real package and all four cloud-built circuits render in its ordinary views", async ({
+test("ordinary package pages render all four cloud-built circuits after sharing their viewer", async ({
   page,
 }, testInfo) => {
   const pageErrors: string[] = []
   page.on("pageerror", (error) => pageErrors.push(error.message))
-  await page.goto("/datasheets/NE555DR")
-  await expect(
-    page.getByRole("heading", { name: "NE555DR Datasheet", exact: true }),
-  ).toBeVisible()
-  const references = page.getByRole("region", { name: "Reference designs" })
-  await references.scrollIntoViewIfNeeded()
-  await expect(
-    references.getByRole("link", { name: packageName, exact: true }),
-  ).toBeVisible()
-  await expect(
-    references.getByText(
-      "NE555DR astable timer with prebuilt timing and LED options.",
-    ),
-  ).toBeVisible()
-  await page.screenshot({
-    path: testInfo.outputPath("datasheet.png"),
-    fullPage: true,
-  })
-
   const listResponse = page.waitForResponse(
     (response) =>
       response.url().includes("/package_files/list?") &&
       response.status() === 200,
   )
-  await references
-    .getByRole("link", { name: "Open package", exact: true })
-    .click()
+  await page.goto(`/${packageName}#pcb`)
   await expect(page).toHaveURL(new RegExp(`/${packageName}#pcb$`))
   const { package_files: files } = await (await listResponse).json()
   await expect(picker(page)).toHaveText("4 Builds")

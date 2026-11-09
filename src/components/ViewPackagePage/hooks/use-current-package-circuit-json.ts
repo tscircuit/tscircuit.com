@@ -7,9 +7,11 @@ import {
 } from "@/lib/preview-circuit-files"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { useUrlParams } from "@/hooks/use-url-params"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { useQuery } from "react-query"
-import { useParams } from "wouter"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 
 type PreviewCircuitJsonResponse = {
   preview_circuit_json_response: {
@@ -21,12 +23,12 @@ type PreviewCircuitJsonResponse = {
 
 export function useCurrentPackageCircuitJson() {
   const { packageId } = useCurrentPackageId()
-  const urlParams = useUrlParams()
-  const { author, packageName } = useParams()
+  const { author, packageName, version, releaseId, previewFilePath } =
+    usePackagePreviewIdentity()
   const axios = useAxios()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((state) => state.session?.token)
 
-  const version = urlParams.version
-  const releaseId = urlParams.package_release_id
   const { packageRelease } = useCurrentPackageRelease()
   const { data: packageFiles, isFetched: areFilesFetched } = usePackageFiles(
     packageRelease?.package_release_id,
@@ -35,9 +37,17 @@ export function useCurrentPackageCircuitJson() {
   )
   const previewFiles = getPreviewCircuitFiles(packageFiles)
   // A link from another release must never select a file outside this release.
-  const selectedFile = previewFiles.find(
-    (file) => normalizePreviewPath(file.file_path) === urlParams.preview_file,
+  const explicitFile = previewFiles.find(
+    (file) => normalizePreviewPath(file.file_path) === previewFilePath,
   )
+  const defaultPath = getDefaultPreviewFilePath(previewFiles)
+  const selectedFile =
+    explicitFile ??
+    (!previewFilePath && defaultPath?.endsWith(".gz")
+      ? previewFiles.find(
+          (file) => normalizePreviewPath(file.file_path) === defaultPath,
+        )
+      : undefined)
 
   let query: Record<string, string | boolean> | null = null
 
@@ -51,17 +61,32 @@ export function useCurrentPackageCircuitJson() {
     query = { package_id: packageId, is_latest: true }
   }
 
-  const { data, isLoading, error } = useQuery<
+  const { data, isLoading, error, refetch } = useQuery<
     PreviewCircuitJsonResponse,
     Error & { status: number }
   >(
     ["previewCircuitJson", query, selectedFile?.package_file_id],
-    async () => {
+    async ({ signal }) => {
       if (!query) {
         throw new Error("Missing package release info")
       }
 
       if (selectedFile) {
+        if (selectedFile.file_path.endsWith(".gz")) {
+          const circuitJson = await downloadPackageCircuitJson({
+            apiBaseUrl,
+            packageFileId: selectedFile.package_file_id,
+            token,
+            signal,
+          })
+          return {
+            preview_circuit_json_response: {
+              circuit_json: circuitJson,
+              component_path: normalizePreviewPath(selectedFile.file_path),
+              circuit_json_found: true,
+            },
+          }
+        }
         const { data } = await axios.get("/package_files/get", {
           params: { package_file_id: selectedFile.package_file_id },
         })
@@ -88,11 +113,11 @@ export function useCurrentPackageCircuitJson() {
       return response.data
     },
     {
-      enabled: Boolean(query) && (!urlParams.preview_file || areFilesFetched),
+      enabled: Boolean(query) && areFilesFetched,
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 60_000 * 2,
-      cacheTime: 60_000 * 2,
+      cacheTime: selectedFile?.file_path.endsWith(".gz") ? 0 : 60_000 * 2,
     },
   )
 
@@ -107,6 +132,7 @@ export function useCurrentPackageCircuitJson() {
       : null
 
   return {
+    refetch,
     circuitJson,
     circuitJsonFound,
     previewFiles,
@@ -120,7 +146,7 @@ export function useCurrentPackageCircuitJson() {
     componentPath: selectedFile
       ? normalizePreviewPath(selectedFile.file_path)
       : data?.preview_circuit_json_response.component_path,
-    isLoading,
+    isLoading: isLoading || !areFilesFetched,
     error: errorMessage,
   }
 }

@@ -13,7 +13,7 @@ export function findPackagePreviewGlb<T extends PreviewFile>(
     const path = normalizePath(componentPath)
     if (
       path === "circuit.json" ||
-      path.endsWith("/circuit.json") ||
+      /\/circuit\.json(?:\.gz)?$/.test(path) ||
       path.startsWith("dist/")
     ) {
       const directory = path.slice(0, path.lastIndexOf("/") + 1)
@@ -22,8 +22,8 @@ export function findPackagePreviewGlb<T extends PreviewFile>(
     // A built output may only use the assembly beside that output.
     if (
       path === "circuit.json" ||
-      path.endsWith("/circuit.json") ||
-      (path.startsWith("dist/") && path.endsWith(".circuit.json"))
+      /\/circuit\.json(?:\.gz)?$/.test(path) ||
+      (path.startsWith("dist/") && /\.circuit\.json(?:\.gz)?$/.test(path))
     ) {
       return files.find(
         (file) => normalizePath(file.file_path) === candidates[0],

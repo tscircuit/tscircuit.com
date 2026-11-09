@@ -8,10 +8,7 @@ import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 
 // Tab Views
 import FilesView from "./tab-views/files-view"
-import ThreeDView from "./tab-views/3d-view"
-import PCBView from "./tab-views/pcb-view"
-import { KeepMountedView } from "./keep-mounted-view"
-import SchematicView from "./tab-views/schematic-view"
+import { PackageCircuitPreview } from "./package-circuit-preview"
 import SystemView from "./tab-views/system-view"
 import BOMView from "./tab-views/bom-view"
 import PackageFileView from "./tab-views/package-file-view"
@@ -255,7 +252,7 @@ export default function RepoPageContent({
       case "pcb":
         return null
       case "schematic":
-        return <SchematicView controller={schematicController} />
+        return null
       case "system":
         return <SystemView onComponentClick={handleViewSchematicComponent} />
       case "bom":
@@ -324,37 +321,21 @@ export default function RepoPageContent({
             />
 
             {/* Dynamic Content based on active view */}
-            <KeepMountedView
-              key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
-              active={activeView === "3d"}
-            >
-              <ThreeDView
-                packageFiles={packageFiles}
-                arePackageFilesFetched={arePackageFilesFetched}
-                isFetchingPackageFiles={isFetchingPackageFiles}
-                onViewSchematicComponent={
-                  circuitJson?.some(
-                    (element) => element.type === "schematic_component",
-                  )
-                    ? handleViewSchematicComponent
-                    : undefined
-                }
-              />
-            </KeepMountedView>
-            <KeepMountedView
-              key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
-              active={activeView === "pcb"}
-            >
-              <PCBView
-                onViewSchematicComponent={
-                  circuitJson?.some(
-                    (element) => element.type === "schematic_component",
-                  )
-                    ? handleViewSchematicComponent
-                    : undefined
-                }
-              />
-            </KeepMountedView>
+            <PackageCircuitPreview
+              view={activeView}
+              packageReleaseId={packageRelease?.package_release_id}
+              packageFiles={packageFiles}
+              arePackageFilesFetched={arePackageFilesFetched}
+              isFetchingPackageFiles={isFetchingPackageFiles}
+              schematicController={schematicController}
+              onViewSchematicComponent={
+                circuitJson?.some(
+                  (element) => element.type === "schematic_component",
+                )
+                  ? handleViewSchematicComponent
+                  : undefined
+              }
+            />
             {renderContent()}
             {fileBrowserMode !== "file" && (
               <ImportantFilesView

@@ -11,7 +11,7 @@ export function getPreviewCircuitFiles<T extends { file_path: string }>(
       const path = normalizePreviewPath(file.file_path)
       return (
         !path.startsWith("node_modules/") &&
-        /(?:^|\/)circuit\.json$|\.circuit\.json$/i.test(path)
+        /(?:^|\/)circuit\.json(?:\.gz)?$|\.circuit\.json(?:\.gz)?$/i.test(path)
       )
     })
     .sort((a, b) =>
@@ -28,7 +28,14 @@ export function getDefaultPreviewFilePath(
   if (componentPath) {
     return getPackageFileArtifactPaths(componentPath, files).circuitJsonPath
   }
-  return ["dist/circuit.json", "dist/index/circuit.json"].find((path) =>
-    files.some((file) => normalizePreviewPath(file.file_path) === path),
+  return (
+    [
+      "dist/circuit.json",
+      "dist/index/circuit.json",
+      "dist/circuit.json.gz",
+      "dist/index/circuit.json.gz",
+    ].find((path) =>
+      files.some((file) => normalizePreviewPath(file.file_path) === path),
+    ) ?? files.find((file) => /\.json\.gz$/i.test(file.file_path))?.file_path
   )
 }

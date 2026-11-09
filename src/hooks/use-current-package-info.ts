@@ -1,7 +1,6 @@
-import { useParams } from "wouter"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { usePackageById } from "./use-package-by-package-id"
 import { usePackageByName } from "./use-package-by-package-name"
-import { useUrlParams } from "./use-url-params"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageInfo = (): {
@@ -12,10 +11,8 @@ export const useCurrentPackageInfo = (): {
   isFetched: boolean
   packageSlug: string | null
 } => {
-  const urlParams = useUrlParams()
-  const packageIdFromQuery = urlParams.package_id ?? null
-
-  const { author, packageName } = useParams()
+  const { author, packageName, packageId } = usePackagePreviewIdentity()
+  const packageIdFromQuery = packageId ?? null
   const packageSlug = author && packageName ? `${author}/${packageName}` : null
 
   const queryById = usePackageById(packageIdFromQuery)

@@ -3,14 +3,77 @@ import {
   SchematicViewer,
   type SchematicViewerController,
 } from "@tscircuit/schematic-viewer"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
+import { useUrlParams } from "@/hooks/use-url-params"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useQuery } from "react-query"
+import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 
 export default function SchematicView({
   controller,
 }: {
   controller?: SchematicViewerController
 }) {
-  const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
-  if (isLoading) {
+  const { circuitJson, componentPath, isLoading, error } =
+    useCurrentPackageCircuitJson()
+  const { packageRelease } = useCurrentPackageRelease()
+  const { data: files } = usePackageFiles(packageRelease?.package_release_id, {
+    refetchOnMount: false,
+  })
+  const scope = usePackagePreviewScope()
+  const params = useUrlParams()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((state) => state.session?.token)
+  const directory =
+    componentPath?.slice(0, componentPath.lastIndexOf("/") + 1) ?? ""
+  const sheets = (files ?? [])
+    .filter(
+      (file) =>
+        file.file_path.startsWith(directory) &&
+        /^schematic(?:-[^/]+)?\.json(?:\.gz)?$/i.test(
+          file.file_path.slice(directory.length),
+        ),
+    )
+    .sort((a, b) => a.file_path.localeCompare(b.file_path))
+  const requestedSheet = scope ? scope.schematicSheet : params.schematic_sheet
+  const selectedSheet =
+    sheets.find(
+      (file) => file.file_path.slice(directory.length) === requestedSheet,
+    ) ?? sheets[0]
+  const sheet = useQuery(
+    [
+      "packageSchematicSheet",
+      selectedSheet?.package_file_id,
+      apiBaseUrl,
+      token,
+    ],
+    ({ signal }) =>
+      downloadPackageCircuitJson({
+        apiBaseUrl,
+        packageFileId: selectedSheet!.package_file_id,
+        token,
+        signal,
+      }),
+    {
+      enabled: Boolean(selectedSheet),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 120_000,
+    },
+  )
+  const selectSheet = (name: string) => {
+    if (scope?.selectSchematicSheet) return scope.selectSchematicSheet(name)
+    const url = new URL(window.location.href)
+    url.searchParams.set("schematic_sheet", name)
+    window.history.pushState({}, "", url)
+    window.dispatchEvent(new Event("popstate"))
+  }
+  const displayedCircuit = selectedSheet ? sheet.data : circuitJson
+  const loadError = error || sheet.error
+  if (isLoading || (selectedSheet && sheet.isLoading)) {
     return (
       <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-8 mb-4 bg-white dark:bg-[#0d1117] flex items-center justify-center h-[620px]">
         <p className="text-gray-500 dark:text-[#8b949e]">
@@ -20,27 +83,55 @@ export default function SchematicView({
     )
   }
 
-  if (error || !circuitJson) {
+  if (loadError || !displayedCircuit) {
     return (
       <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-8 mb-4 bg-white dark:bg-[#0d1117] flex items-center justify-center">
         <p className="text-red-500 dark:text-red-400">
-          {error || "Circuit JSON not available"}
+          {loadError
+            ? "Unable to load schematic"
+            : "Circuit JSON not available"}
         </p>
       </div>
     )
   }
 
   return (
-    <div className="h-[620px]">
-      <SchematicViewer
-        controller={controller}
-        disableGroups
-        clickToInteractEnabled
-        circuitJson={circuitJson}
-        containerStyle={{
-          height: 620,
-        }}
-      />
+    <div>
+      {sheets.length > 0 && (
+        <label className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <span>Schematic sheet</span>
+          <select
+            aria-label="Schematic sheet"
+            className="max-w-full rounded-md border bg-white p-2"
+            value={selectedSheet.file_path.slice(directory.length)}
+            onChange={(event) => selectSheet(event.target.value)}
+          >
+            {sheets.map((file) => (
+              <option
+                key={file.package_file_id}
+                value={file.file_path.slice(directory.length)}
+              >
+                {file.file_path
+                  .slice(directory.length)
+                  .replace(/^schematic-?/, "")
+                  .replace(/\.json(?:\.gz)?$/, "")
+                  .replace(/[_-]/g, " ") || "Schematic"}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <div className="h-[620px]">
+        <SchematicViewer
+          controller={controller}
+          disableGroups
+          clickToInteractEnabled
+          circuitJson={displayedCircuit}
+          containerStyle={{
+            height: 620,
+          }}
+        />
+      </div>
     </div>
   )
 }

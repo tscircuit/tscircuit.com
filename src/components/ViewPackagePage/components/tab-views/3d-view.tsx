@@ -2,11 +2,10 @@ import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
 import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useUrlParams } from "@/hooks/use-url-params"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Suspense, useMemo, type ComponentProps } from "react"
-import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 import { useQuery } from "react-query"
 import {
@@ -15,8 +14,8 @@ import {
 } from "@/lib/package-preview-glb"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
-  const { author, packageName } = useParams()
-  const { version, package_release_id: releaseId } = useUrlParams()
+  const { author, packageName, version, releaseId } =
+    usePackagePreviewIdentity()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
   const request = useMemo(() => {
