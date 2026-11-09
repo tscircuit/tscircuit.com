@@ -10,6 +10,8 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --lockfile-only
+      - name: Read dependency lockfile
+        run: python3 -c 'import base64,gzip,textwrap; print("REFERENCE_LOCKFILE_BEGIN"); print("\n".join(textwrap.wrap(base64.b64encode(gzip.compress(open("bun.lock","rb").read())).decode(),120))); print("REFERENCE_LOCKFILE_END")'
       - uses: actions/upload-artifact@v4
         with:
           name: reference-design-lockfile
