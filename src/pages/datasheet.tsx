@@ -9,6 +9,7 @@ import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { DatasheetViews } from "@/components/DatasheetViews"
 import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
 import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
+import { DatasheetReferenceDesigns } from "@/components/DatasheetReferenceDesigns"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -162,6 +163,7 @@ export const DatasheetPage = () => {
               datasheet={datasheetQuery.data}
             />
             {hasTsx && <DatasheetComponentTsx source={componentTsx!} />}
+            <DatasheetReferenceDesigns chipName={chipName} />
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (
