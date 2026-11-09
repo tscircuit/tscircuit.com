@@ -57,12 +57,14 @@ export function useLocalDraftAutosave({
     phase: "initial" | "prompt" | "restoring" | "active" | "conflict" | "error"
     persisted: string | null
     starting: string | null
+    baseline: string | null
     expectedRestore: string | null
   }>({
     key: null,
     phase: "initial",
     persisted: null,
     starting: null,
+    baseline: null,
     expectedRestore: null,
   })
   const editableFiles = snapshotEditableFiles(files)
@@ -81,6 +83,7 @@ export function useLocalDraftAutosave({
       phase: "initial",
       persisted: null,
       starting: initialFiles.length > 0 ? baseline : fingerprint,
+      baseline,
       expectedRestore: null,
     }
     try {
@@ -150,6 +153,12 @@ export function useLocalDraftAutosave({
 
   useEffect(() => {
     if (!ready || !key || phaseRef.current.phase !== "active") return
+    // Manual Save updates initialFiles. Compare future edits with that saved
+    // snapshot, not with the files that were present when the editor opened.
+    if (phaseRef.current.baseline !== baseline) {
+      phaseRef.current.baseline = baseline
+      phaseRef.current.starting = baseline
+    }
     if (!enabled) {
       setStatus("off")
       return
@@ -191,13 +200,15 @@ export function useLocalDraftAutosave({
       }
     }, 1500)
     return () => clearTimeout(timer)
-  }, [enabled, key, ready, fingerprint])
+  }, [enabled, key, ready, fingerprint, baseline])
 
   useEffect(() => {
     if (!key) return
     const handleOtherTab = (event: StorageEvent) => {
-      if (event.key !== key) return
-      if (event.newValue === null) return
+      if (event.storageArea !== window.localStorage) return
+      // key=null means another tab cleared localStorage. Deletions also
+      // invalidate Saved and must not be silently overwritten by this tab.
+      if (event.key !== null && event.key !== key) return
       if (phaseRef.current.phase !== "active") return
       phaseRef.current.phase = "conflict"
       setStatus("conflict")
