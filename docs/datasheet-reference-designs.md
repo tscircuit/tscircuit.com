@@ -8,7 +8,7 @@ No circuit compilation or autorouting runs in the page.
 
 The RunFrame dependency is pinned to the package published by
 [RunFrame PR #6185](https://github.com/tscircuit/runframe/pull/6185), commit
-`3f9690f9dd1091a7891978a63997cc322306ab14`.
+`dd4e6cebe30034d8d092e829e6ca483488e2aaf5`.
 
 For the complete local integration, use the branches in
 [CLI PR #5742](https://github.com/tscircuit/cli/pull/5742) and
