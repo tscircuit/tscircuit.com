@@ -30,8 +30,10 @@ routes with an isolated in-memory database. Production credentials are unnecessa
 
 ## Hosted PR preview
 
-Open `/datasheets/NE555DR?reference_design_preview=ne555` on the website PR's
+Open `/datasheets/NE555DR` on the website PR's
 Vercel preview to use the CLI-built sample independently of the API deployment.
+It also loads when navigating from the datasheet search results or reloading the
+page. The earlier `reference_design_preview` query parameter is unnecessary.
 The existing datasheet still loads normally. Reference-design discovery uses a
 static sample, and the normal viewer verifies the Circuit JSON and GLB hashes.
 
