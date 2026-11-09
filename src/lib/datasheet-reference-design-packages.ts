@@ -11,6 +11,4 @@ const normalizeChipName = (name: string) =>
   name.replace(/[^a-z0-9]/gi, "").toUpperCase()
 
 export const getDatasheetReferenceDesignPackages = (chipName: string) =>
-  Object.entries(datasheetReferenceDesignPackages).find(
-    ([name]) => normalizeChipName(name) === normalizeChipName(chipName),
-  )?.[1] ?? []
+  datasheetReferenceDesignPackages[normalizeChipName(chipName)] ?? []
