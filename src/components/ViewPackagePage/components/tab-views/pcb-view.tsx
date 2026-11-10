@@ -1,5 +1,4 @@
 import type { ComponentProps } from "react"
-import { getPackagePcbRenderer } from "@/lib/get-package-pcb-renderer"
 import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
@@ -33,7 +32,8 @@ export default function PCBView({
   return (
     <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
       <PcbViewerWithContainerHeight
-        renderer={getPackagePcbRenderer(circuitJson)}
+        // Published previews must work without an available WebGPU adapter.
+        renderer="canvas"
         disablePcbGroups
         clickToInteractEnabled
         circuitJson={circuitJson}
