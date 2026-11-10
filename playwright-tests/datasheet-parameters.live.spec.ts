@@ -221,31 +221,36 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(region.getByText(/omitted/i)).toHaveCount(0)
   await region.getByRole("button", { name: "PCB", exact: true }).click()
   await expect(region.getByRole("alert")).toHaveCount(0)
-  const pcbCanvas = region.locator("canvas:visible").last()
-  await expect(pcbCanvas).toBeVisible()
+  const pcbCanvas = region.locator("canvas:visible")
+  await expect(pcbCanvas.first()).toBeVisible()
   await expect
     .poll(() =>
-      pcbCanvas.evaluate((element) => {
-        const canvas = element as HTMLCanvasElement
-        const context = canvas.getContext("2d")
-        if (!context) return 0
-        const data = context.getImageData(
+      pcbCanvas.evaluateAll((elements) =>
+        Math.max(
           0,
-          0,
-          canvas.width,
-          canvas.height,
-        ).data
-        let coloredPixels = 0
-        for (let i = 0; i < data.length; i += 64)
-          if (
-            data[i + 3] > 0 &&
-            Math.max(data[i], data[i + 1], data[i + 2]) -
-              Math.min(data[i], data[i + 1], data[i + 2]) >
-              30
-          )
-            coloredPixels++
-        return coloredPixels
-      }),
+          ...elements.map((element) => {
+            const canvas = element as HTMLCanvasElement
+            const context = canvas.getContext("2d")
+            if (!context) return 0
+            const data = context.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            ).data
+            let copperPixels = 0
+            for (let i = 0; i < data.length; i += 64)
+              if (
+                data[i + 3] > 0 &&
+                data[i] > 100 &&
+                data[i] > data[i + 1] + 40 &&
+                data[i] > data[i + 2] + 40
+              )
+                copperPixels++
+            return copperPixels
+          }),
+        ),
+      ),
     )
     .toBeGreaterThan(100)
   await region.screenshot({
