@@ -6,26 +6,89 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
 import { getReferenceDesignUrl } from "@/lib/reference-design-selection"
 import { ArrowRight } from "lucide-react"
+import { Suspense, lazy } from "react"
 import { Link, useParams } from "wouter"
 
+const DatasheetReferenceDesign = lazy(
+  () => import("@/pages/datasheet-reference-design"),
+)
+
+function ReferenceDesignLoading() {
+  return (
+    <div
+      className="flex h-[620px] items-center justify-center text-sm text-gray-500"
+      role="status"
+    >
+      Loading reference design...
+    </div>
+  )
+}
+
 export default function DatasheetReferenceDesignsPage() {
-  const { chipName } = useParams<{ chipName: string }>()
+  const { chipName, author, packageName } = useParams<{
+    chipName: string
+    author?: string
+    packageName?: string
+  }>()
+  const name = author && packageName ? `${author}/${packageName}` : undefined
   const { packages, failed, isLoading, refetch } =
     useDatasheetReferenceDesignPackages(chipName)
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" data-reference-design-page>
       <Header />
       <main className="mx-auto w-full flex-grow px-4 py-8 md:px-20 lg:px-28">
-        <DatasheetBreadcrumbs chipName={chipName} referenceDesigns />
+        <DatasheetBreadcrumbs
+          chipName={chipName}
+          referenceDesigns
+          referenceDesignName={name ? packageName : undefined}
+        />
         <h1 className="mb-8 break-words text-3xl font-bold text-gray-900 md:text-4xl">
           {chipName} Reference Designs
         </h1>
-        <Card>
+        <Card
+          role="region"
+          aria-labelledby="reference-design-heading"
+          className="min-w-0"
+        >
           <CardHeader>
-            <CardTitle className="text-xl">Reference designs</CardTitle>
+            <CardTitle id="reference-design-heading" className="text-xl">
+              {name ? "Reference design" : "Reference designs"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {name ? (
+              <>
+                <div className="mb-4 px-2 py-4">
+                  <p className="break-words font-semibold">{packageName}</p>
+                  <Link
+                    href={`/${encodeURIComponent(author!)}`}
+                    className="text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                  >
+                    {author}
+                  </Link>
+                </div>
+                {isLoading ? (
+                  <ReferenceDesignLoading />
+                ) : packages.includes(name) ? (
+                  <Suspense fallback={<ReferenceDesignLoading />}>
+                    <DatasheetReferenceDesign key={name} name={name} />
+                  </Suspense>
+                ) : failed.length ? (
+                  <div role="alert">
+                    <p>Unable to load the reference design.</p>
+                    <Button
+                      className="mt-3"
+                      variant="outline"
+                      onClick={() => refetch()}
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                ) : (
+                  <p>This reference design is not available for {chipName}.</p>
+                )}
+              </>
+            ) : isLoading ? (
               <p role="status">Loading reference designs...</p>
             ) : failed.length > 0 && !packages.length ? (
               <div role="alert">

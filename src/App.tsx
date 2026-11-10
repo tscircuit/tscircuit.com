@@ -85,9 +85,6 @@ const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
 const DatasheetReferenceDesignsPage = lazyImport(
   () => import("@/pages/datasheet-reference-designs"),
 )
-const DatasheetReferenceDesignPage = lazyImport(
-  () => import("@/pages/datasheet-reference-design"),
-)
 const DatasheetsPage = lazyImport(() => import("@/pages/datasheets"))
 const ProfessionalSupportPage = lazyImport(
   () => import("@/pages/professional-support"),
@@ -289,11 +286,7 @@ function App() {
             <Route path="/trending" component={TrendingPage} />
             <Route path="/datasheets" component={DatasheetsPage} />
             <Route
-              path="/datasheets/:chipName/reference-designs/:author/:packageName"
-              component={DatasheetReferenceDesignPage}
-            />
-            <Route
-              path="/datasheets/:chipName/reference-designs"
+              path="/datasheets/:chipName/reference-designs/:author?/:packageName?"
               component={DatasheetReferenceDesignsPage}
             />
             <Route path="/datasheets/:chipName" component={DatasheetPage} />

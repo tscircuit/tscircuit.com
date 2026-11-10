@@ -1,9 +1,31 @@
-import { expect, test } from "@playwright/test"
+import { type Page, expect, test } from "@playwright/test"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
   "Set TSCIRCUIT_LIVE_URL to the deployment under review",
 )
+
+async function getReferenceDesignFrame(page: Page) {
+  return page.locator("div[data-reference-design-page]").evaluate((root) =>
+    [
+      "header",
+      'nav[aria-label="breadcrumb"]',
+      "h1",
+      'main > [role="region"]',
+    ].map((selector) => {
+      const node = root.querySelector(selector)
+      if (!node) throw new Error(`Missing reference-design frame: ${selector}`)
+      const bounds = node.getBoundingClientRect()
+      return {
+        selector,
+        x: bounds.x,
+        y: bounds.y + window.scrollY,
+        width: bounds.width,
+        ...(selector.startsWith("main") ? {} : { height: bounds.height }),
+      }
+    }),
+  )
+}
 
 test("datasheets link to a design index and a dedicated, shared design page with real change highlights", async ({
   page,
@@ -26,6 +48,35 @@ test("datasheets link to a design index and a dedicated, shared design page with
   await expect(
     page.getByRole("complementary", { name: "Circuit parameters" }),
   ).toHaveCount(0)
+  await page.evaluate(() => document.fonts.ready)
+  const indexFrame = await getReferenceDesignFrame(page)
+  const shellMonitor = await page.evaluateHandle(() => {
+    const root = document.querySelector("div[data-reference-design-page]")!
+    const anchors = [
+      root,
+      ...root.querySelectorAll(
+        "header, main, main > nav, main > h1, main > [role=region], footer",
+      ),
+    ]
+    const failures: string[] = []
+    const observer = new MutationObserver(() => {
+      if (anchors.some((node) => !node.isConnected))
+        failures.push("shell remounted")
+      if (document.querySelector(".fixed.inset-0.z-50 .loading-bar"))
+        failures.push("full-page loader")
+    })
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style"],
+    })
+    return { failures, stop: () => observer.disconnect() }
+  })
+  await page.screenshot({
+    path: info.outputPath("reference-design-index.png"),
+    fullPage: true,
+  })
   await page.getByRole("link", { name: /cc2340r5-reference-design/ }).click()
   await expect(page).toHaveURL(
     /\/reference-designs\/ShiboSoftwareDev\/cc2340r5-reference-design$/,
@@ -48,6 +99,13 @@ test("datasheets link to a design index and a dedicated, shared design page with
   await expect(
     panel.getByRole("switch", { name: "External LF crystal" }),
   ).toBeEnabled({ timeout: 120_000 })
+  expect(await getReferenceDesignFrame(page)).toEqual(indexFrame)
+  await expect(
+    page.getByRole("heading", {
+      name: "CC2340R52E0RGER Reference Designs",
+      exact: true,
+    }),
+  ).toBeVisible()
   await expect(boxes).toHaveCount(0)
   await page.screenshot({
     path: info.outputPath("reference-design-page.png"),
@@ -93,9 +151,6 @@ test("datasheets link to a design index and a dedicated, shared design page with
   )
   await expect(annotationBoxes.first()).toBeVisible()
   const nextBoxCount = await boxes.count()
-  await region.screenshot({
-    path: info.outputPath("changed-voltage-boxes.png"),
-  })
   await page.waitForTimeout(1600)
   await expect(boxes).toHaveCount(nextBoxCount)
   const selection = page.url()
@@ -171,9 +226,33 @@ test("datasheets link to a design index and a dedicated, shared design page with
   await region.screenshot({
     path: info.outputPath("reference-design-mobile.png"),
   })
+  await page.getByRole("button", { name: "Show parent pages" }).click()
+  await expect(
+    page.getByRole("menuitem", { name: "Datasheets", exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole("menuitem", { name: "CC2340R52E0RGER", exact: true }),
+  ).toBeVisible()
+  await page.keyboard.press("Escape")
+  const mobileDetailFrame = await getReferenceDesignFrame(page)
   await breadcrumbs
     .getByRole("link", { name: "Reference designs", exact: true })
     .click()
   await expect(page).toHaveURL(/\/reference-designs$/)
+  await expect(
+    page.getByRole("link", { name: /cc2340r5-reference-design/ }),
+  ).toBeVisible()
+  expect(await getReferenceDesignFrame(page)).toEqual(mobileDetailFrame)
+  await page.screenshot({
+    path: info.outputPath("reference-design-index-mobile.png"),
+    fullPage: true,
+  })
+  await page.getByRole("link", { name: /cc2340r5-reference-design/ }).click()
+  await expect(
+    page.getByRole("complementary", { name: "Circuit parameters" }),
+  ).toBeVisible()
+  expect(await getReferenceDesignFrame(page)).toEqual(mobileDetailFrame)
+  expect(await shellMonitor.evaluate((monitor) => monitor.failures)).toEqual([])
+  await shellMonitor.evaluate((monitor) => monitor.stop())
   expect(errors).toEqual([])
 })

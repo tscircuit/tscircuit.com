@@ -289,6 +289,9 @@ async function handleDatasheetPage(req, res) {
       ? `${referenceName} - ${chipName} Reference Design`
       : `${chipName} Reference Designs`
     : `${chipName} Datasheet`
+  const pageHeading = referenceDesigns
+    ? `${chipName} Reference Designs`
+    : pageTitle
   const pagePath =
     `/datasheets/${encodeURIComponent(chipName)}` +
     (referenceDesigns ? "/reference-designs" : "") +
@@ -307,7 +310,7 @@ async function handleDatasheetPage(req, res) {
       ? `Inspect and configure reference designs for ${he.encode(chipName)} on tscircuit.`
       : `View the ${he.encode(chipName)} datasheet on tscircuit.`,
     canonicalUrl: `${BASE_URL}${pagePath}`,
-    ssrContent: `<style>#loader{display:none}</style><main data-ssr-datasheet-page class="mx-auto px-4 md:px-20 lg:px-28 py-8 w-full"><h1 class="mb-6 text-3xl font-bold break-words">${he.encode(pageTitle)}</h1>${tsxContent}</main>`,
+    ssrContent: `<style>#loader{display:none}</style><main data-ssr-datasheet-page${referenceDesigns ? " data-reference-design-page" : ""} class="mx-auto px-4 md:px-20 lg:px-28 py-8 w-full"><h1 class="mb-6 text-3xl font-bold break-words">${he.encode(pageHeading)}</h1>${tsxContent}</main>`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

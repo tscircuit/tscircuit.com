@@ -186,6 +186,8 @@ describe("reference design page metadata", () => {
       const { html, statusCode } = await getPage(url)
       expect(statusCode).toBe(200)
       expect(html).toContain(`<title>${title} - tscircuit</title>`)
+      expect(html).toContain(">EXAMPLE Reference Designs</h1>")
+      expect(html).toContain("data-reference-design-page")
       expect(html).toContain(
         `<link rel="canonical" href="https://tscircuit.com${url.split("?")[0]}" />`,
       )
