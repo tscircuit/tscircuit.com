@@ -5,8 +5,8 @@ test.skip(
   "Set TSCIRCUIT_LIVE_URL to the deployment under review",
 )
 
-const packageName = "ShiboSoftwareDev/ne555-timer-presets"
-const presets = ["", "full_board", "slow", "without_led"]
+const packageName = "ShiboSoftwareDev/cc2340r5-reference-design"
+const presets = ["", "internal_lf_clock", "minimal"]
 const picker = (page: Page) =>
   page.getByRole("combobox", { name: "Preview file" })
 
@@ -23,7 +23,7 @@ async function interactWithViewer(page: Page) {
   }
 }
 
-test("ordinary package pages render all four cloud-built circuits after sharing their viewer", async ({
+test("ordinary package pages render all three postbuild configurations after sharing their viewer", async ({
   page,
 }, testInfo) => {
   const pageErrors: string[] = []
@@ -40,7 +40,7 @@ test("ordinary package pages render all four cloud-built circuits after sharing 
   })
   await expect(page).toHaveURL(new RegExp(`/${packageName}#pcb$`))
   const { package_files: files } = await (await listResponse).json()
-  await expect(picker(page)).toHaveText("4 Builds")
+  await expect(picker(page)).toHaveText("3 Builds")
 
   for (const preset of presets) {
     await page.getByRole("button", { name: "PCB", exact: true }).click()
@@ -64,20 +64,26 @@ test("ordinary package pages render all four cloud-built circuits after sharing 
       .click()
     const { package_file: file } = await (await circuitResponse).json()
     const circuit = JSON.parse(file.content_text)
-    const timingCap = circuit.find(
+    const mcu = circuit.find(
       (element: any) =>
-        element.type === "source_component" && element.name === "C1",
+        element.type === "source_component" && element.name === "U1",
     )
-    expect(timingCap.capacitance).toBeCloseTo(
-      preset === "slow" ? 100e-6 : 10e-6,
-      9,
-    )
+    expect(mcu.manufacturer_part_number).toBe("CC2340R52E0RGER")
     expect(
       circuit.some(
         (element: any) =>
-          element.type === "source_component" && element.name === "D1",
+          element.type === "source_component" && element.name === "Y1",
       ),
-    ).toBe(preset !== "without_led")
+    ).toBe(preset === "")
+    expect(
+      circuit.some(
+        (element: any) =>
+          element.type === "source_component" && element.name === "J4",
+      ),
+    ).toBe(preset !== "minimal")
+    expect(
+      circuit.filter((element: any) => element.type.endsWith("_error")),
+    ).toEqual([])
     expect(new URL(page.url()).searchParams.get("preview_file")).toBe(path)
 
     await page.getByRole("button", { name: "PCB", exact: true }).click()
@@ -91,15 +97,15 @@ test("ordinary package pages render all four cloud-built circuits after sharing 
     })
 
     await page.getByRole("button", { name: "Schematic", exact: true }).click()
-    const capSymbol = circuit.find(
+    const mcuSymbol = circuit.find(
       (element: any) =>
         element.type === "schematic_component" &&
-        element.source_component_id === timingCap.source_component_id,
+        element.source_component_id === mcu.source_component_id,
     )
     await expect(
       page
         .locator(
-          `[data-schematic-component-id="${capSymbol.schematic_component_id}"]`,
+          `[data-schematic-component-id="${mcuSymbol.schematic_component_id}"]`,
         )
         .first(),
     ).toBeVisible()
@@ -137,19 +143,25 @@ test("ordinary package pages render all four cloud-built circuits after sharing 
   }
 
   await page.reload()
-  await expect(picker(page)).toHaveText("4 Builds")
+  await expect(picker(page)).toHaveText("3 Builds")
   expect(new URL(page.url()).searchParams.get("preview_file")).toBe(
-    "dist/index/without_led/circuit.json",
+    "dist/index/minimal/circuit.json",
   )
   await expect(page.locator("canvas:visible").last()).toBeVisible()
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(picker(page)).toBeVisible()
   await picker(page).click()
   await expect(
-    page.getByRole("option", { name: "index/slow/circuit.json", exact: true }),
+    page.getByRole("option", {
+      name: "index/internal_lf_clock/circuit.json",
+      exact: true,
+    }),
   ).toBeVisible()
   await page
-    .getByRole("option", { name: "index/slow/circuit.json", exact: true })
+    .getByRole("option", {
+      name: "index/internal_lf_clock/circuit.json",
+      exact: true,
+    })
     .click()
   await expect(page.locator("canvas:visible").last()).toBeVisible()
   expect(

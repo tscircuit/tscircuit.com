@@ -26,7 +26,12 @@ const configurationLabel = (path?: string) => {
     .replace(/^index(?:\/|$)/, "")
   if (!label) return "Default"
   const words = label.replace(/[_/-]+/g, " ")
-  return words[0].toUpperCase() + words.slice(1).replace(/\bled\b/g, "LED")
+  return (
+    words[0].toUpperCase() +
+    words
+      .slice(1)
+      .replace(/\b(?:led|lf|rf|swd)\b/gi, (word) => word.toUpperCase())
+  )
 }
 
 export default function PreviewFileSelector({

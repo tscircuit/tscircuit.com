@@ -4,7 +4,7 @@
 export const datasheetReferenceDesignPackages: Readonly<
   Record<string, readonly string[]>
 > = {
-  NE555DR: ["ShiboSoftwareDev/ne555-timer-presets"],
+  CC2340R52E0RGER: ["ShiboSoftwareDev/cc2340r5-reference-design"],
 }
 
 const normalizeChipName = (name: string) =>
