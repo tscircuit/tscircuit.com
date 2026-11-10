@@ -8,12 +8,12 @@ test.skip(
 )
 const release =
   process.env.TSCIRCUIT_PARAMETER_RELEASE ||
-  "3c0e9272-49aa-486b-b269-1e4b0b218b40"
+  "e68c98ee-6946-4d75-9fba-e3ca545d412f"
 test("independent controls compose all 64 exact states offline and preserve the viewers", async ({
   page,
   context,
 }, info) => {
-  test.setTimeout(600_000)
+  test.setTimeout(900_000)
   await page.addInitScript(() =>
     localStorage.setItem("cadViewerAutoRotate", "false"),
   )
@@ -340,7 +340,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(panel).toBeVisible()
   await packagePage
     .getByRole("button", { name: "Parameters", exact: true })
-    .click()
+    .click({ timeout: 120_000 })
   const popup = packagePage.getByRole("complementary", {
     name: "Circuit parameters",
   })

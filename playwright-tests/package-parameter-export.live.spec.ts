@@ -12,7 +12,7 @@ test("a cold package link restores combined parameters and exports the exact cir
   test.setTimeout(180_000)
   const release =
     process.env.TSCIRCUIT_PARAMETER_RELEASE ||
-    "3c0e9272-49aa-486b-b269-1e4b0b218b40"
+    "e68c98ee-6946-4d75-9fba-e3ca545d412f"
   await page.goto("/")
   const path = await page.evaluate(async (release) => {
     const response = await fetch(
@@ -40,7 +40,9 @@ test("a cold package link restores combined parameters and exports the exact cir
   await page.goto(
     `/ShiboSoftwareDev/cc2340r5-reference-design?${query}#schematic`,
   )
-  await page.getByRole("button", { name: "Parameters", exact: true }).click()
+  await page
+    .getByRole("button", { name: "Parameters", exact: true })
+    .click({ timeout: 120_000 })
   const panel = page.getByRole("complementary", { name: "Circuit parameters" })
   await expect(panel.getByRole("switch", { name: "SWD header" })).toBeEnabled({
     timeout: 120_000,
