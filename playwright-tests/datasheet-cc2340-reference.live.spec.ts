@@ -156,19 +156,24 @@ test("CC2340 postbuild configurations render inline from their published package
   ).toBe(true)
   await region.screenshot({ path: testInfo.outputPath("mobile.png") })
   await page.setViewportSize({ width: 1440, height: 1000 })
+  const datasheetUrl = page.url()
+  const newTab = page.waitForEvent("popup")
   await region.getByRole("link", { name: "Open package", exact: true }).click()
-  await expect(page).toHaveURL(
+  const packagePage = await newTab
+  await expect(packagePage).toHaveURL(
     /\/ShiboSoftwareDev\/cc2340r5-reference-design\?.*#3d$/,
   )
-  expect(new URL(page.url()).searchParams.get("preview_file")).toBe(
+  expect(new URL(packagePage.url()).searchParams.get("preview_file")).toBe(
     "dist/index/minimal/circuit.json",
   )
-  expect(new URL(page.url()).searchParams.get("package_release_id")).toBe(
-    release,
-  )
-  await expect(page.getByRole("combobox", { name: "Preview file" })).toHaveText(
-    `${cc2340Configurations.length} Builds`,
-  )
-  await expect(page.locator("canvas:visible").last()).toBeVisible()
+  expect(
+    new URL(packagePage.url()).searchParams.get("package_release_id"),
+  ).toBe(release)
+  await expect(
+    packagePage.getByRole("combobox", { name: "Preview file" }),
+  ).toHaveText(`${cc2340Configurations.length} Builds`)
+  await expect(packagePage.locator("canvas:visible").last()).toBeVisible()
+  expect(page.url()).toBe(datasheetUrl)
+  await packagePage.close()
   expect(errors).toEqual([])
 })

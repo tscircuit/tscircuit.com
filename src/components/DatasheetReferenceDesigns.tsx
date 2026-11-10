@@ -1,7 +1,7 @@
 import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
-import { useEffect, useState } from "react"
-import { Link } from "wouter"
+import { useEffect, useReducer, useState } from "react"
+import { ExternalLink } from "lucide-react"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
@@ -14,6 +14,18 @@ import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
 import PreviewFileSelector from "@/components/ViewPackagePage/components/preview-file-selector"
 import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  readReferenceDesignSelection,
+  referenceDesignReducer,
+  referenceDesignUrlParams,
+  type ReferenceDesignSelection,
+} from "@/lib/reference-design-selection"
 
 function updateReferenceParams(values: Record<string, string | undefined>) {
   const url = new URL(window.location.href)
@@ -21,6 +33,7 @@ function updateReferenceParams(values: Record<string, string | undefined>) {
     if (value) url.searchParams.set(key, value)
     else url.searchParams.delete(key)
   }
+  if (url.href === window.location.href) return
   window.history.pushState({}, "", url)
   window.dispatchEvent(new Event("popstate"))
 }
@@ -34,12 +47,18 @@ const views = [
 function ReferenceDesignPreview({
   name,
   releaseId,
-}: { name: string; releaseId: string }) {
-  const params = useUrlParams()
+  selection,
+  onSelectionChange,
+}: {
+  name: string
+  releaseId: string
+  selection: ReferenceDesignSelection
+  onSelectionChange: (selection: ReferenceDesignSelection) => void
+}) {
   const parameters = usePackagePreviewParameters()
-  const view = views.some((item) => item.id === params.reference_view)
-    ? params.reference_view
-    : "3d"
+  const view = views.some((item) => item.id === selection.view)
+    ? selection.view!
+    : "schematic"
   const {
     packageRelease,
     error: releaseError,
@@ -70,10 +89,10 @@ function ReferenceDesignPreview({
     packageRelease && pkg && packageRelease.package_id !== pkg.package_id
 
   const changeView = (nextView: string) =>
-    updateReferenceParams({
-      reference_view: nextView,
-      reference_design: name,
-      reference_release: releaseId,
+    onSelectionChange({
+      ...selection,
+      view: nextView,
+      release: releaseId,
     })
   const showSchematicComponent = ({
     source_component_id,
@@ -91,38 +110,41 @@ function ReferenceDesignPreview({
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="min-w-0 break-words font-semibold">{packageName}</h3>
-        <Link
+        <div className="flex flex-wrap items-center gap-3">
+          {!parameters.manifest && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Configuration</span>
+              <PreviewFileSelector label="Configuration" />
+            </div>
+          )}
+          <div
+            className="flex gap-1 rounded-md bg-gray-100 p-1"
+            role="group"
+            aria-label="Reference design view"
+          >
+            {views.map((item) => (
+              <Button
+                key={item.id}
+                size="sm"
+                variant={view === item.id ? "outline" : "ghost"}
+                aria-pressed={view === item.id}
+                onClick={() => changeView(item.id)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <a
           href={href}
-          className="text-sm font-medium text-blue-600 hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open package in a new tab"
+          className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
         >
           Open package
-        </Link>
-      </div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        {!parameters.manifest && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Configuration</span>
-            <PreviewFileSelector label="Configuration" />
-          </div>
-        )}
-        <div
-          className="flex gap-1 rounded-md bg-gray-100 p-1"
-          role="group"
-          aria-label="Reference design view"
-        >
-          {views.map((item) => (
-            <Button
-              key={item.id}
-              size="sm"
-              variant={view === item.id ? "outline" : "ghost"}
-              aria-pressed={view === item.id}
-              onClick={() => changeView(item.id)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </div>
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+        </a>
       </div>
       <div
         className={
@@ -186,9 +208,16 @@ function ReferenceDesignPreview({
   )
 }
 
-function ReferenceDesignPackage({ name }: { name: string }) {
+function ReferenceDesignPackage({
+  name,
+  selection,
+  onSelectionChange,
+}: {
+  name: string
+  selection: ReferenceDesignSelection
+  onSelectionChange: (selection: ReferenceDesignSelection) => void
+}) {
   const { data: pkg, isLoading, error, refetch } = usePackageByName(name)
-  const params = useUrlParams()
   const [resolvedRelease, setResolvedRelease] = useState<string>()
   useEffect(() => {
     if (!resolvedRelease && pkg)
@@ -197,7 +226,7 @@ function ReferenceDesignPackage({ name }: { name: string }) {
       )
   }, [pkg, resolvedRelease])
   const releaseId =
-    params.reference_release ||
+    selection.release ||
     resolvedRelease ||
     pkg?.last_built_release_id ||
     pkg?.latest_package_release_id
@@ -229,68 +258,129 @@ function ReferenceDesignPackage({ name }: { name: string }) {
       value={{
         packageName: name,
         releaseId,
-        previewFilePath: params.reference_file,
-        schematicSheet: params.reference_sheet,
+        previewFilePath: selection.file,
+        schematicSheet: selection.sheet,
         selectSchematicSheet: (sheet) =>
-          updateReferenceParams({
-            reference_sheet: sheet,
-            reference_design: name,
-            reference_release: releaseId,
+          onSelectionChange({
+            ...selection,
+            sheet,
+            release: releaseId,
           }),
         selectFile: (path) =>
-          updateReferenceParams({
-            reference_file: path,
-            reference_design: name,
-            reference_release: releaseId,
+          onSelectionChange({
+            ...selection,
+            file: path,
+            release: releaseId,
           }),
       }}
     >
-      <ReferenceDesignPreview name={name} releaseId={releaseId} />
+      <ReferenceDesignPreview
+        name={name}
+        releaseId={releaseId}
+        selection={selection}
+        onSelectionChange={onSelectionChange}
+      />
     </PackagePreviewProvider>
   )
 }
 
 export function DatasheetReferenceDesigns({ chipName }: { chipName: string }) {
   const packages = getDatasheetReferenceDesignPackages(chipName)
-  const params = useUrlParams()
   if (packages.length === 0) return null
-  const name = packages.includes(params.reference_design)
+  return <ReferenceDesignList key={chipName} packages={packages} />
+}
+
+function ReferenceDesignList({ packages }: { packages: readonly string[] }) {
+  const params = useUrlParams()
+  const urlName = packages.includes(params.reference_design)
     ? params.reference_design
     : packages[0]
+  const [state, dispatch] = useReducer(referenceDesignReducer, {
+    open: urlName,
+    selections: { [urlName]: readReferenceDesignSelection(params) },
+  })
+  // Browser back/forward and shared links restore only the named design.
+  useEffect(() => {
+    dispatch({
+      type: "navigate",
+      name: urlName,
+      selection: readReferenceDesignSelection(params),
+    })
+  }, [
+    urlName,
+    params.reference_release,
+    params.reference_file,
+    params.reference_sheet,
+    params.reference_view,
+  ])
+  const selectDesign = (name: string) => {
+    dispatch({ type: "open", name })
+    if (name)
+      updateReferenceParams(
+        referenceDesignUrlParams(name, state.selections[name] ?? {}),
+      )
+  }
+  const changeSelection = (
+    name: string,
+    selection: ReferenceDesignSelection,
+  ) => {
+    dispatch({ type: "selection", name, selection })
+    updateReferenceParams(referenceDesignUrlParams(name, selection))
+  }
 
   return (
     <section
       id="reference-designs"
       aria-labelledby="reference-designs-heading"
-      className="mb-6 rounded-lg border bg-white p-4 shadow-sm md:p-6"
+      className="mb-6"
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h2 id="reference-designs-heading" className="text-xl font-semibold">
           Reference designs
         </h2>
-        {packages.length > 1 && (
-          <select
-            aria-label="Reference design"
-            value={name}
-            onChange={(event) =>
-              updateReferenceParams({
-                reference_design: event.target.value,
-                reference_file: undefined,
-                reference_release: undefined,
-                reference_sheet: undefined,
-              })
-            }
-            className="max-w-full rounded-md border p-2 text-sm"
-          >
-            {packages.map((packageName) => (
-              <option key={packageName} value={packageName}>
-                {packageName}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
-      <ReferenceDesignPackage key={`${chipName}:${name}`} name={name} />
+      <Accordion
+        type="single"
+        collapsible
+        value={state.open}
+        onValueChange={selectDesign}
+        className="space-y-3"
+      >
+        {packages.map((name) => (
+          <AccordionItem
+            key={name}
+            value={name}
+            className="rounded-lg border bg-white shadow-sm"
+          >
+            <AccordionTrigger
+              aria-label={name}
+              className="gap-3 rounded-lg px-4 text-left hover:no-underline md:px-6"
+            >
+              <span className="min-w-0">
+                <span className="block break-words text-base font-semibold">
+                  {name.split("/")[1]}
+                </span>
+                <span className="block text-xs font-normal text-gray-500">
+                  {name.split("/")[0]}
+                </span>
+              </span>
+            </AccordionTrigger>
+            {state.selections[name] && (
+              <div hidden={state.open !== name}>
+                <AccordionContent forceMount className="px-4 md:px-6">
+                  <ReferenceDesignPackage
+                    name={name}
+                    selection={state.selections[name]}
+                    onSelectionChange={(selection) =>
+                      changeSelection(name, selection)
+                    }
+                  />
+                </AccordionContent>
+              </div>
+            )}
+          </AccordionItem>
+        ))}
+      </Accordion>
     </section>
   )
 }

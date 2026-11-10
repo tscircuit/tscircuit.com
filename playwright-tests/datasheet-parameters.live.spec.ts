@@ -47,6 +47,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   })
   const list = page.waitForResponse(
     (r) => r.ok() && r.url().includes("/package_files/list?"),
+    { timeout: 60_000 },
   )
   await page.goto(
     `/datasheets/CC2340R52E0RGER?reference_release=${release}&reference_view=3d#reference-designs`,
@@ -72,6 +73,11 @@ test("independent controls compose all 64 exact states offline and preserve the 
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
   })
+  const design = region.getByRole("button", {
+    name: "ShiboSoftwareDev/cc2340r5-reference-design",
+    exact: true,
+  })
+  await expect(design).toHaveAttribute("aria-expanded", "true")
   await panel.scrollIntoViewIfNeeded()
   const lf = panel.getByRole("switch", { name: "External LF crystal" })
   const header = panel.getByRole("switch", { name: "SWD header" })
@@ -130,6 +136,17 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(displayValue("Supply voltage")).toHaveText("3.3 V")
   await expect(displayValue("Input bulk capacitor")).toHaveText("22 µF")
   await expect(displayValue("Reset pull-up")).toHaveText("10 kΩ")
+  const selectedUrl = page.url()
+  await design.click()
+  await expect(design).toHaveAttribute("aria-expanded", "false")
+  await expect(panel).not.toBeVisible()
+  await region.screenshot({
+    path: info.outputPath("collapsed-reference-design.png"),
+  })
+  await design.press("Enter")
+  await expect(design).toHaveAttribute("aria-expanded", "true")
+  await expect(panel).toBeVisible()
+  expect(page.url()).toBe(selectedUrl)
   await expect(
     region.locator('canvas[data-parameter-canvas="true"]'),
   ).toBeVisible()
@@ -298,9 +315,22 @@ test("independent controls compose all 64 exact states offline and preserve the 
   ).toBe(true)
   await region.screenshot({ path: info.outputPath("mobile-parameters.png") })
   await page.setViewportSize({ width: 1440, height: 1000 })
+  const datasheetUrl = page.url()
+  const newTab = page.waitForEvent("popup")
   await region.getByRole("link", { name: "Open package", exact: true }).click()
-  await page.getByRole("button", { name: "Parameters", exact: true }).click()
-  const popup = page.getByRole("complementary", { name: "Circuit parameters" })
+  const packagePage = await newTab
+  packagePage.on("pageerror", (e) => errors.push(e.message))
+  await expect(packagePage).toHaveURL(
+    /\/ShiboSoftwareDev\/cc2340r5-reference-design\?.*#3d$/,
+  )
+  expect(page.url()).toBe(datasheetUrl)
+  await expect(panel).toBeVisible()
+  await packagePage
+    .getByRole("button", { name: "Parameters", exact: true })
+    .click()
+  const popup = packagePage.getByRole("complementary", {
+    name: "Circuit parameters",
+  })
   await expect(popup.getByRole("switch", { name: "SWD header" })).toBeEnabled({
     timeout: 120_000,
   })
@@ -308,5 +338,17 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(
     popup.getByRole("switch", { name: "External LF crystal" }),
   ).toBeChecked()
+  await packagePage.close()
+  await page.goto(
+    `/datasheets/CC2340R52E0RGER?reference_release=${release}#reference-designs`,
+  )
+  await expect(design).toHaveAttribute("aria-expanded", "true")
+  await expect(
+    region.getByRole("button", { name: "Schematic", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true")
+  await expect(lf).toBeEnabled({ timeout: 120_000 })
+  await region.screenshot({
+    path: info.outputPath("default-reference-design.png"),
+  })
   expect(errors).toEqual([])
 })
