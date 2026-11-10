@@ -5,7 +5,7 @@ test("recovers a publication-time CDN miss without forwarding registry credentia
   const original = globalThis.fetch
   const calls: [string, RequestInit | undefined][] = []
   try {
-    globalThis.fetch = (async (url: any, init?: RequestInit) => {
+    globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
       calls.push([String(url), init])
       if (calls.length > 1) return new Response("artifact")
       const response = new Response("cached miss", { status: 404 })

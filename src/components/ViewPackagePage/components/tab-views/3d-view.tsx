@@ -1,19 +1,19 @@
-import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
-import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
-import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
-import { getPackageFileLookupParams } from "@/lib/package-model-assets"
-import { CadViewer } from "@tscircuit/3d-viewer"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
-import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Suspense, useCallback, useMemo, type ComponentProps } from "react"
-import type { AnyCircuitElement } from "circuit-json"
-import { useQuery } from "react-query"
+import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import {
-  findPackagePreviewGlb,
   downloadPackagePreviewGlb,
+  findPackagePreviewGlb,
 } from "@/lib/package-preview-glb"
+import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
+import { CadViewer } from "@tscircuit/3d-viewer"
+import type { AnyCircuitElement } from "circuit-json"
+import { type ComponentProps, Suspense, useCallback, useMemo } from "react"
+import { useQuery } from "react-query"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   const { author, packageName, version, releaseId } =

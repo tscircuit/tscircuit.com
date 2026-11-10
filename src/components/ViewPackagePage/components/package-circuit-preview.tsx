@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useState, type ComponentProps } from "react"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useQueryClient } from "react-query"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import {
-  findPackagePreviewGlb,
   downloadPackagePreviewGlb,
+  findPackagePreviewGlb,
 } from "@/lib/package-preview-glb"
 import type { SchematicViewerController } from "@tscircuit/schematic-viewer"
+import { type ComponentProps, useCallback, useEffect, useState } from "react"
+import { useQueryClient } from "react-query"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { KeepMountedView } from "./keep-mounted-view"
 import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
-import { KeepMountedView } from "./keep-mounted-view"
 
 export function PackageCircuitPreview({
   view,

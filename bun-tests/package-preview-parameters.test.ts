@@ -1,11 +1,11 @@
-import { expect, test } from "bun:test"
+import { expect, spyOn, test } from "bun:test"
+import { gzipSync } from "node:zlib"
 import {
-  parsePreviewParameterManifest,
+  downloadPreviewCircuitBundle,
   findParameterVariant,
   parameterStateKey,
-  downloadPreviewCircuitBundle,
+  parsePreviewParameterManifest,
 } from "@/lib/package-preview-parameters"
-import { gzipSync } from "node:zlib"
 const manifest = () => ({
   version: 1,
   parameters: [
@@ -44,7 +44,7 @@ const files = (m: ReturnType<typeof manifest>) =>
   ].map((file_path) => ({ file_path }))
 test("resolves exact combined parameters independently of property order", () => {
   const raw = manifest()
-  const m = parsePreviewParameterManifest(raw, files(raw))
+  const m = parsePreviewParameterManifest({ manifest: raw, files: files(raw) })
   expect(
     findParameterVariant(m, { resistor: "10k", header: false })
       ?.circuitJsonPath,
@@ -58,38 +58,40 @@ test("resolves exact combined parameters independently of property order", () =>
 })
 test("rejects invalid defaults, duplicate states, unsafe paths, and artifacts outside the release", () => {
   for (const change of [
-    (m: any) => {
+    (m: ReturnType<typeof manifest>) => {
       m.defaults.resistor = "47k"
     },
-    (m: any) => {
+    (m: ReturnType<typeof manifest>) => {
       m.variants[1] = m.variants[0]
     },
-    (m: any) => {
+    (m: ReturnType<typeof manifest>) => {
       m.bundlePath = "dist/../outside"
     },
-    (m: any) => {
-      m.parameters[1].options.reverse()
+    (m: ReturnType<typeof manifest>) => {
+      m.parameters[1].options!.reverse()
     },
-    (m: any) => {
+    (m: ReturnType<typeof manifest>) => {
       m.variants[0].glbPath = "dist/missing.glb"
     },
   ]) {
     const raw = manifest()
     const listed = files(raw)
     change(raw)
-    expect(() => parsePreviewParameterManifest(raw, listed)).toThrow()
+    expect(() =>
+      parsePreviewParameterManifest({ manifest: raw, files: listed }),
+    ).toThrow()
   }
 })
 test("loads a compressed circuit bundle and rejects incomplete combined states", async () => {
   const raw = manifest()
-  const m = parsePreviewParameterManifest(raw, files(raw))
+  const m = parsePreviewParameterManifest({ manifest: raw, files: files(raw) })
   const bundle = Object.fromEntries(
     m.variants.map((v) => [v.circuitJsonPath, [{ type: "pcb_board" }]]),
   )
-  const original = globalThis.fetch
+  const fetchArtifact = spyOn(globalThis, "fetch").mockResolvedValueOnce(
+    new Response(gzipSync(JSON.stringify(bundle))),
+  )
   try {
-    globalThis.fetch = (async () =>
-      new Response(gzipSync(JSON.stringify(bundle)))) as any
     const result = await downloadPreviewCircuitBundle({
       apiBaseUrl: "https://registry.test",
       packageFileId: "bundle",
@@ -97,6 +99,9 @@ test("loads a compressed circuit bundle and rejects incomplete combined states",
     })
     expect(Object.keys(result)).toHaveLength(4)
     delete bundle[m.variants[0].circuitJsonPath]
+    fetchArtifact.mockResolvedValueOnce(
+      new Response(gzipSync(JSON.stringify(bundle))),
+    )
     await expect(
       downloadPreviewCircuitBundle({
         apiBaseUrl: "https://registry.test",
@@ -105,7 +110,7 @@ test("loads a compressed circuit bundle and rejects incomplete combined states",
       }),
     ).rejects.toThrow("Invalid parameter circuit bundle")
   } finally {
-    globalThis.fetch = original
+    fetchArtifact.mockRestore()
   }
 })
 
@@ -137,30 +142,40 @@ test("v2 fetch contract derives all fields from the published schema without par
     "dist/3d.glb",
     ...raw.variants.map((v) => v.circuitJsonPath),
   ].map((file_path) => ({ file_path }))
-  const parsed = parsePreviewParameterManifest(raw, listed, schema)
+  const parsed = parsePreviewParameterManifest({
+    manifest: raw,
+    files: listed,
+    propsSchema: schema,
+  })
   expect(parsed.parameters.map((p) => [p.id, p.type])).toEqual([
     ["turbo", "boolean"],
     ["level", "number"],
   ])
   expect(parsed.defaults).toEqual({ turbo: false, level: 1, revision: "B" })
-  expect(() => parsePreviewParameterManifest(raw, listed)).toThrow(/schema/)
   expect(() =>
-    parsePreviewParameterManifest(
-      { ...raw, variants: raw.variants.slice(1) },
-      listed,
-      schema,
-    ),
+    parsePreviewParameterManifest({ manifest: raw, files: listed }),
+  ).toThrow(/schema/)
+  expect(() =>
+    parsePreviewParameterManifest({
+      manifest: { ...raw, variants: raw.variants.slice(1) },
+      files: listed,
+      propsSchema: schema,
+    }),
   ).toThrow(/combination/)
   expect(() =>
-    parsePreviewParameterManifest(
-      raw,
-      listed.filter((f) => f.file_path !== raw.propsSchemaPath),
-      schema,
-    ),
+    parsePreviewParameterManifest({
+      manifest: raw,
+      files: listed.filter((f) => f.file_path !== raw.propsSchemaPath),
+      propsSchema: schema,
+    }),
   ).toThrow(/artifacts/)
   const changed = structuredClone(raw)
   changed.variants[0].values.level = 9
-  expect(() => parsePreviewParameterManifest(changed, listed, schema)).toThrow(
-    /state/,
-  )
+  expect(() =>
+    parsePreviewParameterManifest({
+      manifest: changed,
+      files: listed,
+      propsSchema: schema,
+    }),
+  ).toThrow(/state/)
 })

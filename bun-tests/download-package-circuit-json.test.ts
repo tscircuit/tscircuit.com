@@ -1,8 +1,9 @@
 import { expect, test } from "bun:test"
+import type { AnyCircuitElement } from "circuit-json"
 import { downloadPackageCircuitJson } from "../src/lib/download-package-circuit-json"
 
 test("package downloads decode compressed boards and reject invalid circuit files", async () => {
-  const circuit = [
+  const circuit: AnyCircuitElement[] = [
     {
       type: "source_component",
       source_component_id: "processor",

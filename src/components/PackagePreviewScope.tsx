@@ -1,6 +1,6 @@
-import { createContext, useContext, type ReactNode } from "react"
-import { useParams } from "wouter"
 import { useUrlParams } from "@/hooks/use-url-params"
+import { type ReactNode, createContext, useContext } from "react"
+import { useParams } from "wouter"
 
 type PackagePreviewScope = {
   packageName: string

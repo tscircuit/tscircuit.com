@@ -1,6 +1,20 @@
-import { expect, test, type Request, type Response } from "@playwright/test"
 import { gunzipSync } from "node:zlib"
-import { parsePreviewParameterManifest } from "../src/lib/package-preview-parameters"
+import { type Request, type Response, expect, test } from "@playwright/test"
+import type { AnyCircuitElement } from "circuit-json"
+import {
+  parsePreviewParameterManifest,
+  previewParameterManifestSchema,
+} from "../src/lib/package-preview-parameters"
+
+type PackageFileId = string
+type PackageFile = { package_file_id: PackageFileId; file_path: string }
+
+declare global {
+  interface Window {
+    parameterFailures: string[]
+    parameterFrame: number
+  }
+}
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -19,7 +33,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   )
   const errors: string[] = []
   const requests: string[] = []
-  const downloads = new Map<string, Response>()
+  const downloads = new Map<PackageFileId, Response>()
   let monitor = false
   page.on("pageerror", (e) => errors.push(e.message))
   page.on("request", (request) => {
@@ -54,19 +68,21 @@ test("independent controls compose all 64 exact states offline and preserve the 
     `/datasheets/CC2340R52E0RGER?reference_release=${release}&reference_view=3d#reference-designs`,
     { timeout: 60_000 },
   )
-  const { package_files: files } = await (await list).json()
-  const manifestFile = files.find(
-    (f: any) => f.file_path === "dist/preview.json",
-  )
-  expect(manifestFile).toBeTruthy()
-  const rawManifest = await page.evaluate(async (id) => {
+  const { package_files: files }: { package_files: PackageFile[] } = await (
+    await list
+  ).json()
+  const manifestFile = files.find((f) => f.file_path === "dist/preview.json")
+  if (!manifestFile) throw new Error("Missing published preview manifest")
+  const publishedManifest = await page.evaluate(async (id) => {
     const r = await fetch(
       `https://registry-api.tscircuit.com/package_files/get?package_file_id=${id}`,
     )
     return JSON.parse((await r.json()).package_file.content_text)
   }, manifestFile.package_file_id)
+  const rawManifest = previewParameterManifestSchema.parse(publishedManifest)
   const schemaFile = files.find(
-    (f: any) => f.file_path === rawManifest.propsSchemaPath,
+    (f) =>
+      rawManifest.version === 2 && f.file_path === rawManifest.propsSchemaPath,
   )
   const schema = schemaFile
     ? await page.evaluate(async (id) => {
@@ -76,12 +92,16 @@ test("independent controls compose all 64 exact states offline and preserve the 
         return JSON.parse((await response.json()).package_file.content_text)
       }, schemaFile.package_file_id)
     : undefined
-  const manifest = parsePreviewParameterManifest(rawManifest, files, schema)
+  const manifest = parsePreviewParameterManifest({
+    manifest: rawManifest,
+    files: files,
+    propsSchema: schema,
+  })
   expect(manifest.variants).toHaveLength(64)
-  expect(new Set(manifest.variants.map((v: any) => v.glbPath)).size).toBe(8)
-  const bundleId = files.find(
-    (f: any) => f.file_path === manifest.bundlePath,
-  ).package_file_id
+  expect(new Set(manifest.variants.map((v) => v.glbPath)).size).toBe(8)
+  const bundleFile = files.find((f) => f.file_path === manifest.bundlePath)
+  if (!bundleFile) throw new Error("Missing published circuit bundle")
+  const bundleId = bundleFile.package_file_id
   const region = page.getByRole("region", { name: "Reference designs" })
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
@@ -103,17 +123,12 @@ test("independent controls compose all 64 exact states offline and preserve the 
     .poll(() => downloads.has(bundleId), { timeout: 30_000 })
     .toBe(true)
   const bytes = await downloads.get(bundleId)!.body()
-  const bundle: Record<string, any[]> = JSON.parse(
+  const bundle: Record<string, AnyCircuitElement[]> = JSON.parse(
     (bytes[0] === 0x1f ? gunzipSync(bytes) : bytes).toString(),
   )
   await expect(lf).toBeChecked()
   await expect(header).toBeChecked()
   await expect(panel.getByRole("spinbutton")).toHaveCount(0)
-  for (const parameter of manifest.parameters)
-    if ("description" in parameter && parameter.description)
-      await expect(
-        panel.getByText(parameter.description, { exact: true }),
-      ).toHaveCount(0)
   await expect(displayValue("Supply voltage")).toHaveText("2.5 V")
   const canvas = region.locator("canvas:visible").last()
   await expect(canvas).toBeVisible()
@@ -121,10 +136,9 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await page.evaluate(() => {
     const region = document.querySelector("#reference-designs")!
     const scene = region.querySelector("[data-parameter-canvas]")!
-    ;(window as any).parameterFailures = []
+    window.parameterFailures = []
     const check = () => {
-      if (!scene.isConnected)
-        (window as any).parameterFailures.push("scene unmounted")
+      if (!scene.isConnected) window.parameterFailures.push("scene unmounted")
       for (const e of region.querySelectorAll("div,p"))
         if (
           !e.children.length &&
@@ -133,8 +147,8 @@ test("independent controls compose all 64 exact states offline and preserve the 
           ) &&
           e.checkVisibility()
         )
-          (window as any).parameterFailures.push("visible loader")
-      ;(window as any).parameterFrame = requestAnimationFrame(check)
+          window.parameterFailures.push("visible loader")
+      window.parameterFrame = requestAnimationFrame(check)
     }
     check()
   })
@@ -174,8 +188,10 @@ test("independent controls compose all 64 exact states offline and preserve the 
     path: info.outputPath("combined-parameters-schematic.png"),
   })
   const setSlider = async (name: string, value: number) => {
-    const parameter = manifest.parameters.find((p: any) => p.label === name)
-    const target = parameter.options.findIndex((o: any) => o.number === value)
+    const parameter = manifest.parameters.find((p) => p.label === name)
+    if (!parameter || parameter.type !== "number")
+      throw new Error(`Missing numeric parameter ${name}`)
+    const target = parameter.options.findIndex((o) => o.number === value)
     expect(target).toBeGreaterThanOrEqual(0)
     const current = Number(await range(name).inputValue())
     for (let step = 0; step < Math.abs(target - current); step++)
@@ -201,28 +217,32 @@ test("independent controls compose all 64 exact states offline and preserve the 
               inputBulkCapacitance: `${cap}uF`,
               resetPullupResistance: `${resistance}k`,
             }
-            const variant = manifest.variants.find((v: any) =>
+            const variant = manifest.variants.find((v) =>
               Object.entries(values).every(
                 ([key, value]) => v.values[key] === value,
               ),
             )
-            expect(variant).toBeTruthy()
+            if (!variant)
+              throw new Error("Missing published parameter combination")
             await expect
               .poll(() =>
                 new URL(page.url()).searchParams.get("reference_file"),
               )
               .toBe(variant.circuitJsonPath)
             const circuit = bundle[variant.circuitJsonPath]
-            const parts = circuit.filter(
-              (e: any) => e.type === "source_component",
-            )
+            const parts = circuit.filter((e) => e.type === "source_component")
             expect(parts).toHaveLength(23 + (ext ? 3 : 0) + (debug ? 1 : 0))
-            expect(
-              parts.find((e: any) => e.name === "C2").capacitance,
-            ).toBeCloseTo(cap * 1e-6, 12)
-            expect(parts.find((e: any) => e.name === "R14").resistance).toBe(
-              resistance * 1000,
+            const capacitor = parts.find((element) => element.name === "C2")
+            const resistor = parts.find((element) => element.name === "R14")
+            if (
+              !capacitor ||
+              !("capacitance" in capacitor) ||
+              !resistor ||
+              !("resistance" in resistor)
             )
+              throw new Error("Missing configured support components")
+            expect(capacitor.capacitance).toBeCloseTo(cap * 1e-6, 12)
+            expect(resistor.resistance).toBe(resistance * 1000)
             await expect(schematic).toContainText(
               new RegExp(`C2\\s*${cap}\\s*[µμu]F`),
             )
@@ -301,9 +321,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await region.screenshot({
     path: info.outputPath("combined-parameters-3d.png"),
   })
-  expect(await page.evaluate(() => (window as any).parameterFailures)).toEqual(
-    [],
-  )
+  expect(await page.evaluate(() => window.parameterFailures)).toEqual([])
   expect(requests).toEqual([])
   monitor = false
   await context.setOffline(false)

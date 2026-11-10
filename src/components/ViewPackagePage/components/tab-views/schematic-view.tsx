@@ -1,17 +1,17 @@
-import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useUrlParams } from "@/hooks/use-url-params"
+import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 import {
   SchematicViewer,
   type SchematicViewerController,
 } from "@tscircuit/schematic-viewer"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { usePackageFiles } from "@/hooks/use-package-files"
-import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
-import { useUrlParams } from "@/hooks/use-url-params"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { type ComponentProps, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
-import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
-import { useMemo, useRef } from "react"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function SchematicView({
   controller,
@@ -140,7 +140,12 @@ export default function SchematicView({
           controller={controller}
           disableGroups
           clickToInteractEnabled
-          circuitJson={viewerCircuit!}
+          circuitJson={
+            // The viewer bundles an older Circuit JSON type definition.
+            viewerCircuit as ComponentProps<
+              typeof SchematicViewer
+            >["circuitJson"]
+          }
           containerStyle={{
             height: 620,
           }}

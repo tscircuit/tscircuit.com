@@ -1,7 +1,7 @@
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageById } from "./use-package-by-package-id"
 import { usePackageByName } from "./use-package-by-package-name"
-import type { Package } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageInfo = (): {
   packageInfo: Package | undefined

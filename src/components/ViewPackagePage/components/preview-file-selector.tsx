@@ -1,24 +1,6 @@
-import {
-  usePackagePreviewParameters,
-  usePreparedPackageParameters,
-} from "@/hooks/use-package-preview-parameters"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
-import { useState } from "react"
-import { useQueryClient } from "react-query"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useUrlParams } from "@/hooks/use-url-params"
-import {
-  downloadPackagePreviewGlb,
-  findPackagePreviewGlb,
-} from "@/lib/package-preview-glb"
-import { Check, ChevronDown } from "lucide-react"
+import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import {
   Command,
   CommandEmpty,
@@ -27,30 +9,34 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import {
+  usePackagePreviewParameters,
+  usePreparedPackageParameters,
+} from "@/hooks/use-package-preview-parameters"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useUrlParams } from "@/hooks/use-url-params"
+import {
+  downloadPackagePreviewGlb,
+  findPackagePreviewGlb,
+} from "@/lib/package-preview-glb"
 import { normalizePreviewPath } from "@/lib/preview-circuit-files"
+import { Check, ChevronDown } from "lucide-react"
+import { useState } from "react"
+import { useQueryClient } from "react-query"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
 
-const configurationLabel = (path?: string) => {
-  if (!path) return "Default"
-  const label = path
-    .replace(/^dist\//, "")
+const configurationLabel = (path?: string) =>
+  path
+    ?.replace(/^dist\//, "")
     .replace(/\/circuit\.json(?:\.gz)?$/, "")
     .replace(/^index(?:\/|$)/, "")
-  if (!label) return "Default"
-  const words = label
-    .replace(/(\d)v(\d)/gi, "$1.$2 V")
-    .replace(/(\d+)uf\b/gi, "$1 µF")
-    .replace(/(\d+)k\b/gi, "$1 kΩ")
-    .replace(/[_/-]+/g, " ")
-    .replace(/\bpullup\b/gi, "pull-up")
-  return (
-    words[0].toUpperCase() +
-    words
-      .slice(1)
-      .replace(/\b(?:led|lf|rf|swd)\b/gi, (word) => word.toUpperCase())
-  )
-}
+    .replace(/[_/-]+/g, " ") || "Default"
 
 function PreviewBuildSelector({ label }: { label?: string } = {}) {
   const [open, setOpen] = useState(false)

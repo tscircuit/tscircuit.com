@@ -1,8 +1,5 @@
 import { expect, test } from "bun:test"
-import {
-  derivePackageParameters,
-  enumeratePackageStates,
-} from "@/lib/package-props-schema"
+import { derivePackageParameters } from "@/lib/package-props-schema"
 
 const unrelatedSchema = () => ({
   type: "object",
@@ -14,8 +11,8 @@ const unrelatedSchema = () => ({
     revision: { const: "A" },
   },
 })
-test("schema alone creates controls, defaults and the Cartesian set for unrelated property names", () => {
-  const result = enumeratePackageStates(unrelatedSchema())
+test("schema alone creates controls and defaults for unrelated property names", () => {
+  const result = derivePackageParameters(unrelatedSchema())
   expect(result.parameters.map((p) => [p.id, p.type])).toEqual([
     ["enableTelemetry", "boolean"],
     ["gain", "number"],
@@ -29,7 +26,13 @@ test("schema alone creates controls, defaults and the Cartesian set for unrelate
     mode: "eco",
     revision: "A",
   })
-  expect(result.states).toHaveLength(40)
+  expect(result.domains).toEqual({
+    enableTelemetry: [false, true],
+    gain: [-2, -1, 0, 1, 2],
+    clockRate: ["8MHz", "16MHz"],
+    mode: ["eco", "turbo"],
+    revision: ["A"],
+  })
   expect(result.parameters[2]).toMatchObject({
     unit: "MHz",
     options: [
@@ -46,8 +49,8 @@ test("schema alone creates controls, defaults and the Cartesian set for unrelate
       "x-unit": "A",
     },
   })
-  const changed = enumeratePackageStates(schema)
-  expect(changed.states).toHaveLength(80)
+  const changed = derivePackageParameters(schema)
+  expect(changed.domains.ledCurrent).toEqual([0.005, 0.01])
   expect(changed.parameters.at(-1)).toMatchObject({
     id: "ledCurrent",
     type: "number",
@@ -103,9 +106,6 @@ test("rejects incomplete, contradictory, recursive and unbounded domains instead
     expect(() =>
       derivePackageParameters({ type: "object", properties: { x: property } }),
     ).toThrow()
-  expect(() => enumeratePackageStates(unrelatedSchema(), 16)).toThrow(
-    /combinations/,
-  )
   expect(() =>
     derivePackageParameters({ ...unrelatedSchema(), allOf: [] }),
   ).toThrow(/Conditional/)

@@ -1,34 +1,34 @@
-import { useState, useEffect, useMemo, useCallback } from "react"
-import MainContentHeader from "./main-content-header"
-import Sidebar from "./sidebar"
-import MobileSidebar from "./mobile-sidebar"
-import ImportantFilesView from "./important-files-view"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import ImportantFilesView from "./important-files-view"
+import MainContentHeader from "./main-content-header"
+import MobileSidebar from "./mobile-sidebar"
+import Sidebar from "./sidebar"
 
-// Tab Views
-import FilesView from "./tab-views/files-view"
-import { PackageCircuitPreview } from "./package-circuit-preview"
-import SystemView from "./tab-views/system-view"
-import BOMView from "./tab-views/bom-view"
-import PackageFileView from "./tab-views/package-file-view"
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
+import type {
+  PackageFile as ApiPackageFile,
+  Package,
+  PublicPackageRelease,
+} from "fake-snippets-api/lib/db/schema"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import {
   isPackageFileImportant,
   scorePackageFileImportance,
 } from "../utils/is-package-file-important"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
+import { PackageCircuitPreview } from "./package-circuit-preview"
 import PackageHeader from "./package-header"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import type {
-  Package,
-  PackageFile as ApiPackageFile,
-  PublicPackageRelease,
-} from "fake-snippets-api/lib/db/schema"
-import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
-import SidebarReleasesSection from "./sidebar-releases-section"
 import { RelatedPackagesSection } from "./related-packages-section"
+import SidebarReleasesSection from "./sidebar-releases-section"
+import BOMView from "./tab-views/bom-view"
+// Tab Views
+import FilesView from "./tab-views/files-view"
+import PackageFileView from "./tab-views/package-file-view"
+import SystemView from "./tab-views/system-view"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
@@ -279,7 +279,7 @@ export default function RepoPageContent({
         element.type === "schematic_component" &&
         element.source_component_id === source_component_id,
     )
-    if (!component) return
+    if (!component || component.type !== "schematic_component") return
     focusSchematicComponent(component.schematic_component_id)
     handleViewChange("schematic")
   }

@@ -1,16 +1,16 @@
-import { useQuery, useQueryClient } from "react-query"
-import { useCurrentPackageRelease } from "./use-current-package-release"
-import { usePackageFiles } from "./use-package-files"
-import { useAxios } from "./use-axios"
-import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { useGlobalStore } from "./use-global-store"
+import { downloadPackagePreviewGlb } from "@/lib/package-preview-glb"
 import {
+  type PreviewParameterManifest,
   downloadPreviewCircuitBundle,
   parsePreviewParameterManifest,
   previewParameterManifestSchema,
-  type PreviewParameterManifest,
 } from "@/lib/package-preview-parameters"
-import { downloadPackagePreviewGlb } from "@/lib/package-preview-glb"
+import { useQuery, useQueryClient } from "react-query"
+import { useAxios } from "./use-axios"
+import { useCurrentPackageRelease } from "./use-current-package-release"
+import { useGlobalStore } from "./use-global-store"
+import { usePackageFiles } from "./use-package-files"
+import { useApiBaseUrl } from "./use-packages-base-api-url"
 
 export function usePackagePreviewParameters() {
   const { packageRelease } = useCurrentPackageRelease({ refetchOnMount: false })
@@ -47,7 +47,11 @@ export function usePackagePreviewParameters() {
         })
         schema = JSON.parse(data.package_file.content_text)
       }
-      return parsePreviewParameterManifest(manifest, files!, schema)
+      return parsePreviewParameterManifest({
+        manifest,
+        files: files!,
+        propsSchema: schema,
+      })
     },
     {
       enabled: Boolean(file),

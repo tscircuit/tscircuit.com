@@ -1,17 +1,10 @@
-import ReactMarkdown from "react-markdown"
-import { Link, useParams } from "wouter"
-import { useDatasheet } from "@/hooks/use-datasheet"
-import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { DatasheetPinTable } from "@/components/DatasheetPinTable"
-import { DatasheetViews } from "@/components/DatasheetViews"
 import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
-import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
+import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { DatasheetReferenceDesigns } from "@/components/DatasheetReferenceDesigns"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
+import { DatasheetViews } from "@/components/DatasheetViews"
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,7 +13,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Loader2, AlertCircle, FileText, Copy } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
+import { useDatasheet } from "@/hooks/use-datasheet"
+import { AlertCircle, Copy, FileText, Loader2 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import { Link, useParams } from "wouter"
 
 const SectionCard = ({
   title,

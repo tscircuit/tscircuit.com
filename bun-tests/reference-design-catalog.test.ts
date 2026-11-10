@@ -6,7 +6,10 @@ import {
 
 test("adding names discovers parts from builds without a chip association table", async () => {
   const calls: string[] = []
-  const get = async (path: string, { params }: any) => {
+  const get = async (
+    path: string,
+    { params }: { params: Record<string, string> },
+  ) => {
     calls.push(path)
     if (path === "/packages/get")
       return { data: { package: { last_built_release_id: params.name } } }
@@ -58,13 +61,25 @@ test("adding names discovers parts from builds without a chip association table"
   const { entries, failed } = await loadReferenceDesignCatalog(names, get)
   expect(failed).toEqual([])
   expect(
-    referenceDesignsForPart(entries, names, "totally-different-123"),
+    referenceDesignsForPart({
+      entries: entries,
+      names: names,
+      chipName: "totally-different-123",
+    }),
   ).toEqual(["maker/parametric"])
-  expect(referenceDesignsForPart(entries, names, "OTHER456")).toEqual([
-    "maker/static",
-  ])
   expect(
-    referenceDesignsForPart(entries, names, "TOTALLYDIFFERENT123"),
+    referenceDesignsForPart({
+      entries: entries,
+      names: names,
+      chipName: "OTHER456",
+    }),
+  ).toEqual(["maker/static"])
+  expect(
+    referenceDesignsForPart({
+      entries: entries,
+      names: names,
+      chipName: "TOTALLYDIFFERENT123",
+    }),
   ).toEqual([])
   expect(
     calls.filter(
@@ -82,7 +97,10 @@ test("a failed package does not hide other packages, ordering follows the name l
     "maker/three",
     "maker/four",
   ]
-  const get = async (path: string, { params }: any) => {
+  const get = async (
+    path: string,
+    { params }: { params: Record<string, string> },
+  ) => {
     active++
     maximum = Math.max(active, maximum)
     await new Promise((resolve) => setTimeout(resolve, 2))
@@ -103,8 +121,12 @@ test("a failed package does not hide other packages, ordering follows the name l
   }
   const { entries, failed } = await loadReferenceDesignCatalog(names, get)
   expect(failed).toEqual(["maker/broken"])
-  expect(referenceDesignsForPart(entries, names, "NEW789")).toEqual(
-    names.filter((name) => !name.endsWith("broken")),
-  )
+  expect(
+    referenceDesignsForPart({
+      entries: entries,
+      names: names,
+      chipName: "NEW789",
+    }),
+  ).toEqual(names.filter((name) => !name.endsWith("broken")))
   expect(maximum).toBeLessThanOrEqual(3)
 })

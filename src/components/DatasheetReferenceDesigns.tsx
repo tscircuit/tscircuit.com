@@ -1,32 +1,32 @@
-import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
-import { useEffect, useReducer, useState } from "react"
-import { ExternalLink } from "lucide-react"
-import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
-import { usePackageByName } from "@/hooks/use-package-by-package-name"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { usePackageFiles } from "@/hooks/use-package-files"
-import { useUrlParams } from "@/hooks/use-url-params"
-import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
-import { getPackageRootUrl } from "@/lib/package-file-routes"
 import { PackagePreviewProvider } from "@/components/PackagePreviewScope"
-import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
 import PreviewFileSelector from "@/components/ViewPackagePage/components/preview-file-selector"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
+import { usePackageByName } from "@/hooks/use-package-by-package-name"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { useUrlParams } from "@/hooks/use-url-params"
+import { getPackageRootUrl } from "@/lib/package-file-routes"
 import {
+  type ReferenceDesignSelection,
   readReferenceDesignSelection,
   referenceDesignReducer,
   referenceDesignUrlParams,
-  type ReferenceDesignSelection,
 } from "@/lib/reference-design-selection"
+import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
+import { ExternalLink } from "lucide-react"
+import { useEffect, useReducer, useState } from "react"
 
 function updateReferenceParams(values: Record<string, string | undefined>) {
   const url = new URL(window.location.href)
@@ -77,6 +77,7 @@ function ReferenceDesignPreview({
     isLoading,
     error: circuitError,
     previewFilePath,
+    previewFiles,
     refetch,
   } = useCurrentPackageCircuitJson()
   const { controller, focusSchematicComponent } = useSchematicViewerController()
@@ -103,7 +104,7 @@ function ReferenceDesignPreview({
         element.type === "schematic_component" &&
         element.source_component_id === source_component_id,
     )
-    if (!component) return
+    if (!component || component.type !== "schematic_component") return
     focusSchematicComponent(component.schematic_component_id)
     changeView("schematic")
   }
@@ -112,7 +113,7 @@ function ReferenceDesignPreview({
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          {!parameters.manifest && (
+          {!parameters.manifest && previewFiles.length > 1 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Configuration</span>
               <PreviewFileSelector label="Configuration" />

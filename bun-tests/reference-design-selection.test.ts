@@ -1,9 +1,9 @@
 import { expect, test } from "bun:test"
 import {
+  type ReferenceDesignState,
   readReferenceDesignSelection,
   referenceDesignReducer,
   referenceDesignUrlParams,
-  type ReferenceDesignState,
 } from "@/lib/reference-design-selection"
 
 test("switching and collapsing designs retain independent release, configuration, sheet and view", () => {

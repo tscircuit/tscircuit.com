@@ -1,7 +1,7 @@
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
+import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 import { useCurrentPackageId } from "./use-current-package-id"
 import { usePackageRelease } from "./use-package-release"
-import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageRelease = (options?: {
   refetchOnMount?: boolean

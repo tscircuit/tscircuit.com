@@ -40,42 +40,62 @@ const own = (value: object, key: string) =>
 const fail = (id: string, message: string): never => {
   throw new Error(`Parameter ${id}: ${message}`)
 }
-const resolve = (
-  root: PackagePropsSchema,
-  input: PackagePropsSchema,
+const resolveSchema = ({
+  rootSchema,
+  schema,
   seen = new Set<string>(),
-): PackagePropsSchema => {
-  if (!input || typeof input !== "object" || Array.isArray(input))
+}: {
+  rootSchema: PackagePropsSchema
+  schema: PackagePropsSchema
+  seen?: Set<string>
+}): PackagePropsSchema => {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema))
     throw new Error("Invalid package props schema")
-  if (!input.$ref) return input
-  const ref = input.$ref
+  if (!schema.$ref) return schema
+  const ref = schema.$ref
   if (!ref.startsWith("#/") || seen.has(ref))
     throw new Error("Only nonrecursive local schema references are supported")
   seen.add(ref)
-  let target: any = root
+  let target: unknown = rootSchema
   for (const part of ref.slice(2).split("/")) {
     const key = part.replace(/~1/g, "/").replace(/~0/g, "~")
-    if (!target || !own(target, key))
+    if (
+      !target ||
+      typeof target !== "object" ||
+      Array.isArray(target) ||
+      !own(target, key)
+    )
       throw new Error(`Missing schema reference ${ref}`)
-    target = target[key]
+    target = (target as Record<string, unknown>)[key]
   }
-  const { $ref: _, ...annotations } = input
-  return { ...resolve(root, target, seen), ...annotations }
+  const { $ref: _, ...annotations } = schema
+  return {
+    ...resolveSchema({
+      rootSchema,
+      schema: target as PackagePropsSchema,
+      seen,
+    }),
+    ...annotations,
+  }
 }
 
-function domain(
-  root: PackagePropsSchema,
-  input: PackagePropsSchema,
-  id: string,
-): ParameterValue[] {
-  const field = resolve(root, input)
+function getSupportedPropChoices({
+  rootSchema,
+  propertySchema,
+  propertyName,
+}: {
+  rootSchema: PackagePropsSchema
+  propertySchema: PackagePropsSchema
+  propertyName: string
+}): ParameterValue[] {
+  const field = resolveSchema({ rootSchema, schema: propertySchema })
   if (
     ["allOf", "if", "then", "else", "not", "dependentSchemas"].some((key) =>
       own(field, key),
     )
   )
     return fail(
-      id,
+      propertyName,
       "conditional domains are not supported by prebuilt previews",
     )
   let values: unknown[]
@@ -84,7 +104,11 @@ function domain(
   else if (field.enum) values = [...field.enum]
   else if (field.anyOf || field.oneOf)
     values = (field.anyOf ?? field.oneOf)!.flatMap((option) =>
-      domain(root, option, id),
+      getSupportedPropChoices({
+        rootSchema,
+        propertySchema: option,
+        propertyName,
+      }),
     )
   else if (field.type === "boolean") values = [false, true]
   else if (field.type === "number" || field.type === "integer") {
@@ -99,14 +123,14 @@ function domain(
       step <= 0
     )
       return fail(
-        id,
+        propertyName,
         "declare enum values, or finite bounds and multipleOf (step)",
       )
     const epsilon = Math.abs(step) * 1e-9
     const start = Math.ceil((minimum! - epsilon) / step) * step
     const count = Math.floor((maximum! - start + epsilon) / step) + 1
     if (count < 1 || count > 128)
-      return fail(id, "the supported range must contain 1–128 steps")
+      return fail(propertyName, "the supported range must contain 1–128 steps")
     values = Array.from({ length: count }, (_, index) =>
       Number((start + index * step).toPrecision(14)),
     ).filter(
@@ -118,9 +142,12 @@ function domain(
           value < field.exclusiveMaximum - epsilon),
     )
   } else
-    return fail(id, "declare a finite boolean, enum, or bounded numeric domain")
+    return fail(
+      propertyName,
+      "declare a finite boolean, enum, or bounded numeric domain",
+    )
   if (!values.length || values.length > 128 || !values.every(scalar))
-    return fail(id, "supported choices must be finite scalar values")
+    return fail(propertyName, "supported choices must be finite scalar values")
   for (const value of values) {
     const types = Array.isArray(field.type)
       ? field.type
@@ -137,7 +164,7 @@ function domain(
             Number.isInteger(value)),
       )
     )
-      return fail(id, "a choice does not match the declared type")
+      return fail(propertyName, "a choice does not match the declared type")
     if (
       typeof value === "number" &&
       ((field.minimum !== undefined && value < field.minimum) ||
@@ -151,10 +178,11 @@ function domain(
             value / field.multipleOf - Math.round(value / field.multipleOf),
           ) > 1e-8))
     )
-      return fail(id, "a choice violates the numeric bounds")
+      return fail(propertyName, "a choice violates the numeric bounds")
   }
   const unique = [...new Set(values as ParameterValue[])]
-  if (unique.length !== values.length) return fail(id, "duplicate choices")
+  if (unique.length !== values.length)
+    return fail(propertyName, "duplicate choices")
   return unique
 }
 
@@ -219,7 +247,7 @@ const humanize = (id: string) => {
 }
 
 export function derivePackageParameters(schema: PackagePropsSchema) {
-  const root = resolve(schema, schema)
+  const root = resolveSchema({ rootSchema: schema, schema })
   if (root.type !== "object" || !root.properties)
     throw new Error("Package props schema must describe an object")
   if (
@@ -247,8 +275,12 @@ export function derivePackageParameters(schema: PackagePropsSchema) {
   for (const [id, input] of entries) {
     if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(id))
       return fail(id, "unsupported property name")
-    const field = resolve(schema, input)
-    const values = domain(schema, field, id)
+    const field = resolveSchema({ rootSchema: schema, schema: input })
+    const values = getSupportedPropChoices({
+      rootSchema: schema,
+      propertySchema: field,
+      propertyName: id,
+    })
     const rootDefault = root.default as Record<string, unknown> | undefined
     const defaultValue = own(field, "default")
       ? field.default
@@ -318,23 +350,4 @@ export function derivePackageParameters(schema: PackagePropsSchema) {
     }
   }
   return { parameters, defaults, domains }
-}
-
-/** Enumerate exact supported states without a package-specific field list. */
-export function enumeratePackageStates(
-  schema: PackagePropsSchema,
-  maxStates = 256,
-) {
-  const definition = derivePackageParameters(schema)
-  let states: Record<string, ParameterValue>[] = [{}]
-  for (const [id, values] of Object.entries(definition.domains)) {
-    if (states.length * values.length > maxStates)
-      throw new Error(
-        `Package preview exceeds ${maxStates} combinations; narrow the schema's supported domain`,
-      )
-    states = states.flatMap((state) =>
-      values.map((value) => ({ ...state, [id]: value })),
-    )
-  }
-  return { ...definition, states }
 }

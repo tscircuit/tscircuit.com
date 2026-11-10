@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react"
 import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
+import { getPackagePcbRenderer } from "@/lib/get-package-pcb-renderer"
+import type { ComponentProps } from "react"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function PCBView({
@@ -9,7 +10,8 @@ export default function PCBView({
     typeof PcbViewerWithContainerHeight
   >["onViewSchematicComponent"]
 }) {
-  const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
+  const { circuitJson, packageFiles, isLoading, error } =
+    useCurrentPackageCircuitJson()
 
   if (isLoading) {
     return (
@@ -32,11 +34,20 @@ export default function PCBView({
   return (
     <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
       <PcbViewerWithContainerHeight
-        // Published previews must work without an available WebGPU adapter.
-        renderer="canvas"
+        // Parameter previews keep the same backend across prepared configurations.
+        renderer={
+          packageFiles?.some((file) => file.file_path === "dist/preview.json")
+            ? "canvas"
+            : getPackagePcbRenderer(circuitJson)
+        }
         disablePcbGroups
         clickToInteractEnabled
-        circuitJson={circuitJson}
+        circuitJson={
+          // The viewer bundles an older Circuit JSON type definition.
+          circuitJson as ComponentProps<
+            typeof PcbViewerWithContainerHeight
+          >["circuitJson"]
+        }
         onViewSchematicComponent={onViewSchematicComponent}
         containerClassName="w-full h-[620px]"
       />

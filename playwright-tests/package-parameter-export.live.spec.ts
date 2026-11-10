@@ -1,5 +1,7 @@
-import { expect, test } from "@playwright/test"
 import { readFile } from "node:fs/promises"
+import { expect, test } from "@playwright/test"
+import type { AnyCircuitElement } from "circuit-json"
+import type { PreviewParameterManifest } from "../src/lib/package-preview-parameters"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -18,11 +20,11 @@ test("a cold package link restores combined parameters and exports the exact cir
     const response = await fetch(
       `https://registry-api.tscircuit.com/package_files/get?package_release_id=${release}&file_path=dist%2Fpreview.json`,
     )
-    const manifest = JSON.parse(
+    const manifest: PreviewParameterManifest = JSON.parse(
       (await response.json()).package_file.content_text,
     )
     const selected = manifest.variants.find(
-      (v: any) =>
+      (v) =>
         v.values.externalLfCrystal === false &&
         v.values.debugHeader === false &&
         v.values.supplyVoltage === 3.3 &&
@@ -31,7 +33,7 @@ test("a cold package link restores combined parameters and exports the exact cir
     )
     if (!selected)
       throw new Error("The build is missing the requested combined state")
-    return selected.circuitJsonPath as string
+    return selected.circuitJsonPath
   }, release)
   const query = new URLSearchParams({
     package_release_id: release,
@@ -74,14 +76,25 @@ test("a cold package link restores combined parameters and exports the exact cir
   const download = await pending
   const output = info.outputPath("combined-circuit.json")
   await download.saveAs(output)
-  const circuit = JSON.parse(await readFile(output, "utf8"))
-  const parts = circuit.filter((e: any) => e.type === "source_component")
+  const circuit: AnyCircuitElement[] = JSON.parse(
+    await readFile(output, "utf8"),
+  )
+  const parts = circuit.filter((e) => e.type === "source_component")
   expect(parts).toHaveLength(23)
-  expect(parts.find((e: any) => e.name === "C2").capacitance).toBe(22e-6)
-  expect(parts.find((e: any) => e.name === "R14").resistance).toBe(10e3)
-  expect(
-    parts.some((e: any) => ["Y1", "C14", "C15", "J4"].includes(e.name)),
-  ).toBe(false)
-  expect(circuit.filter((e: any) => e.type.endsWith("_error"))).toEqual([])
+  const capacitor = parts.find((element) => element.name === "C2")
+  const resistor = parts.find((element) => element.name === "R14")
+  if (
+    !capacitor ||
+    !("capacitance" in capacitor) ||
+    !resistor ||
+    !("resistance" in resistor)
+  )
+    throw new Error("Missing configured support components")
+  expect(capacitor.capacitance).toBe(22e-6)
+  expect(resistor.resistance).toBe(10e3)
+  expect(parts.some((e) => ["Y1", "C14", "C15", "J4"].includes(e.name))).toBe(
+    false,
+  )
+  expect(circuit.filter((e) => e.type.endsWith("_error"))).toEqual([])
   expect(JSON.stringify(circuit)).toContain("3.3 V supply")
 })

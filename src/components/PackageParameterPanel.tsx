@@ -1,14 +1,14 @@
-import { useState } from "react"
-import { useCurrentPackageCircuitJson } from "./ViewPackagePage/hooks/use-current-package-circuit-json"
-import { usePackagePreviewScope } from "./PackagePreviewScope"
 import { usePreparedPackageParameters } from "@/hooks/use-package-preview-parameters"
 import {
+  type PreviewParameterManifest,
   findParameterVariant,
   findParameterVariantByPath,
-  type PreviewParameterManifest,
 } from "@/lib/package-preview-parameters"
-import { Switch } from "./ui/switch"
+import { useState } from "react"
+import { usePackagePreviewScope } from "./PackagePreviewScope"
+import { useCurrentPackageCircuitJson } from "./ViewPackagePage/hooks/use-current-package-circuit-json"
 import { Button } from "./ui/button"
+import { Switch } from "./ui/switch"
 
 export function PackageParameterPanel({
   manifest,

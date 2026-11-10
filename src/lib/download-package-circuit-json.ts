@@ -1,3 +1,4 @@
+import type { AnyCircuitElement } from "circuit-json"
 import { fetchPackageArtifact } from "./fetch-package-artifact"
 
 /** Read ordinary package JSON files, including compressed large-board artifacts. */
@@ -11,7 +12,7 @@ export async function downloadPackageCircuitJson({
   packageFileId: string
   token?: string
   signal?: AbortSignal
-}): Promise<any[]> {
+}): Promise<AnyCircuitElement[]> {
   const response = await fetchPackageArtifact({
     apiBaseUrl,
     packageFileId,

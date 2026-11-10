@@ -1,46 +1,61 @@
+import type { AnyCircuitElement } from "circuit-json"
 import { z } from "zod"
 import { fetchPackageArtifact } from "./fetch-package-artifact"
 import {
-  derivePackageParameters,
   type PackagePropsSchema,
+  derivePackageParameters,
 } from "./package-props-schema"
 
-const value = z.union([z.boolean(), z.string().max(128), z.number().finite()])
-const path = z.string().regex(/^dist\/(?!.*(?:\.\.|\\|:\/\/))[^?#]+$/)
-const common = {
+const parameterValueSchema = z.union([
+  z.boolean(),
+  z.string().max(128),
+  z.number().finite(),
+])
+const artifactPathSchema = z
+  .string()
+  .regex(/^dist\/(?!.*(?:\.\.|\\|:\/\/))[^?#]+$/)
+const parameterIdentityFields = {
   id: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
   label: z.string().min(1).max(120),
 }
-const parameter = z.discriminatedUnion("type", [
-  z.object({ ...common, type: z.literal("boolean"), default: z.boolean() }),
+const parameterControlSchema = z.discriminatedUnion("type", [
   z.object({
-    ...common,
+    ...parameterIdentityFields,
+    type: z.literal("boolean"),
+    default: z.boolean(),
+  }),
+  z.object({
+    ...parameterIdentityFields,
     type: z.literal("number"),
-    default: value,
+    default: parameterValueSchema,
     unit: z.string().max(32),
     options: z
-      .array(z.object({ value, number: z.number().finite() }))
+      .array(
+        z.object({ value: parameterValueSchema, number: z.number().finite() }),
+      )
       .min(2)
       .max(128),
   }),
   z.object({
-    ...common,
+    ...parameterIdentityFields,
     type: z.literal("enum"),
-    default: value,
+    default: parameterValueSchema,
     options: z
-      .array(z.object({ value, label: z.string().max(128) }))
+      .array(
+        z.object({ value: parameterValueSchema, label: z.string().max(128) }),
+      )
       .min(2)
       .max(128),
   }),
 ])
-const artifacts = {
-  bundlePath: path,
+const previewArtifactFields = {
+  bundlePath: artifactPathSchema,
   variants: z
     .array(
       z.object({
-        values: z.record(value),
-        circuitJsonPath: path,
-        glbPath: path,
+        values: z.record(parameterValueSchema),
+        circuitJsonPath: artifactPathSchema,
+        glbPath: artifactPathSchema,
       }),
     )
     .min(1)
@@ -49,23 +64,23 @@ const artifacts = {
 export const previewParameterManifestSchema = z.discriminatedUnion("version", [
   z.object({
     version: z.literal(1),
-    parameters: z.array(parameter).min(1).max(16),
-    defaults: z.record(value),
-    ...artifacts,
+    parameters: z.array(parameterControlSchema).min(1).max(16),
+    defaults: z.record(parameterValueSchema),
+    ...previewArtifactFields,
   }),
   z.object({
     version: z.literal(2),
-    propsSchemaPath: path,
+    propsSchemaPath: artifactPathSchema,
     componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
-    ...artifacts,
+    ...previewArtifactFields,
   }),
 ])
 export type PreviewParameterManifest = {
   version: 1 | 2
-  parameters: z.infer<typeof parameter>[]
+  parameters: z.infer<typeof parameterControlSchema>[]
   defaults: Record<string, boolean | number | string>
   bundlePath: string
-  variants: z.infer<typeof artifacts.variants>
+  variants: z.infer<typeof previewArtifactFields.variants>
   propsSchemaPath?: string
   componentPartNumbers?: string[]
 }
@@ -91,28 +106,32 @@ export const findParameterVariantByPath = (
   manifest.variants.find((variant) => variant.circuitJsonPath === file) ??
   findParameterVariant(manifest, manifest.defaults)!
 
-export function parsePreviewParameterManifest(
-  data: unknown,
-  files: { file_path: string }[],
-  propsSchema?: unknown,
-): PreviewParameterManifest {
-  const raw = previewParameterManifestSchema.parse(data)
+export function parsePreviewParameterManifest({
+  manifest: publishedManifest,
+  files,
+  propsSchema,
+}: {
+  manifest: unknown
+  files: { file_path: string }[]
+  propsSchema?: unknown
+}): PreviewParameterManifest {
+  const parsedManifest = previewParameterManifestSchema.parse(publishedManifest)
   let manifest: PreviewParameterManifest
   let domains: Record<string, (string | boolean | number)[]>
-  if (raw.version === 2) {
+  if (parsedManifest.version === 2) {
     if (!propsSchema)
       throw new Error("This package build requires its published props schema")
     const generated = derivePackageParameters(propsSchema as PackagePropsSchema)
     manifest = {
-      ...raw,
-      parameters: z.array(parameter).parse(generated.parameters),
-      defaults: z.record(value).parse(generated.defaults),
+      ...parsedManifest,
+      parameters: z.array(parameterControlSchema).parse(generated.parameters),
+      defaults: z.record(parameterValueSchema).parse(generated.defaults),
     }
     domains = generated.domains
   } else {
-    manifest = raw
+    manifest = parsedManifest
     domains = Object.fromEntries(
-      raw.parameters.map((p) => [
+      parsedManifest.parameters.map((p) => [
         p.id,
         p.type === "boolean"
           ? [false, true]
@@ -226,7 +245,7 @@ export async function downloadPreviewCircuitBundle({
   }
   const bundle = JSON.parse(new TextDecoder().decode(bytes)) as Record<
     string,
-    any[]
+    AnyCircuitElement[]
   >
   if (
     !bundle ||
