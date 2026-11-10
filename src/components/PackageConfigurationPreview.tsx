@@ -101,7 +101,7 @@ export function PackageConfigurationPreview({
         </div>
         <div
           className={
-            hasControls || !metadataReady
+            hasControls || (!metadataReady && !error)
               ? "grid min-h-[620px] items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
               : "min-h-[620px]"
           }
@@ -116,7 +116,7 @@ export function PackageConfigurationPreview({
                 if (file) onSelectionChange({ ...resolvedSelection, file })
               }}
             />
-          ) : !metadataReady ? (
+          ) : !metadataReady && !error ? (
             <div
               className="h-[620px] rounded-lg bg-gray-50"
               aria-hidden="true"

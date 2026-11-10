@@ -20,7 +20,7 @@ export function PackageParameterPanel({
   const panelId = useId()
   return (
     <aside
-      className="max-h-[620px] min-w-0 overflow-y-auto rounded-lg border bg-white p-4"
+      className="h-[620px] min-w-0 overflow-y-auto rounded-lg border bg-white p-4"
       aria-label="Circuit parameters"
       aria-busy={disabled}
     >
