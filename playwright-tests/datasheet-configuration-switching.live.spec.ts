@@ -1,6 +1,11 @@
 import { expect, test, type Request } from "@playwright/test"
 import { createHash } from "node:crypto"
 
+test.skip(
+  !process.env.TSCIRCUIT_LIVE_URL,
+  "Set TSCIRCUIT_LIVE_URL to the deployment under review",
+)
+
 const release = "ecc81c3e-552e-4a51-af6e-f086ab62888d"
 const url = `/datasheets/CC2340R52E0RGER?reference_release=${release}&reference_view=3d&reference_design=ShiboSoftwareDev%2Fcc2340r5-reference-design#reference-designs`
 const configurations = [

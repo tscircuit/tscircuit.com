@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test"
+import { expect, test, type Page, type Request } from "@playwright/test"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -30,6 +30,31 @@ test("ordinary package pages render all three postbuild configurations after sha
   page,
 }, testInfo) => {
   const pageErrors: string[] = []
+  const circuits = new Map<string, any[]>()
+  const downloads = new Set<string>()
+  // Preloading can finish before the picker opens. Observe successful responses
+  // from navigation onward instead of requiring another download on each click.
+  page.on("response", async (response) => {
+    if (!response.ok()) return
+    const url = new URL(response.url())
+    if (url.pathname.endsWith("/package_files/get")) {
+      const { package_file: file } = await response.json()
+      if (file?.content_text?.trim().startsWith("[")) {
+        const circuit = JSON.parse(file.content_text)
+        if (Array.isArray(circuit))
+          circuits.set(url.searchParams.get("package_file_id")!, circuit)
+      }
+    }
+    for (
+      let request: Request | null = response.request();
+      request;
+      request = request.redirectedFrom()
+    ) {
+      const url = new URL(request.url())
+      if (url.pathname.endsWith("/package_files/download"))
+        downloads.add(url.searchParams.get("package_file_id")!)
+    }
+  })
   page.on("pageerror", (error) => pageErrors.push(error.message))
   const listResponse = page.waitForResponse(
     (response) =>
@@ -56,17 +81,13 @@ test("ordinary package pages render all three postbuild configurations after sha
     expect(circuitFile).toBeTruthy()
     expect(glbFile).toBeTruthy()
     await picker(page).click()
-    const circuitResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/package_files/get?") &&
-        new URL(response.url()).searchParams.get("package_file_id") ===
-          circuitFile.package_file_id,
-    )
     await page
       .getByRole("option", { name: path.replace(/^dist\//, ""), exact: true })
       .click()
-    const { package_file: file } = await (await circuitResponse).json()
-    const circuit = JSON.parse(file.content_text)
+    await expect
+      .poll(() => circuits.has(circuitFile.package_file_id))
+      .toBe(true)
+    const circuit = circuits.get(circuitFile.package_file_id)!
     const mcu = circuit.find(
       (element: any) =>
         element.type === "source_component" && element.name === "U1",
@@ -87,7 +108,9 @@ test("ordinary package pages render all three postbuild configurations after sha
     expect(
       circuit.filter((element: any) => element.type.endsWith("_error")),
     ).toEqual([])
-    expect(new URL(page.url()).searchParams.get("preview_file")).toBe(path)
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("preview_file"))
+      .toBe(path)
 
     await page.getByRole("button", { name: "PCB", exact: true }).click()
     await expect(
@@ -112,19 +135,30 @@ test("ordinary package pages render all three postbuild configurations after sha
         )
         .first(),
     ).toBeVisible()
+    await expect
+      .poll(() =>
+        page
+          .locator("[data-schematic-component-id]")
+          .evaluateAll(
+            (elements) =>
+              new Set(
+                elements.map((element) =>
+                  element.getAttribute("data-schematic-component-id"),
+                ),
+              ).size,
+          ),
+      )
+      .toBe(
+        circuit.filter((element) => element.type === "schematic_component")
+          .length,
+      )
     await interactWithViewer(page)
     await page.screenshot({
       path: testInfo.outputPath(`${preset || "default"}-schematic.png`),
     })
 
-    const glbResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/package_files/download?") &&
-        new URL(response.url()).searchParams.get("package_file_id") ===
-          glbFile.package_file_id,
-    )
     await page.getByRole("button", { name: "3D", exact: true }).click()
-    expect((await glbResponse).status()).toBeLessThan(400)
+    await expect.poll(() => downloads.has(glbFile.package_file_id)).toBe(true)
     await expect(
       page.getByText("Loading 3D view...", { exact: true }),
     ).toHaveCount(0)
