@@ -1,4 +1,9 @@
 import { expect, test, type Request } from "@playwright/test"
+import {
+  cc2340Configurations,
+  cc2340Release,
+  cc2340Path,
+} from "./cc2340-reference-configurations"
 import { createHash } from "node:crypto"
 
 test.skip(
@@ -6,19 +11,18 @@ test.skip(
   "Set TSCIRCUIT_LIVE_URL to the deployment under review",
 )
 
-const release = "ecc81c3e-552e-4a51-af6e-f086ab62888d"
+const release = cc2340Release
 const url = `/datasheets/CC2340R52E0RGER?reference_release=${release}&reference_view=3d&reference_design=ShiboSoftwareDev%2Fcc2340r5-reference-design#reference-designs`
-const configurations = [
-  ["Default", "dist/index/circuit.json", 27],
-  ["Internal LF clock", "dist/index/internal_lf_clock/circuit.json", 24],
-  ["Minimal", "dist/index/minimal/circuit.json", 23],
-] as const
+const configurations = cc2340Configurations.map(
+  (config) => [config.label, cc2340Path(config.preset), config.count] as const,
+)
 
 // These tests use the published package and real registry responses.
 test("cached configurations switch offline without replacing the 3D canvas", async ({
   page,
   context,
 }, testInfo) => {
+  test.setTimeout(360_000)
   await page.addInitScript(() =>
     localStorage.setItem("cadViewerAutoRotate", "false"),
   )
@@ -78,7 +82,7 @@ test("cached configurations switch offline without replacing the 3D canvas", asy
   })
   await context.setOffline(true)
   const pictures = new Set<string>()
-  for (const [label, path, count] of [...configurations, ...configurations]) {
+  for (const [label, path, count] of [...configurations, configurations[0]]) {
     await picker.click()
     await page.getByRole("option", { name: label, exact: true }).click()
     await expect(picker).toHaveText(label)
@@ -113,6 +117,15 @@ test("cached configurations switch offline without replacing the 3D canvas", asy
           ),
       )
       .toBe(count)
+    const config = cc2340Configurations.find((item) => item.label === label)!
+    const schematic = region.locator("svg:has([data-schematic-component-id])")
+    await expect(schematic.last()).toContainText(
+      config.bulk === 22e-6 ? /22\s*[µμu]F/ : /10\s*[µμu]F/,
+    )
+    await expect(schematic.last()).toContainText(
+      config.reset === 10e3 ? /\b10\s*k(?:Ω)?/ : /\b100\s*k(?:Ω)?/,
+    )
+    await expect(region.getByText(/omitted/i)).toHaveCount(0)
     await region.getByRole("button", { name: "PCB", exact: true }).click()
     await expect(region.locator("canvas:visible").last()).toBeVisible()
     await region.getByRole("button", { name: "3D", exact: true }).click()

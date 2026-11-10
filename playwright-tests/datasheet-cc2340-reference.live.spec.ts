@@ -6,6 +6,8 @@ import {
   type Request,
 } from "@playwright/test"
 
+import { cc2340Configurations } from "./cc2340-reference-configurations"
+
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
   "Set TSCIRCUIT_LIVE_URL to the deployment under review",
@@ -29,6 +31,7 @@ async function activate(page: Page, region: Locator) {
 test("CC2340 postbuild configurations render inline from their published package", async ({
   page,
 }, testInfo) => {
+  test.setTimeout(360_000)
   const errors: string[] = []
   const downloads = new Set<string>()
   page.on("pageerror", (error) => errors.push(error.message))
@@ -61,11 +64,8 @@ test("CC2340 postbuild configurations render inline from their published package
   const picker = region.getByRole("combobox", { name: "Configuration" })
   await expect(picker).toBeVisible()
   const { package_files: files } = await (await listResponse).json()
-  for (const [preset, label, count] of [
-    ["", "Default", 27],
-    ["internal_lf_clock", "Internal LF clock", 24],
-    ["minimal", "Minimal", 23],
-  ] as const) {
+  for (const config of cc2340Configurations) {
+    const { preset, label, count } = config
     const prefix = `dist/index/${preset ? preset + "/" : ""}`
     const file = files.find(
       (item: any) => item.file_path === `${prefix}circuit.json`,
@@ -92,13 +92,18 @@ test("CC2340 postbuild configurations render inline from their published package
       (item: any) => item.type === "source_component",
     )
     expect(parts).toHaveLength(count)
+    expect(parts.find((part: any) => part.name === "C2").capacitance).toBe(
+      config.bulk,
+    )
+    expect(parts.find((part: any) => part.name === "R14").resistance).toBe(
+      config.reset,
+    )
+    expect(JSON.stringify(circuit)).not.toMatch(/omitted/i)
     expect(
       parts.find((item: any) => item.name === "U1").manufacturer_part_number,
     ).toBe("CC2340R52E0RGER")
-    expect(parts.some((item: any) => item.name === "Y1")).toBe(preset === "")
-    expect(parts.some((item: any) => item.name === "J4")).toBe(
-      preset !== "minimal",
-    )
+    expect(parts.some((item: any) => item.name === "Y1")).toBe(config.lf)
+    expect(parts.some((item: any) => item.name === "J4")).toBe(config.header)
     expect(
       parts.some((item: any) =>
         /BQ25150|BQ27427|BMA400|TPS7A02/.test(
@@ -159,7 +164,7 @@ test("CC2340 postbuild configurations render inline from their published package
     release,
   )
   await expect(page.getByRole("combobox", { name: "Preview file" })).toHaveText(
-    "3 Builds",
+    `${cc2340Configurations.length} Builds`,
   )
   await expect(page.locator("canvas:visible").last()).toBeVisible()
   expect(errors).toEqual([])

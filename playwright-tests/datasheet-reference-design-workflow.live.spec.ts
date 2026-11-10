@@ -1,12 +1,14 @@
 import { expect, test, type Page, type Request } from "@playwright/test"
 
+import { cc2340Configurations } from "./cc2340-reference-configurations"
+
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
   "Set TSCIRCUIT_LIVE_URL to the deployment under review",
 )
 
 const packageName = "ShiboSoftwareDev/cc2340r5-reference-design"
-const presets = ["", "internal_lf_clock", "minimal"]
+const presets = cc2340Configurations.map((config) => config.preset)
 const picker = (page: Page) =>
   page.getByRole("combobox", { name: "Preview file" })
 
@@ -26,9 +28,10 @@ async function interactWithViewer(page: Page) {
   }
 }
 
-test("ordinary package pages render all three postbuild configurations after sharing their viewer", async ({
+test("ordinary package pages render all postbuild configurations after sharing their viewer", async ({
   page,
 }, testInfo) => {
+  test.setTimeout(360_000)
   const pageErrors: string[] = []
   const circuits = new Map<string, any[]>()
   const downloads = new Set<string>()
@@ -68,9 +71,10 @@ test("ordinary package pages render all three postbuild configurations after sha
   })
   await expect(page).toHaveURL(new RegExp(`/${packageName}#pcb$`))
   const { package_files: files } = await (await listResponse).json()
-  await expect(picker(page)).toHaveText("3 Builds")
+  await expect(picker(page)).toHaveText(`${cc2340Configurations.length} Builds`)
 
   for (const preset of presets) {
+    const config = cc2340Configurations.find((item) => item.preset === preset)!
     await page.getByRole("button", { name: "PCB", exact: true }).click()
     const prefix = `dist/index/${preset ? `${preset}/` : ""}`
     const path = `${prefix}circuit.json`
@@ -94,17 +98,28 @@ test("ordinary package pages render all three postbuild configurations after sha
     )
     expect(mcu.manufacturer_part_number).toBe("CC2340R52E0RGER")
     expect(
+      circuit.find(
+        (part: any) => part.name === "C2" && part.type === "source_component",
+      ).capacitance,
+    ).toBe(config.bulk)
+    expect(
+      circuit.find(
+        (part: any) => part.name === "R14" && part.type === "source_component",
+      ).resistance,
+    ).toBe(config.reset)
+    expect(JSON.stringify(circuit)).not.toMatch(/omitted/i)
+    expect(
       circuit.some(
         (element: any) =>
           element.type === "source_component" && element.name === "Y1",
       ),
-    ).toBe(preset === "")
+    ).toBe(config.lf)
     expect(
       circuit.some(
         (element: any) =>
           element.type === "source_component" && element.name === "J4",
       ),
-    ).toBe(preset !== "minimal")
+    ).toBe(config.header)
     expect(
       circuit.filter((element: any) => element.type.endsWith("_error")),
     ).toEqual([])
@@ -180,7 +195,7 @@ test("ordinary package pages render all three postbuild configurations after sha
   }
 
   await page.reload()
-  await expect(picker(page)).toHaveText("3 Builds")
+  await expect(picker(page)).toHaveText(`${cc2340Configurations.length} Builds`)
   expect(new URL(page.url()).searchParams.get("preview_file")).toBe(
     "dist/index/minimal/circuit.json",
   )

@@ -33,7 +33,12 @@ const configurationLabel = (path?: string) => {
     .replace(/\/circuit\.json(?:\.gz)?$/, "")
     .replace(/^index(?:\/|$)/, "")
   if (!label) return "Default"
-  const words = label.replace(/[_/-]+/g, " ")
+  const words = label
+    .replace(/(\d)v(\d)/gi, "$1.$2 V")
+    .replace(/(\d+)uf\b/gi, "$1 µF")
+    .replace(/(\d+)k\b/gi, "$1 kΩ")
+    .replace(/[_/-]+/g, " ")
+    .replace(/\bpullup\b/gi, "pull-up")
   return (
     words[0].toUpperCase() +
     words

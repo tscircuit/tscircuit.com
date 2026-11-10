@@ -45,7 +45,7 @@ export function PackageCircuitPreview({
     // Bound speculative downloads on packages with many builds. Only warm 3D
     // assemblies after the current 3D scene is ready so they do not compete
     // with the initial preview download.
-    for (const file of previewFiles.slice(0, 4)) {
+    for (const file of previewFiles.slice(0, 8)) {
       void prefetchPreview(file.file_path)
       const glb =
         view === "3d" &&
