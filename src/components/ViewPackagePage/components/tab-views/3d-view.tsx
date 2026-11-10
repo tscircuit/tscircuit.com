@@ -1,3 +1,5 @@
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
 import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import { CadViewer } from "@tscircuit/3d-viewer"
@@ -68,7 +70,8 @@ export default function ThreeDView({
   onViewSchematicComponent,
   onReady,
 }: ThreeDViewProps) {
-  const { componentPath, isLoading } = useCurrentPackageCircuitJson()
+  const { componentPath, previewFilePath, isLoading } =
+    useCurrentPackageCircuitJson()
   const handleCameraReady = useCallback(
     (controller: unknown) => {
       if (controller) onReady?.()
@@ -77,7 +80,14 @@ export default function ThreeDView({
   )
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
-  const glb = findPackagePreviewGlb(packageFiles, componentPath)
+  const { manifest } = usePackagePreviewParameters()
+  const glb = manifest
+    ? packageFiles?.find(
+        (f) =>
+          f.file_path ===
+          findParameterVariantByPath(manifest, previewFilePath).glbPath,
+      )
+    : findPackagePreviewGlb(packageFiles, componentPath)
   const download = useQuery(
     ["packagePreviewGlb", apiBaseUrl, glb?.package_file_id, token],
     ({ signal }) =>

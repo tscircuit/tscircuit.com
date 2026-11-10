@@ -1,3 +1,8 @@
+import {
+  usePackagePreviewParameters,
+  usePreparedPackageParameters,
+} from "@/hooks/use-package-preview-parameters"
+import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { useState } from "react"
 import { useQueryClient } from "react-query"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
@@ -47,9 +52,7 @@ const configurationLabel = (path?: string) => {
   )
 }
 
-export default function PreviewFileSelector({
-  label,
-}: { label?: string } = {}) {
+function PreviewBuildSelector({ label }: { label?: string } = {}) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const { previewFiles, previewFilePath, packageFiles, prefetchPreview } =
@@ -177,5 +180,46 @@ export default function PreviewFileSelector({
         </p>
       )}
     </>
+  )
+}
+
+export default function PreviewFileSelector(props: { label?: string } = {}) {
+  const { manifest, error, isLoading } = usePackagePreviewParameters()
+  if (manifest) return <ParameterSelector manifest={manifest} />
+  if (isLoading)
+    return (
+      <Button size="sm" variant="outline" disabled>
+        Parameters
+      </Button>
+    )
+  if (error)
+    return (
+      <p role="alert" className="text-sm text-red-600">
+        Unable to load circuit parameters.
+      </p>
+    )
+  return <PreviewBuildSelector {...props} />
+}
+
+function ParameterSelector({
+  manifest,
+}: {
+  manifest: import("@/lib/package-preview-parameters").PreviewParameterManifest
+}) {
+  usePreparedPackageParameters(manifest)
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button size="sm" variant="outline">
+          Parameters
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="max-h-[75vh] w-80 overflow-y-auto p-0"
+      >
+        <PackageParameterPanel manifest={manifest} />
+      </PopoverContent>
+    </Popover>
   )
 }

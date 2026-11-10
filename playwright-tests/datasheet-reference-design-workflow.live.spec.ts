@@ -1,6 +1,9 @@
 import { expect, test, type Page, type Request } from "@playwright/test"
 
-import { cc2340Configurations } from "./cc2340-reference-configurations"
+import {
+  cc2340Configurations,
+  cc2340Release,
+} from "./cc2340-reference-configurations"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -65,11 +68,13 @@ test("ordinary package pages render all postbuild configurations after sharing t
       response.status() === 200,
     { timeout: 60000 },
   )
-  await page.goto(`/${packageName}#pcb`, {
+  await page.goto(`/${packageName}?package_release_id=${cc2340Release}#pcb`, {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   })
-  await expect(page).toHaveURL(new RegExp(`/${packageName}#pcb$`))
+  await expect(page).toHaveURL(
+    new RegExp(`/${packageName}\\?package_release_id=${cc2340Release}#pcb$`),
+  )
   const { package_files: files } = await (await listResponse).json()
   await expect(picker(page)).toHaveText(`${cc2340Configurations.length} Builds`)
 

@@ -41,7 +41,12 @@ export function PackageCircuitPreview({
   const [readyRelease, setReadyRelease] = useState<string | null>(null)
   const onThreeDReady = useCallback(() => setReadyRelease(key), [key])
   useEffect(() => {
-    if (!circuitJson || !arePackageFilesFetched) return
+    if (
+      !circuitJson ||
+      !arePackageFilesFetched ||
+      packageFiles?.some((f) => f.file_path === "dist/preview.json")
+    )
+      return
     // Bound speculative downloads on packages with many builds. Only warm 3D
     // assemblies after the current 3D scene is ready so they do not compete
     // with the initial preview download.

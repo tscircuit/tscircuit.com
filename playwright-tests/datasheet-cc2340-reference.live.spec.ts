@@ -6,7 +6,10 @@ import {
   type Request,
 } from "@playwright/test"
 
-import { cc2340Configurations } from "./cc2340-reference-configurations"
+import {
+  cc2340Configurations,
+  cc2340Release,
+} from "./cc2340-reference-configurations"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -56,7 +59,7 @@ test("CC2340 postbuild configurations render inline from their published package
     { timeout: 60_000 },
   )
   await page.goto(
-    "/datasheets/CC2340R52E0RGER?reference_view=schematic#reference-designs",
+    `/datasheets/CC2340R52E0RGER?reference_release=${cc2340Release}&reference_view=schematic#reference-designs`,
     { timeout: 60_000 },
   )
   const region = page.getByRole("region", { name: "Reference designs" })

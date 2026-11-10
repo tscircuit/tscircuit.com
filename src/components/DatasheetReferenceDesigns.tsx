@@ -1,3 +1,5 @@
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { useEffect, useState } from "react"
 import { Link } from "wouter"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
@@ -34,6 +36,7 @@ function ReferenceDesignPreview({
   releaseId,
 }: { name: string; releaseId: string }) {
   const params = useUrlParams()
+  const parameters = usePackagePreviewParameters()
   const view = views.some((item) => item.id === params.reference_view)
     ? params.reference_view
     : "3d"
@@ -97,10 +100,12 @@ function ReferenceDesignPreview({
         </Link>
       </div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Configuration</span>
-          <PreviewFileSelector label="Configuration" />
-        </div>
+        {!parameters.manifest && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Configuration</span>
+            <PreviewFileSelector label="Configuration" />
+          </div>
+        )}
         <div
           className="flex gap-1 rounded-md bg-gray-100 p-1"
           role="group"
@@ -119,51 +124,64 @@ function ReferenceDesignPreview({
           ))}
         </div>
       </div>
-      {mismatchedRelease ? (
-        <p role="alert" className="p-8 text-red-600">
-          This release does not belong to the selected design.
-        </p>
-      ) : error ? (
-        <div
-          className="flex min-h-64 flex-col items-center justify-center gap-3"
-          role="alert"
-        >
-          <p>Unable to load the reference design.</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              refetchRelease()
-              refetchFiles()
-              refetch()
-            }}
-          >
-            Retry
-          </Button>
+      <div
+        className={
+          parameters.manifest
+            ? "grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
+            : ""
+        }
+      >
+        {parameters.manifest && (
+          <PackageParameterPanel manifest={parameters.manifest} />
+        )}
+        <div className="min-w-0">
+          {mismatchedRelease ? (
+            <p role="alert" className="p-8 text-red-600">
+              This release does not belong to the selected design.
+            </p>
+          ) : error ? (
+            <div
+              className="flex min-h-64 flex-col items-center justify-center gap-3"
+              role="alert"
+            >
+              <p>Unable to load the reference design.</p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  refetchRelease()
+                  refetchFiles()
+                  refetch()
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : isLoading || !isFetched ? (
+            <div
+              className="flex h-[620px] items-center justify-center text-sm text-gray-500"
+              role="status"
+            >
+              Loading reference design...
+            </div>
+          ) : (
+            <PackageCircuitPreview
+              view={view}
+              packageReleaseId={releaseId}
+              packageFiles={packageFiles}
+              arePackageFilesFetched={isFetched}
+              isFetchingPackageFiles={isFetching}
+              schematicController={controller}
+              onViewSchematicComponent={
+                circuitJson?.some(
+                  (element) => element.type === "schematic_component",
+                )
+                  ? showSchematicComponent
+                  : undefined
+              }
+            />
+          )}
         </div>
-      ) : isLoading || !isFetched ? (
-        <div
-          className="flex h-[620px] items-center justify-center text-sm text-gray-500"
-          role="status"
-        >
-          Loading reference design...
-        </div>
-      ) : (
-        <PackageCircuitPreview
-          view={view}
-          packageReleaseId={releaseId}
-          packageFiles={packageFiles}
-          arePackageFilesFetched={isFetched}
-          isFetchingPackageFiles={isFetching}
-          schematicController={controller}
-          onViewSchematicComponent={
-            circuitJson?.some(
-              (element) => element.type === "schematic_component",
-            )
-              ? showSchematicComponent
-              : undefined
-          }
-        />
-      )}
+      </div>
     </div>
   )
 }
