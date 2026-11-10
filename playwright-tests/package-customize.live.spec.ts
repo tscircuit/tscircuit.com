@@ -55,6 +55,14 @@ test("About opens a schema-driven customizer and keeps the release, config, view
     .screenshot({
       path: info.outputPath("about-customize-button.png"),
     })
+  let releaseDownloads!: () => void
+  const downloadsReady = new Promise<void>((resolve) => {
+    releaseDownloads = resolve
+  })
+  await page.route("**/package_files/download?*", async (route) => {
+    await downloadsReady
+    await route.continue()
+  })
   await customize.click()
   await expect(page).toHaveURL(
     /\/cc2340r5-reference-design\/customize\?.*#schematic$/,
@@ -66,9 +74,37 @@ test("About opens a schema-driven customizer and keeps the release, config, view
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
   })
+  await expect(panel).toHaveAttribute("aria-busy", "true")
+  await expect(panel.getByRole("switch", { name: "SWD header" })).toBeDisabled()
+  await expect(panel.getByRole("slider").first()).toBeDisabled()
+  await expect(
+    panel.getByText(/Preparing parameter controls|Loading controls/i),
+  ).toHaveCount(0)
+  await page.evaluate(() => document.fonts.ready)
+  const controlBounds = () =>
+    panel.evaluate((element) =>
+      [
+        element,
+        ...element.querySelectorAll("button, input[type=range], output"),
+      ].map((node) => {
+        const bounds = node.getBoundingClientRect()
+        return {
+          x: bounds.x + scrollX,
+          y: bounds.y + scrollY,
+          width: bounds.width,
+          height: bounds.height,
+        }
+      }),
+    )
+  const preparingBounds = await controlBounds()
+  await panel.screenshot({ path: info.outputPath("controls-preparing.png") })
+  releaseDownloads()
   await expect(panel.getByRole("switch", { name: "SWD header" })).toBeEnabled({
     timeout: 120_000,
   })
+  await page.unroute("**/package_files/download?*")
+  await expect(panel).toHaveAttribute("aria-busy", "false")
+  expect(await controlBounds()).toEqual(preparingBounds)
   await expect(panel.getByRole("switch")).toHaveCount(2)
   await expect(panel.getByRole("slider")).toHaveCount(3)
   await expect(panel.locator('input[type="number"]')).toHaveCount(0)

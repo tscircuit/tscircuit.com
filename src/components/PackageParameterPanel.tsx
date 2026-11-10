@@ -40,6 +40,7 @@ export function PackageParameterPanel({
     <aside
       className="min-w-0 rounded-lg border bg-white p-4"
       aria-label="Circuit parameters"
+      aria-busy={!prepared.data && !prepared.error}
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <h4 className="font-semibold">Parameters</h4>
@@ -52,11 +53,6 @@ export function PackageParameterPanel({
           Reset to defaults
         </Button>
       </div>
-      {!prepared.data && !prepared.error && (
-        <p role="status" className="mb-3 text-xs text-gray-500">
-          Preparing parameter controls…
-        </p>
-      )}
       {Boolean(prepared.error) && (
         <div role="alert" className="mb-3 text-sm text-red-600">
           Unable to prepare parameters.{" "}
@@ -65,7 +61,7 @@ export function PackageParameterPanel({
           </button>
         </div>
       )}
-      <div className="space-y-5">
+      <div className={prepared.data ? "space-y-5" : "space-y-5 opacity-50"}>
         {manifest.parameters.map((parameter) => {
           const id = `${panelId}-${parameter.id}`
           const value = current.values[parameter.id]
@@ -110,7 +106,7 @@ export function PackageParameterPanel({
                       (o) => o.value === value,
                     )}
                     disabled={!prepared.data}
-                    className="block w-full accent-blue-600"
+                    className="block w-full accent-blue-600 disabled:accent-gray-400"
                     onChange={(event) =>
                       select({
                         ...current.values,
