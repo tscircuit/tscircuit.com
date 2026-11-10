@@ -44,8 +44,10 @@ test("independent controls compose all 64 exact states offline and preserve the 
         url.origin === "https://usercontent.tscircuit.com"
       ) {
         const id = url.searchParams.get("package_file_id")
-        if (id) downloads.set(id, response)
-        break
+        if (id) {
+          downloads.set(id, response)
+          break
+        }
       }
     }
   })
@@ -212,6 +214,8 @@ test("independent controls compose all 64 exact states offline and preserve the 
               )
               .toBe(parts.length)
             checked++
+            if (checked % 16 === 0)
+              console.info(`Verified ${checked}/64 parameter states offline`)
           }
   expect(checked).toBe(64)
   await expect(region.getByText(/omitted/i)).toHaveCount(0)

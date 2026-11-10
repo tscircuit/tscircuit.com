@@ -11,6 +11,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useQuery } from "react-query"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
+import { useMemo, useRef } from "react"
 
 export default function SchematicView({
   controller,
@@ -73,6 +74,18 @@ export default function SchematicView({
     window.dispatchEvent(new Event("popstate"))
   }
   const displayedCircuit = selectedSheet ? sheet.data : circuitJson
+  const revision = useRef(0)
+  const viewerCircuit = useMemo(
+    () =>
+      displayedCircuit
+        ? Object.assign([...displayedCircuit], {
+            // The viewer caches SVGs by array length and editCount. Value-only
+            // parameter changes need a revision even when no parts are added.
+            editCount: ++revision.current,
+          })
+        : undefined,
+    [displayedCircuit],
+  )
   const loadError = error || sheet.error
   if (isLoading || (selectedSheet && sheet.isLoading)) {
     return (
@@ -127,7 +140,7 @@ export default function SchematicView({
           controller={controller}
           disableGroups
           clickToInteractEnabled
-          circuitJson={displayedCircuit}
+          circuitJson={viewerCircuit!}
           containerStyle={{
             height: 620,
           }}
