@@ -91,7 +91,7 @@
     "@tscircuit/circuit-json-util": "^0.0.116",
     "@tscircuit/create-snippet-url": "^0.0.14",
     "@tscircuit/drawing-viewer": "https://jscdn.tscircuit.com/@tscircuit/drawing-viewer/0.0.5.tgz",
-    "@tscircuit/eval": "^0.0.1733",
+    "@tscircuit/eval": "^0.0.1734",
     "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
     "@tscircuit/footprinter": "^0.0.450",
     "@tscircuit/internal-dynamic-import": "^0.0.20",
