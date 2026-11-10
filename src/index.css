@@ -159,6 +159,11 @@ body {
   overflow-y: auto;
 }
 
+/* Keep reference-design navigation stable when the preview needs scrolling. */
+html:has([data-reference-design-page]) {
+  scrollbar-gutter: stable;
+}
+
 /* Subtle scrollbar styling for html and body */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
