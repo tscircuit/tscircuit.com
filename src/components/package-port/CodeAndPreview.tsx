@@ -1,3 +1,4 @@
+import { LocalAutosave } from "./LocalAutosave"
 import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useEnableMonacoLanguageService } from "@/hooks/use-enable-monaco-language-service"
@@ -59,6 +60,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const accountId = useGlobalStore((s) => s.session?.account_id ?? "guest")
+  const editorAccountId = useRef(accountId).current
+  const draftKey = `tscircuit:local-draft:v1:${encodeURIComponent(accountId)}:${encodeURIComponent(pkg?.package_id ?? urlParams.package_id ?? `scratch:${urlParams.template ?? urlParams.snippet_type ?? "default"}`)}`
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
@@ -379,6 +383,28 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isSaving={isSaving}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={saveFiles}
+        localAutosave={
+          accountId !== editorAccountId ? (
+            <span role="alert" className="text-xs text-red-600">
+              Account changed. Reload to use local autosave.
+            </span>
+          ) : !versionFromUrl &&
+            (!urlParams.package_id ||
+              pkg?.package_id === urlParams.package_id) ? (
+            <LocalAutosave
+              key={draftKey}
+              storageKey={draftKey}
+              ready={
+                isFullyLoaded &&
+                (!pkg ||
+                  (loadedFilesCount >= totalFilesCount &&
+                    initialFiles.length >= totalFilesCount))
+              }
+              files={localFiles}
+              onRestore={setLocalFiles}
+            />
+          ) : null
+        }
         onDiscard={() => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
