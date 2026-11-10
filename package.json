@@ -208,6 +208,7 @@
     "zustand-hoist": "^2.0.1"
   },
   "overrides": {
-    "altiumts": "0.0.59"
+    "altiumts": "0.0.59",
+    "schematic-symbols": "0.0.251"
   }
 }
