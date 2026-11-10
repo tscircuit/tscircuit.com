@@ -163,9 +163,6 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(displayValue("Supply voltage")).toHaveText("3.3 V")
   await expect(displayValue("Input bulk capacitor")).toHaveText("22 µF")
   await expect(displayValue("Reset pull-up")).toHaveText("10 kΩ")
-  await expect(
-    region.getByRole("status", { name: "Configuration changes" }),
-  ).toContainText("R14")
   await region.getByRole("button", { name: "Schematic", exact: true }).click()
   const schematic = region
     .locator("svg:has([data-schematic-component-id])")
@@ -173,20 +170,6 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(schematic).toContainText(/C2\s*22\s*[µμu]F/)
   await expect(schematic).toContainText(/R14\s*10\s*k/)
   await expect(schematic).toContainText("3.3 V supply")
-  const changedResistor = schematic
-    .locator("g[data-schematic-component-id]")
-    .filter({ has: page.getByText("R14", { exact: true }) })
-  await expect
-    .poll(() =>
-      changedResistor
-        .locator(".sch-component-text")
-        .last()
-        .evaluate((element) => getComputedStyle(element).fill),
-    )
-    .toBe("rgb(217, 119, 6)")
-  await expect(
-    panel.getByLabel("Reset pull-up previous value", { exact: true }),
-  ).toContainText("100")
 
   await region.screenshot({
     path: info.outputPath("combined-parameters-schematic.png"),

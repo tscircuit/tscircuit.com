@@ -1,4 +1,3 @@
-import { PackageChangesSummary } from "@/components/PackageChangesSummary"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { PackagePreviewChangesProvider } from "@/components/PackagePreviewChanges"
 import { PackagePreviewProvider } from "@/components/PackagePreviewScope"
@@ -11,7 +10,6 @@ import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
 import { getPackageRootUrl } from "@/lib/package-file-routes"
-import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import type { ReferenceDesignSelection } from "@/lib/reference-design-selection"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { ExternalLink } from "lucide-react"
@@ -92,12 +90,6 @@ function ReferenceDesignCircuit({
     <PackagePreviewChangesProvider
       circuitJson={circuitJson}
       selectionKey={`${releaseId}:${previewFilePath}`}
-      parameterValues={
-        parameters.manifest
-          ? findParameterVariantByPath(parameters.manifest, previewFilePath)
-              .values
-          : undefined
-      }
     >
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -137,13 +129,6 @@ function ReferenceDesignCircuit({
             <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
         </div>
-        <PackageChangesSummary
-          onShowComponent={(change) => {
-            if (change.kind !== "removed" && change.schematic)
-              focusSchematicComponent(change.schematic.schematic_component_id)
-            changeView("schematic")
-          }}
-        />
         <div
           className={
             parameters.manifest?.parameters.length

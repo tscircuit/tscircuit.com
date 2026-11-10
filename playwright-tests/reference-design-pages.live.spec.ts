@@ -41,59 +41,72 @@ test("datasheets link to a design index and a dedicated, shared design page with
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
   })
-  const summary = region.getByRole("status", { name: "Configuration changes" })
+  const boxes = region.locator("svg rect[data-preview-change-highlight]")
+  const removedBoxes = region.locator(
+    'svg .sch-path[stroke="#3b82f6"][stroke-dasharray]',
+  )
   await expect(
     panel.getByRole("switch", { name: "External LF crystal" }),
   ).toBeEnabled({ timeout: 120_000 })
-  await expect(summary).toHaveCount(0)
+  await expect(boxes).toHaveCount(0)
   await page.screenshot({
     path: info.outputPath("reference-design-page.png"),
     fullPage: true,
   })
-  await panel
-    .getByRole("slider", { name: "Reset pull-up slider" })
-    .press("Home")
-  await expect(
-    panel.getByLabel("Reset pull-up previous value", { exact: true }),
-  ).toContainText("100")
-  await expect(
-    summary.getByRole("button", { name: "R14 Changed", exact: true }),
-  ).toBeVisible()
   const resistor = region
     .locator("svg g[data-schematic-component-id]")
     .filter({ has: page.getByText("R14", { exact: true }) })
-  await expect
-    .poll(() =>
-      resistor
-        .locator(".sch-component-text")
-        .last()
-        .evaluate((element) => getComputedStyle(element).fill),
-    )
-    .toBe("rgb(217, 119, 6)")
-  await region.screenshot({
-    path: info.outputPath("changed-resistor-value.png"),
-  })
+  const originalTextColor = await resistor
+    .locator(".sch-component-text")
+    .last()
+    .evaluate((element) => getComputedStyle(element).fill)
+  await panel
+    .getByRole("slider", { name: "Reset pull-up slider" })
+    .press("Home")
+  await expect(boxes).toHaveCount(1)
+  await expect(
+    resistor.locator("rect[data-preview-change-highlight]"),
+  ).toHaveCount(1)
+  await expect(boxes).toHaveAttribute("fill", "none")
+  await expect(boxes).toHaveAttribute("stroke-dasharray", "4 3")
+  expect(
+    await resistor
+      .locator(".sch-component-text")
+      .last()
+      .evaluate((element) => getComputedStyle(element).fill),
+  ).toBe(originalTextColor)
+  await expect(
+    region.getByRole("status", { name: "Configuration changes" }),
+  ).toHaveCount(0)
+  await expect(panel.locator("s, [data-parameter-changed]")).toHaveCount(0)
+  await region.screenshot({ path: info.outputPath("changed-resistor-box.png") })
+  // The next change replaces the old box and cancels its expiry timer.
+  await page.waitForTimeout(1600)
   await panel
     .getByRole("slider", { name: "Supply voltage slider" })
     .press("End")
-  await expect(summary).toContainText("Annotations changed")
-  const supply = region
-    .locator("svg text[data-schematic-text-id]")
-    .filter({ hasText: "3.3 V supply" })
-  await expect
-    .poll(() => supply.evaluate((element) => getComputedStyle(element).fill))
-    .toBe("rgb(217, 119, 6)")
-  await panel.getByRole("switch", { name: "External LF crystal" }).uncheck()
-  await expect(summary).toContainText("Y1")
-  await expect(region.locator('[data-component-change="removed"]')).toHaveCount(
-    3,
-  )
   await expect(
-    region.locator('svg .sch-path[stroke="#dc2626"][stroke-dasharray]'),
-  ).toHaveCount(3)
+    resistor.locator("rect[data-preview-change-highlight]"),
+  ).toHaveCount(0)
+  const annotationBoxes = region.locator(
+    'svg rect[data-preview-change-highlight^="schematic_text"]',
+  )
+  await expect(annotationBoxes.first()).toBeVisible()
+  const nextBoxCount = await boxes.count()
   await region.screenshot({
-    path: info.outputPath("removed-parts-highlight.png"),
+    path: info.outputPath("changed-voltage-boxes.png"),
   })
+  await page.waitForTimeout(1600)
+  await expect(boxes).toHaveCount(nextBoxCount)
+  const selection = page.url()
+  await expect(boxes).toHaveCount(0, { timeout: 5000 })
+  expect(page.url()).toBe(selection)
+  await expect(
+    panel.getByLabel("Supply voltage value", { exact: true }),
+  ).toHaveText("3.3 V")
+  await panel.getByRole("switch", { name: "External LF crystal" }).uncheck()
+  await expect(removedBoxes).toHaveCount(3)
+  await region.screenshot({ path: info.outputPath("removed-parts-boxes.png") })
   await region.getByRole("button", { name: "PCB", exact: true }).click()
   await expect(region.getByRole("alert")).toHaveCount(0)
   await expect(region.locator("canvas:visible").first()).toBeVisible()
@@ -111,16 +124,10 @@ test("datasheets link to a design index and a dedicated, shared design page with
       return count
     })
   await expect.poll(highlightPixels).toBeGreaterThan(0)
-  await region.screenshot({ path: info.outputPath("pcb-highlight.png") })
-  const selection = page.url()
-  await summary.getByRole("button", { name: "Clear highlights" }).click()
-  await expect(summary).toHaveCount(0)
-  await expect.poll(highlightPixels).toBe(0)
-  expect(page.url()).toBe(selection)
+  await region.screenshot({ path: info.outputPath("pcb-boxes.png") })
+  await expect.poll(highlightPixels, { timeout: 5000 }).toBe(0)
   await region.getByRole("button", { name: "Schematic", exact: true }).click()
-  await expect(
-    region.locator('svg .sch-path[stroke="#dc2626"][stroke-dasharray]'),
-  ).toHaveCount(0)
+  await expect(removedBoxes).toHaveCount(0)
   const before = page.url(),
     popupPending = page.waitForEvent("popup")
   await region.getByRole("link", { name: "Open package", exact: true }).click()

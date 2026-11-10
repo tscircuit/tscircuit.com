@@ -27,16 +27,7 @@ export const emptyCircuitChanges: PackageCircuitChanges = {
   components: [],
   schematicTextIds: [],
 }
-const pcbChangeColors = {
-  modified: "#fbbf24",
-  added: "#4ade80",
-  removed: "#fb7185",
-}
-export const circuitChangeColors = {
-  modified: "#d97706",
-  added: "#16a34a",
-  removed: "#dc2626",
-}
+export const circuitChangeOutlineColor = "#3b82f6"
 
 /** Generated IDs can shift when optional parts disappear. Compare authored content. */
 function semanticFields(record: unknown): unknown {
@@ -178,29 +169,6 @@ export function getPackageCircuitChanges({
   return { components, schematicTextIds }
 }
 
-const cssId = (id: string) =>
-  id.replace(
-    /[^a-zA-Z0-9_-]/gu,
-    (character) => `\\${character.codePointAt(0)!.toString(16)} `,
-  )
-
-export function getSchematicChangeCss(changes: PackageCircuitChanges) {
-  const rules = changes.components
-    .filter((change) => change.kind !== "removed" && change.schematic)
-    .map((change) => {
-      const selector = `[data-schematic-component-id="${cssId(change.schematic!.schematic_component_id)}"]`
-      const color = circuitChangeColors[change.kind]
-      return `${selector} .component-overlay { fill: ${color}26 !important; stroke: ${color} !important; stroke-width: 1.5px; }
-      ${selector} .sch-component-text { fill: ${color} !important; font-weight: 700; }
-      ${selector} .sch-component-symbol-path { stroke: ${color} !important; }`
-    })
-  for (const id of changes.schematicTextIds)
-    rules.push(
-      `[data-schematic-text-id="${cssId(id)}"] { fill: ${circuitChangeColors.modified} !important; font-weight: 700; stroke: #fef3c7; stroke-width: 1px; paint-order: stroke; }`,
-    )
-  return rules.join("\n")
-}
-
 /** View-only outlines mark the previous location of removed symbols. */
 export function getRemovedSchematicOutlines(
   changes: PackageCircuitChanges,
@@ -214,7 +182,7 @@ export function getRemovedSchematicOutlines(
       const { x, y } = component.center
       return {
         type: "schematic_path",
-        schematic_path_id: `preview_removed_${index}`,
+        schematic_path_id: `preview_change_${index}`,
         schematic_sheet_id: component.schematic_sheet_id,
         points: [
           { x: x - halfSize, y: y - halfSize },
@@ -227,20 +195,20 @@ export function getRemovedSchematicOutlines(
         dash_length: 0.15,
         dash_gap: 0.1,
         stroke_width: 0.06,
-        stroke_color: circuitChangeColors.removed,
+        stroke_color: circuitChangeOutlineColor,
       }
     })
 }
 
 export function getPcbChangeGraphics(changes: PackageCircuitChanges) {
-  const circles = changes.components
+  const rects = changes.components
     .filter((change) => change.pcb)
     .map((change) => ({
       center: change.pcb!.center,
-      radius: Math.hypot(change.pcb!.width, change.pcb!.height) / 2 + 0.4,
-      stroke: pcbChangeColors[change.kind],
-      fill: `${pcbChangeColors[change.kind]}50`,
-      label: change.name,
+      width: change.pcb!.width + 0.8,
+      height: change.pcb!.height + 0.8,
+      ccwRotationDegrees: change.pcb!.rotation,
+      stroke: circuitChangeOutlineColor,
     }))
-  return { circles }
+  return { rects }
 }

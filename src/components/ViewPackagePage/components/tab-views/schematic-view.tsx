@@ -4,12 +4,12 @@ import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useSchematicChangeHighlights } from "@/hooks/use-schematic-change-highlights"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 import {
   emptyCircuitChanges,
   getRemovedSchematicOutlines,
-  getSchematicChangeCss,
 } from "@/lib/package-circuit-changes"
 import {
   SchematicViewer,
@@ -81,13 +81,9 @@ export default function SchematicView({
   }
   const displayedCircuit = selectedSheet ? sheet.data : circuitJson
   const changes = usePackagePreviewChanges()
-  const changeCss = useMemo(
-    () => getSchematicChangeCss(changes?.circuit ?? emptyCircuitChanges),
-    [changes?.circuit],
-  )
   const removedOutlines = useMemo(
-    () => getRemovedSchematicOutlines(changes?.circuit ?? emptyCircuitChanges),
-    [changes?.circuit],
+    () => getRemovedSchematicOutlines(changes ?? emptyCircuitChanges),
+    [changes],
   )
   const revision = useRef(0)
   const viewerCircuit = useMemo(
@@ -99,8 +95,14 @@ export default function SchematicView({
             editCount: ++revision.current,
           })
         : undefined,
-    [displayedCircuit, changeCss, removedOutlines],
+    [displayedCircuit, removedOutlines],
   )
+  const containerRef = useRef<HTMLDivElement>(null)
+  useSchematicChangeHighlights({
+    containerRef,
+    changes: changes ?? emptyCircuitChanges,
+    renderedCircuit: isLoading || sheet.isLoading ? undefined : viewerCircuit,
+  })
   const loadError = error || sheet.error
   if (isLoading || (selectedSheet && sheet.isLoading)) {
     return (
@@ -150,10 +152,9 @@ export default function SchematicView({
           </select>
         </label>
       )}
-      <div className="h-[620px]">
+      <div ref={containerRef} className="h-[620px]">
         <SchematicViewer
           controller={controller}
-          css={changeCss}
           disableGroups
           clickToInteractEnabled
           circuitJson={

@@ -3,7 +3,6 @@ import {
   getPackageCircuitChanges,
   getPcbChangeGraphics,
   getRemovedSchematicOutlines,
-  getSchematicChangeCss,
 } from "@/lib/package-circuit-changes"
 import type { AnyCircuitElement } from "circuit-json"
 
@@ -66,11 +65,7 @@ test("value differences find the actual part despite regenerated source and view
   expect(
     changes.components.map((change) => [change.name, change.kind]),
   ).toEqual([["R7", "modified"]])
-  expect(getSchematicChangeCss(changes)).toContain(
-    'data-schematic-component-id="schematic_10"',
-  )
-  expect(getSchematicChangeCss(changes)).not.toContain("schematic_20")
-  expect(getPcbChangeGraphics(changes)?.circles[0].center).toEqual({
+  expect(getPcbChangeGraphics(changes).rects[0].center).toEqual({
     x: 4,
     y: 5,
   })
@@ -121,9 +116,6 @@ test("free annotations such as input voltage are matched by location, not genera
   })
   expect(changes.components).toEqual([])
   expect(changes.schematicTextIds).toEqual(["new"])
-  expect(getSchematicChangeCss(changes)).toContain(
-    'data-schematic-text-id="new"',
-  )
   expect(
     getPackageCircuitChanges({
       previousCircuit: [note("old", "2.5 V input")],
@@ -151,19 +143,4 @@ test("identically named parts in named subcircuits keep separate identities", ()
   })
   expect(changes.components).toHaveLength(1)
   expect(changes.components[0].key).toContain("sensor")
-})
-
-test("package IDs cannot break out of the view's generated CSS", () => {
-  const changes = getPackageCircuitChanges({
-    previousCircuit: resistor({ name: "R7", index: 1 }),
-    currentCircuit: resistor({ name: "R7", index: 2, resistance: 4700 }),
-  })
-  if (!changes.components[0].schematic)
-    throw new Error("Missing schematic fixture")
-  changes.components[0].schematic.schematic_component_id =
-    'part"]</style><script>unsafe</script>'
-  const css = getSchematicChangeCss(changes)
-  expect(css).not.toContain("</style>")
-  expect(css).not.toContain("<script>")
-  expect(css).toContain("\\3c ")
 })

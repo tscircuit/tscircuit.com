@@ -3,72 +3,55 @@ import {
   emptyCircuitChanges,
   getPackageCircuitChanges,
 } from "@/lib/package-circuit-changes"
-import type { PreviewParameterValues } from "@/lib/package-preview-parameters"
 import type { AnyCircuitElement } from "circuit-json"
 import {
   type ReactNode,
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from "react"
 
-type PreviewChanges = {
-  circuit: PackageCircuitChanges
-  previousValues?: PreviewParameterValues
-  changedParameterIds: string[]
-}
-const emptyChanges: PreviewChanges = {
-  circuit: emptyCircuitChanges,
-  changedParameterIds: [],
-}
-const Context = createContext<(PreviewChanges & { clear: () => void }) | null>(
-  null,
-)
+const Context = createContext<PackageCircuitChanges | null>(null)
 
 export function PackagePreviewChangesProvider({
   circuitJson,
   selectionKey,
-  parameterValues,
   children,
 }: {
   circuitJson: AnyCircuitElement[] | null
   selectionKey: string
-  parameterValues?: PreviewParameterValues
   children: ReactNode
 }) {
   const previous = useRef<{
     circuitJson: AnyCircuitElement[]
     selectionKey: string
-    parameterValues?: PreviewParameterValues
   }>()
-  const [changes, setChanges] = useState<PreviewChanges>(emptyChanges)
+  const [changes, setChanges] = useState(emptyCircuitChanges)
   useLayoutEffect(() => {
     if (!circuitJson) return
     const previousSelection = previous.current
-    previous.current = { circuitJson, selectionKey, parameterValues }
+    previous.current = { circuitJson, selectionKey }
     if (!previousSelection || previousSelection.selectionKey === selectionKey)
       return
-    setChanges({
-      circuit: getPackageCircuitChanges({
+    setChanges(
+      getPackageCircuitChanges({
         previousCircuit: previousSelection.circuitJson,
         currentCircuit: circuitJson,
       }),
-      previousValues: previousSelection.parameterValues,
-      changedParameterIds: Object.keys(parameterValues ?? {}).filter(
-        (id) =>
-          parameterValues?.[id] !== previousSelection.parameterValues?.[id],
-      ),
-    })
-  }, [circuitJson, selectionKey, parameterValues])
-  return (
-    <Context.Provider
-      value={{ ...changes, clear: () => setChanges(emptyChanges) }}
-    >
-      {children}
-    </Context.Provider>
-  )
+    )
+  }, [circuitJson, selectionKey])
+  useEffect(() => {
+    if (changes === emptyCircuitChanges) return
+    const timeout = window.setTimeout(
+      () => setChanges(emptyCircuitChanges),
+      3000,
+    )
+    return () => window.clearTimeout(timeout)
+  }, [changes])
+  return <Context.Provider value={changes}>{children}</Context.Provider>
 }
 
 export const usePackagePreviewChanges = () => useContext(Context)

@@ -101,7 +101,7 @@ test("a cold package link restores combined parameters and exports the exact cir
     circuit.some(
       (element) =>
         element.type === "schematic_path" &&
-        element.schematic_path_id?.startsWith("preview_removed_"),
+        element.schematic_path_id?.startsWith("preview_change_"),
     ),
   ).toBe(false)
 })

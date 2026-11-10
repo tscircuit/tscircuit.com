@@ -14,8 +14,8 @@ export default function PCBView({
 }) {
   const changes = usePackagePreviewChanges()
   const debugGraphics = useMemo(
-    () => (changes ? getPcbChangeGraphics(changes.circuit) : undefined),
-    [changes?.circuit],
+    () => (changes ? getPcbChangeGraphics(changes) : undefined),
+    [changes],
   )
   const { circuitJson, packageFiles, isLoading, error } =
     useCurrentPackageCircuitJson()
