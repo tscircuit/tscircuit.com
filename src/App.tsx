@@ -1,10 +1,10 @@
 import { ComponentType, Suspense, lazy } from "react"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
-import { ContextProviders } from "./ContextProviders"
-import React from "react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { Loader2 } from "lucide-react"
+import React from "react"
+import { ContextProviders } from "./ContextProviders"
 
 export const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -82,6 +82,12 @@ const ViewPackageFilePage = lazyImport(
 )
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
+const DatasheetReferenceDesignsPage = lazyImport(
+  () => import("@/pages/datasheet-reference-designs"),
+)
+const DatasheetReferenceDesignPage = lazyImport(
+  () => import("@/pages/datasheet-reference-design"),
+)
 const DatasheetsPage = lazyImport(() => import("@/pages/datasheets"))
 const ProfessionalSupportPage = lazyImport(
   () => import("@/pages/professional-support"),
@@ -282,6 +288,14 @@ function App() {
             <Route path="/search" component={SearchPage} />
             <Route path="/trending" component={TrendingPage} />
             <Route path="/datasheets" component={DatasheetsPage} />
+            <Route
+              path="/datasheets/:chipName/reference-designs/:author/:packageName"
+              component={DatasheetReferenceDesignPage}
+            />
+            <Route
+              path="/datasheets/:chipName/reference-designs"
+              component={DatasheetReferenceDesignsPage}
+            />
             <Route path="/datasheets/:chipName" component={DatasheetPage} />
             <Route
               path="/professional-support"

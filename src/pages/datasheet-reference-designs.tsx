@@ -1,0 +1,76 @@
+import { DatasheetBreadcrumbs } from "@/components/DatasheetBreadcrumbs"
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
+import { getReferenceDesignUrl } from "@/lib/reference-design-selection"
+import { ArrowRight } from "lucide-react"
+import { Link, useParams } from "wouter"
+
+export default function DatasheetReferenceDesignsPage() {
+  const { chipName } = useParams<{ chipName: string }>()
+  const { packages, failed, isLoading, refetch } =
+    useDatasheetReferenceDesignPackages(chipName)
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="mx-auto w-full flex-grow px-4 py-8 md:px-20 lg:px-28">
+        <DatasheetBreadcrumbs chipName={chipName} referenceDesigns />
+        <h1 className="mb-8 break-words text-3xl font-bold text-gray-900 md:text-4xl">
+          {chipName} Reference Designs
+        </h1>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Reference designs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <p role="status">Loading reference designs...</p>
+            ) : failed.length > 0 && !packages.length ? (
+              <div role="alert">
+                <p>Unable to load reference designs.</p>
+                <Button
+                  variant="outline"
+                  className="mt-3"
+                  onClick={() => refetch()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : !packages.length ? (
+              <p className="text-sm text-gray-500">
+                No reference designs available.
+              </p>
+            ) : (
+              <ul className="divide-y divide-slate-200">
+                {packages.map((name) => (
+                  <li key={name}>
+                    <Link
+                      href={getReferenceDesignUrl({ chipName, name })}
+                      className="flex items-center justify-between gap-4 rounded-md px-2 py-4 hover:bg-slate-50"
+                    >
+                      <span className="min-w-0">
+                        <span className="block break-words font-semibold text-blue-600">
+                          {name.split("/")[1]}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {name.split("/")[0]}
+                        </span>
+                      </span>
+                      <ArrowRight
+                        className="h-4 w-4 shrink-0"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+      <Footer />
+    </div>
+  )
+}

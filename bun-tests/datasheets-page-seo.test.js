@@ -168,3 +168,32 @@ describe("datasheet TSX in server-rendered HTML", () => {
     }
   }, 8000)
 })
+
+describe("reference design page metadata", () => {
+  test.each([
+    ["/datasheets/EXAMPLE/reference-designs", "EXAMPLE Reference Designs"],
+    [
+      "/datasheets/EXAMPLE/reference-designs/maker/power-board?preview_file=dist%2Findex%2Fcircuit.json",
+      "power-board - EXAMPLE Reference Design",
+    ],
+  ])("keeps a dedicated title and canonical URL for %s", async (url, title) => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async () =>
+      Response.json({
+        datasheet: { generated_tsx: "export const Test = () => <chip />" },
+      })
+    try {
+      const { html, statusCode } = await getPage(url)
+      expect(statusCode).toBe(200)
+      expect(html).toContain(`<title>${title} - tscircuit</title>`)
+      expect(html).toContain(
+        `<link rel="canonical" href="https://tscircuit.com${url.split("?")[0]}" />`,
+      )
+      expect(html).not.toContain(
+        '<summary class="cursor-pointer p-6 text-xl font-semibold">TSX</summary>',
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+})

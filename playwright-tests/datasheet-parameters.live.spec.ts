@@ -65,7 +65,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
     { timeout: 60_000 },
   )
   await page.goto(
-    `/datasheets/CC2340R52E0RGER?reference_release=${release}&reference_view=3d#reference-designs`,
+    `/datasheets/CC2340R52E0RGER/reference-designs/ShiboSoftwareDev/cc2340r5-reference-design?package_release_id=${release}#3d`,
     { timeout: 60_000 },
   )
   const { package_files: files }: { package_files: PackageFile[] } = await (
@@ -102,15 +102,13 @@ test("independent controls compose all 64 exact states offline and preserve the 
   const bundleFile = files.find((f) => f.file_path === manifest.bundlePath)
   if (!bundleFile) throw new Error("Missing published circuit bundle")
   const bundleId = bundleFile.package_file_id
-  const region = page.getByRole("region", { name: "Reference designs" })
+  const region = page.getByRole("region", {
+    name: "Reference design",
+    exact: true,
+  })
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
   })
-  const design = region.getByRole("button", {
-    name: "ShiboSoftwareDev/cc2340r5-reference-design",
-    exact: true,
-  })
-  await expect(design).toHaveAttribute("aria-expanded", "true")
   await panel.scrollIntoViewIfNeeded()
   const lf = panel.getByRole("switch", { name: "External LF crystal" })
   const header = panel.getByRole("switch", { name: "SWD header" })
@@ -134,7 +132,9 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(canvas).toBeVisible()
   await canvas.evaluate((e) => e.setAttribute("data-parameter-canvas", "true"))
   await page.evaluate(() => {
-    const region = document.querySelector("#reference-designs")!
+    const region = document.querySelector(
+      '[aria-labelledby="reference-design-heading"]',
+    )!
     const scene = region.querySelector("[data-parameter-canvas]")!
     window.parameterFailures = []
     const check = () => {
@@ -163,20 +163,9 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(displayValue("Supply voltage")).toHaveText("3.3 V")
   await expect(displayValue("Input bulk capacitor")).toHaveText("22 µF")
   await expect(displayValue("Reset pull-up")).toHaveText("10 kΩ")
-  const selectedUrl = page.url()
-  await design.click()
-  await expect(design).toHaveAttribute("aria-expanded", "false")
-  await expect(panel).not.toBeVisible()
-  await region.screenshot({
-    path: info.outputPath("collapsed-reference-design.png"),
-  })
-  await design.press("Enter")
-  await expect(design).toHaveAttribute("aria-expanded", "true")
-  await expect(panel).toBeVisible()
-  expect(page.url()).toBe(selectedUrl)
   await expect(
-    region.locator('canvas[data-parameter-canvas="true"]'),
-  ).toBeVisible()
+    region.getByRole("status", { name: "Configuration changes" }),
+  ).toContainText("R14")
   await region.getByRole("button", { name: "Schematic", exact: true }).click()
   const schematic = region
     .locator("svg:has([data-schematic-component-id])")
@@ -184,6 +173,21 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(schematic).toContainText(/C2\s*22\s*[µμu]F/)
   await expect(schematic).toContainText(/R14\s*10\s*k/)
   await expect(schematic).toContainText("3.3 V supply")
+  const changedResistor = schematic
+    .locator("g[data-schematic-component-id]")
+    .filter({ has: page.getByText("R14", { exact: true }) })
+  await expect
+    .poll(() =>
+      changedResistor
+        .locator(".sch-component-text")
+        .last()
+        .evaluate((element) => getComputedStyle(element).fill),
+    )
+    .toBe("rgb(217, 119, 6)")
+  await expect(
+    panel.getByLabel("Reset pull-up previous value", { exact: true }),
+  ).toContainText("100")
+
   await region.screenshot({
     path: info.outputPath("combined-parameters-schematic.png"),
   })
@@ -225,9 +229,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
             if (!variant)
               throw new Error("Missing published parameter combination")
             await expect
-              .poll(() =>
-                new URL(page.url()).searchParams.get("reference_file"),
-              )
+              .poll(() => new URL(page.url()).searchParams.get("preview_file"))
               .toBe(variant.circuitJsonPath)
             const circuit = bundle[variant.circuitJsonPath]
             const parts = circuit.filter((e) => e.type === "source_component")
@@ -371,9 +373,8 @@ test("independent controls compose all 64 exact states offline and preserve the 
   ).toBeChecked()
   await packagePage.close()
   await page.goto(
-    `/datasheets/CC2340R52E0RGER?reference_release=${release}#reference-designs`,
+    `/datasheets/CC2340R52E0RGER/reference-designs/ShiboSoftwareDev/cc2340r5-reference-design?package_release_id=${release}#schematic`,
   )
-  await expect(design).toHaveAttribute("aria-expanded", "true")
   await expect(
     region.getByRole("button", { name: "Schematic", exact: true }),
   ).toHaveAttribute("aria-pressed", "true")

@@ -20,7 +20,6 @@ import {
   usePreparedPackageParameters,
 } from "@/hooks/use-package-preview-parameters"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useUrlParams } from "@/hooks/use-url-params"
 import {
   downloadPackagePreviewGlb,
   findPackagePreviewGlb,
@@ -48,7 +47,6 @@ function PreviewBuildSelector({ label }: { label?: string } = {}) {
   const queryClient = useQueryClient()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((state) => state.session?.token)
-  const params = useUrlParams()
   const scope = usePackagePreviewScope()
 
   if (previewFiles.length < 2) return null
@@ -62,9 +60,7 @@ function PreviewBuildSelector({ label }: { label?: string } = {}) {
     try {
       // Commit the selection only after its assets are cached. A cold switch
       // keeps the current configuration and its label in place until ready.
-      const view = scope
-        ? (params.reference_view ?? "3d")
-        : window.location.hash.slice(1) || "3d"
+      const view = window.location.hash.slice(1) || (scope ? "schematic" : "3d")
       const glb = view === "3d" && findPackagePreviewGlb(packageFiles, path)
       await Promise.all([
         prefetchPreview(path, true),

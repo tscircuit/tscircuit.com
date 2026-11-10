@@ -33,6 +33,7 @@ export function useDatasheetReferenceDesignPackages(chipName: string) {
       chipName: chipName,
     }),
     failed: query.data?.failed ?? [],
+    isLoading: query.isLoading,
     refetch: query.refetch,
   }
 }

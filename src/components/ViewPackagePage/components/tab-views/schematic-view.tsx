@@ -1,3 +1,4 @@
+import { usePackagePreviewChanges } from "@/components/PackagePreviewChanges"
 import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -5,6 +6,11 @@ import { usePackageFiles } from "@/hooks/use-package-files"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
+import {
+  emptyCircuitChanges,
+  getRemovedSchematicOutlines,
+  getSchematicChangeCss,
+} from "@/lib/package-circuit-changes"
 import {
   SchematicViewer,
   type SchematicViewerController,
@@ -74,17 +80,26 @@ export default function SchematicView({
     window.dispatchEvent(new Event("popstate"))
   }
   const displayedCircuit = selectedSheet ? sheet.data : circuitJson
+  const changes = usePackagePreviewChanges()
+  const changeCss = useMemo(
+    () => getSchematicChangeCss(changes?.circuit ?? emptyCircuitChanges),
+    [changes?.circuit],
+  )
+  const removedOutlines = useMemo(
+    () => getRemovedSchematicOutlines(changes?.circuit ?? emptyCircuitChanges),
+    [changes?.circuit],
+  )
   const revision = useRef(0)
   const viewerCircuit = useMemo(
     () =>
       displayedCircuit
-        ? Object.assign([...displayedCircuit], {
+        ? Object.assign([...displayedCircuit, ...removedOutlines], {
             // The viewer caches SVGs by array length and editCount. Value-only
             // parameter changes need a revision even when no parts are added.
             editCount: ++revision.current,
           })
         : undefined,
-    [displayedCircuit],
+    [displayedCircuit, changeCss, removedOutlines],
   )
   const loadError = error || sheet.error
   if (isLoading || (selectedSheet && sheet.isLoading)) {
@@ -138,6 +153,7 @@ export default function SchematicView({
       <div className="h-[620px]">
         <SchematicViewer
           controller={controller}
+          css={changeCss}
           disableGroups
           clickToInteractEnabled
           circuitJson={

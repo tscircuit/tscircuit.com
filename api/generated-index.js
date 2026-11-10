@@ -279,17 +279,35 @@ async function handleDatasheetPage(req, res) {
   } catch {
     // Keep the page available so the client can retry unavailable API data.
   }
-  const generatedTsx = datasheet?.generated_tsx
+  const referenceDesigns = parts[3] === "reference-designs"
+  const referenceName =
+    referenceDesigns && parts[4] && parts[5]
+      ? decodeURIComponent(parts[5])
+      : null
+  const pageTitle = referenceDesigns
+    ? referenceName
+      ? `${referenceName} - ${chipName} Reference Design`
+      : `${chipName} Reference Designs`
+    : `${chipName} Datasheet`
+  const pagePath =
+    `/datasheets/${encodeURIComponent(chipName)}` +
+    (referenceDesigns ? "/reference-designs" : "") +
+    (referenceName
+      ? `/${encodeURIComponent(decodeURIComponent(parts[4]))}/${encodeURIComponent(referenceName)}`
+      : "")
+  const generatedTsx = referenceDesigns ? null : datasheet?.generated_tsx
   const tsxContent =
     typeof generatedTsx === "string" && generatedTsx.trim()
       ? `<details class="mb-6 rounded-lg border"><summary class="cursor-pointer p-6 text-xl font-semibold">TSX</summary><pre class="mx-6 mb-6 max-h-96 overflow-auto rounded-md bg-slate-50 p-4 text-sm"><code>${he.encode(generatedTsx)}</code></pre></details>`
       : ""
 
   const html = getHtmlWithModifiedSeoTags({
-    title: `${he.encode(chipName)} Datasheet - tscircuit`,
-    description: `View the ${he.encode(chipName)} datasheet on tscircuit.`,
-    canonicalUrl: `${BASE_URL}/datasheets/${encodeURIComponent(chipName)}`,
-    ssrContent: `<style>#loader{display:none}</style><main data-ssr-datasheet-page class="mx-auto px-4 md:px-20 lg:px-28 py-8 w-full"><h1 class="mb-6 text-3xl font-bold break-words">${he.encode(chipName)} Datasheet</h1>${tsxContent}</main>`,
+    title: `${he.encode(pageTitle)} - tscircuit`,
+    description: referenceDesigns
+      ? `Inspect and configure reference designs for ${he.encode(chipName)} on tscircuit.`
+      : `View the ${he.encode(chipName)} datasheet on tscircuit.`,
+    canonicalUrl: `${BASE_URL}${pagePath}`,
+    ssrContent: `<style>#loader{display:none}</style><main data-ssr-datasheet-page class="mx-auto px-4 md:px-20 lg:px-28 py-8 w-full"><h1 class="mb-6 text-3xl font-bold break-words">${he.encode(pageTitle)}</h1>${tsxContent}</main>`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

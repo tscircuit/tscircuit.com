@@ -97,4 +97,11 @@ test("a cold package link restores combined parameters and exports the exact cir
   )
   expect(circuit.filter((e) => e.type.endsWith("_error"))).toEqual([])
   expect(JSON.stringify(circuit)).toContain("3.3 V supply")
+  expect(
+    circuit.some(
+      (element) =>
+        element.type === "schematic_path" &&
+        element.schematic_path_id?.startsWith("preview_removed_"),
+    ),
+  ).toBe(false)
 })

@@ -5,14 +5,32 @@ import {
   findParameterVariantByPath,
 } from "@/lib/package-preview-parameters"
 import { useId, useState } from "react"
+import { usePackagePreviewChanges } from "./PackagePreviewChanges"
 import { usePackagePreviewScope } from "./PackagePreviewScope"
 import { useCurrentPackageCircuitJson } from "./ViewPackagePage/hooks/use-current-package-circuit-json"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 
+function formatPreviousValue(
+  parameter: PreviewParameterManifest["parameters"][number],
+  propValue: string | boolean | number,
+) {
+  if (parameter.type === "boolean") return propValue ? "On" : "Off"
+  if (parameter.type === "number")
+    return String(
+      parameter.options.find((option) => option.value === propValue)?.number ??
+        propValue,
+    )
+  return (
+    parameter.options.find((option) => option.value === propValue)?.label ??
+    String(propValue)
+  )
+}
+
 export function PackageParameterPanel({
   manifest,
 }: { manifest: PreviewParameterManifest }) {
+  const changes = usePackagePreviewChanges()
   const panelId = useId()
   const { previewFilePath } = useCurrentPackageCircuitJson()
   const scope = usePackagePreviewScope()
@@ -70,11 +88,34 @@ export function PackageParameterPanel({
           const id = `${panelId}-${parameter.id}`
           const value = current.values[parameter.id]
           return (
-            <div key={parameter.id}>
+            <div
+              key={parameter.id}
+              data-parameter-changed={
+                changes?.changedParameterIds.includes(parameter.id)
+                  ? "true"
+                  : undefined
+              }
+              className={`rounded-md p-2 ${changes?.changedParameterIds.includes(parameter.id) ? "bg-amber-50 ring-1 ring-amber-300" : ""}`}
+            >
               <div className="mb-1 flex items-center justify-between gap-3">
                 <label htmlFor={id} className="text-sm font-medium">
                   {parameter.label}
                 </label>
+                {changes?.changedParameterIds.includes(parameter.id) &&
+                  changes.previousValues && (
+                    <span
+                      className="ml-auto shrink-0 text-xs text-amber-800"
+                      aria-label={`${parameter.label} previous value`}
+                    >
+                      <s>
+                        {formatPreviousValue(
+                          parameter,
+                          changes.previousValues[parameter.id],
+                        )}
+                      </s>
+                      <span aria-hidden="true"> →</span>
+                    </span>
+                  )}
                 {parameter.type === "boolean" && (
                   <Switch
                     id={id}
