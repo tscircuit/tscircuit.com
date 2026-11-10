@@ -1,4 +1,3 @@
-import { PackageCustomizeLink } from "./package-customize-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -26,6 +25,7 @@ import {
 } from "lucide-react"
 import React, { useEffect, useMemo } from "react"
 import { Link, useLocation } from "wouter"
+import { PackageCustomizeLink } from "./package-customize-link"
 import PreviewImageSquares from "./preview-image-squares"
 
 interface MobileSidebarProps {

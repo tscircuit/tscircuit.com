@@ -1,9 +1,26 @@
-import { expect, test } from "@playwright/test"
+import { type Locator, expect, test } from "@playwright/test"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
   "Set TSCIRCUIT_LIVE_URL to a real deployment",
 )
+
+function getParameterControlBounds(panel: Locator) {
+  return panel.evaluate((element) =>
+    [
+      element,
+      ...element.querySelectorAll("button, input[type=range], output"),
+    ].map((node) => {
+      const bounds = node.getBoundingClientRect()
+      return {
+        x: bounds.x + scrollX,
+        y: bounds.y + scrollY,
+        width: bounds.width,
+        height: bounds.height,
+      }
+    }),
+  )
+}
 
 test("About opens a schema-driven customizer and keeps the release, config, views and package header", async ({
   page,
@@ -81,22 +98,7 @@ test("About opens a schema-driven customizer and keeps the release, config, view
     panel.getByText(/Preparing parameter controls|Loading controls/i),
   ).toHaveCount(0)
   await page.evaluate(() => document.fonts.ready)
-  const controlBounds = () =>
-    panel.evaluate((element) =>
-      [
-        element,
-        ...element.querySelectorAll("button, input[type=range], output"),
-      ].map((node) => {
-        const bounds = node.getBoundingClientRect()
-        return {
-          x: bounds.x + scrollX,
-          y: bounds.y + scrollY,
-          width: bounds.width,
-          height: bounds.height,
-        }
-      }),
-    )
-  const preparingBounds = await controlBounds()
+  const preparingBounds = await getParameterControlBounds(panel)
   await panel.screenshot({ path: info.outputPath("controls-preparing.png") })
   releaseDownloads()
   await expect(panel.getByRole("switch", { name: "SWD header" })).toBeEnabled({
@@ -104,7 +106,7 @@ test("About opens a schema-driven customizer and keeps the release, config, view
   })
   await page.unroute("**/package_files/download?*")
   await expect(panel).toHaveAttribute("aria-busy", "false")
-  expect(await controlBounds()).toEqual(preparingBounds)
+  expect(await getParameterControlBounds(panel)).toEqual(preparingBounds)
   await expect(panel.getByRole("switch")).toHaveCount(2)
   await expect(panel.getByRole("slider")).toHaveCount(3)
   await expect(panel.locator('input[type="number"]')).toHaveCount(0)

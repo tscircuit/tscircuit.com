@@ -1,4 +1,3 @@
-import { PackageCustomizeLink } from "./package-customize-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -30,6 +29,7 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { Link, useLocation } from "wouter"
+import { PackageCustomizeLink } from "./package-customize-link"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo

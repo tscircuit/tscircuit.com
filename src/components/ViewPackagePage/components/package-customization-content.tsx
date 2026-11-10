@@ -69,7 +69,7 @@ export function PackageCustomizationContent() {
             </p>
           ) : (
             <PackageConfigurationPreview
-              showPackageLink={false}
+              hidePackageLink
               name={packageInfo.name}
               selection={resolvedSelection}
               onSelectionChange={updatePackagePreviewSelection}

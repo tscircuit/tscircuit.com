@@ -98,16 +98,16 @@ export function usePreparedPackageParameters(
           while (pending.length) {
             const path = pending.shift()!
             const file = files!.find((f) => f.file_path === path)!
-            const data = await downloadPackagePreviewGlb({
+            const glbBuffer = await downloadPackagePreviewGlb({
               apiBaseUrl,
               packageFileId: file.package_file_id,
               token,
               signal,
             })
-            buffers[file.package_file_id] = data
+            buffers[file.package_file_id] = glbBuffer
             client.setQueryData(
               ["packagePreviewGlb", apiBaseUrl, file.package_file_id, token],
-              data,
+              glbBuffer,
             )
           }
         }),

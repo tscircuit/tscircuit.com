@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test"
 
-// Runs against a real deployment and its real registry. No fake server or routes.
+// Uses real deployments and registry artifacts, including delayed-download checks.
 export default defineConfig({
   testDir: "playwright-tests",
   testMatch: /.*\.live\.spec\.ts/,

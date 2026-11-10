@@ -26,13 +26,13 @@ function PackageConfigurationCircuit({
   releaseId,
   selection,
   onSelectionChange,
-  showPackageLink,
+  hidePackageLink,
 }: {
   name: string
   releaseId: string
   selection: PackagePreviewSelection
   onSelectionChange: (selection: PackagePreviewSelection) => void
-  showPackageLink: boolean
+  hidePackageLink: boolean
 }) {
   const parameters = usePackagePreviewParameters()
   const view = views.some((item) => item.id === selection.view)
@@ -126,7 +126,7 @@ function PackageConfigurationCircuit({
               ))}
             </div>
           </div>
-          {showPackageLink && (
+          {!hidePackageLink && (
             <a
               href={href}
               target="_blank"
@@ -207,12 +207,12 @@ export function PackageConfigurationPreview({
   name,
   selection,
   onSelectionChange,
-  showPackageLink = true,
+  hidePackageLink = false,
 }: {
   name: string
   selection: PackagePreviewSelection
   onSelectionChange: (selection: PackagePreviewSelection) => void
-  showPackageLink?: boolean
+  hidePackageLink?: boolean
 }) {
   const { data: pkg, isLoading, error, refetch } = usePackageByName(name)
   const [resolvedRelease, setResolvedRelease] = useState<string>()
@@ -276,7 +276,7 @@ export function PackageConfigurationPreview({
         releaseId={releaseId}
         selection={selection}
         onSelectionChange={onSelectionChange}
-        showPackageLink={showPackageLink}
+        hidePackageLink={hidePackageLink}
       />
     </PackagePreviewProvider>
   )

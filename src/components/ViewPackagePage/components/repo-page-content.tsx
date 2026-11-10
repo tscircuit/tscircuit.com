@@ -1,4 +1,3 @@
-import { PackageCustomizationContent } from "./package-customization-content"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -22,6 +21,7 @@ import {
   scorePackageFileImportance,
 } from "../utils/is-package-file-important"
 import { PackageCircuitPreview } from "./package-circuit-preview"
+import { PackageCustomizationContent } from "./package-customization-content"
 import PackageHeader from "./package-header"
 import { RelatedPackagesSection } from "./related-packages-section"
 import SidebarReleasesSection from "./sidebar-releases-section"
