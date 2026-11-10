@@ -25,6 +25,7 @@ type PackageReleaseQuery = (
 export const usePackageRelease = (
   query: PackageReleaseQuery | null,
   options?: {
+    refetchOnMount?: boolean
     refetchInterval?:
       | number
       | false
@@ -55,6 +56,7 @@ export const usePackageRelease = (
       retry: false,
       enabled: Boolean(query),
       refetchInterval: options?.refetchInterval,
+      refetchOnMount: options?.refetchOnMount,
       refetchOnWindowFocus: false,
       staleTime: 0,
     },
