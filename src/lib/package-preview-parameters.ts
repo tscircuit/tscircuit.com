@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { fetchPackageArtifact } from "./fetch-package-artifact"
 
 const value = z.union([z.boolean(), z.string().max(128), z.number().finite()])
 const path = z.string().regex(/^dist\/(?!.*(?:\.\.|\\|:\/\/))[^?#]+$/)
@@ -136,15 +137,14 @@ export async function downloadPreviewCircuitBundle({
   signal?: AbortSignal
   manifest: PreviewParameterManifest
 }) {
-  const response = await fetch(
-    `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: packageFileId })}`,
-    {
-      signal: signal
-        ? AbortSignal.any([signal, AbortSignal.timeout(60_000)])
-        : AbortSignal.timeout(60_000),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    },
-  )
+  const response = await fetchPackageArtifact({
+    apiBaseUrl,
+    packageFileId,
+    token,
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(60_000)])
+      : AbortSignal.timeout(60_000),
+  })
   if (!response.ok || !response.body)
     throw new Error("Unable to load parameter circuits")
   // Bound decoded data before parsing, including gzip decompression.

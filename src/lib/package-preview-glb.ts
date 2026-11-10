@@ -1,3 +1,5 @@
+import { fetchPackageArtifact } from "./fetch-package-artifact"
+
 type PreviewFile = { file_path: string; package_file_id: string }
 
 const normalizePath = (path: string) =>
@@ -55,15 +57,14 @@ export async function downloadPackagePreviewGlb({
   token?: string
   signal?: AbortSignal
 }): Promise<ArrayBuffer> {
-  const response = await fetch(
-    `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: packageFileId })}`,
-    {
-      signal: signal
-        ? AbortSignal.any([signal, AbortSignal.timeout(30_000)])
-        : AbortSignal.timeout(30_000),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    },
-  )
+  const response = await fetchPackageArtifact({
+    apiBaseUrl,
+    packageFileId,
+    token,
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(30_000)])
+      : AbortSignal.timeout(30_000),
+  })
   if (!response.ok)
     throw new Error(`Unable to load preview GLB (${response.status})`)
   const bytes = await response.arrayBuffer()

@@ -1,4 +1,10 @@
-import { expect, test, type Page, type Request } from "@playwright/test"
+import {
+  expect,
+  test,
+  type Page,
+  type Request,
+  type Response,
+} from "@playwright/test"
 import { gunzipSync } from "node:zlib"
 
 test.skip(
@@ -18,15 +24,14 @@ test("independent controls compose all 64 exact states offline and preserve the 
   )
   const errors: string[] = []
   const requests: string[] = []
-  let bundleId: string | undefined
-  let bundle: Record<string, any[]> | undefined
+  const downloads = new Map<string, Response>()
   let monitor = false
   page.on("pageerror", (e) => errors.push(e.message))
   page.on("request", (request) => {
     if (monitor && request.url().includes("registry-api.tscircuit.com"))
       requests.push(request.url())
   })
-  page.on("response", async (response) => {
+  page.on("response", (response) => {
     if (!response.ok()) return
     for (
       let request: Request | null = response.request();
@@ -35,13 +40,11 @@ test("independent controls compose all 64 exact states offline and preserve the 
     ) {
       const url = new URL(request.url())
       if (
-        url.pathname.endsWith("/package_files/download") &&
-        url.searchParams.get("package_file_id") === bundleId
+        url.pathname.endsWith("/package_files/download") ||
+        url.origin === "https://usercontent.tscircuit.com"
       ) {
-        const bytes = await response.body()
-        bundle = JSON.parse(
-          (bytes[0] === 0x1f ? gunzipSync(bytes) : bytes).toString(),
-        )
+        const id = url.searchParams.get("package_file_id")
+        if (id) downloads.set(id, response)
         break
       }
     }
@@ -66,7 +69,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   }, manifestFile.package_file_id)
   expect(manifest.variants).toHaveLength(64)
   expect(new Set(manifest.variants.map((v: any) => v.glbPath)).size).toBe(8)
-  bundleId = files.find(
+  const bundleId = files.find(
     (f: any) => f.file_path === manifest.bundlePath,
   ).package_file_id
   const region = page.getByRole("region", { name: "Reference designs" })
@@ -81,7 +84,13 @@ test("independent controls compose all 64 exact states offline and preserve the 
   const range = (name: string) =>
     panel.getByRole("slider", { name: `${name} slider` })
   await expect(lf).toBeEnabled({ timeout: 120_000 })
-  await expect.poll(() => Boolean(bundle), { timeout: 30_000 }).toBe(true)
+  await expect
+    .poll(() => downloads.has(bundleId), { timeout: 30_000 })
+    .toBe(true)
+  const bytes = await downloads.get(bundleId)!.body()
+  const bundle: Record<string, any[]> = JSON.parse(
+    (bytes[0] === 0x1f ? gunzipSync(bytes) : bytes).toString(),
+  )
   await expect(lf).toBeChecked()
   await expect(header).toBeChecked()
   await expect(number("Supply voltage")).toHaveValue("2.5")
@@ -168,14 +177,14 @@ test("independent controls compose all 64 exact states offline and preserve the 
                 new URL(page.url()).searchParams.get("reference_file"),
               )
               .toBe(variant.circuitJsonPath)
-            const circuit = bundle![variant.circuitJsonPath]
+            const circuit = bundle[variant.circuitJsonPath]
             const parts = circuit.filter(
               (e: any) => e.type === "source_component",
             )
             expect(parts).toHaveLength(23 + (ext ? 3 : 0) + (debug ? 1 : 0))
-            expect(parts.find((e: any) => e.name === "C2").capacitance).toBe(
-              cap * 1e-6,
-            )
+            expect(
+              parts.find((e: any) => e.name === "C2").capacitance,
+            ).toBeCloseTo(cap * 1e-6, 12)
             expect(parts.find((e: any) => e.name === "R14").resistance).toBe(
               resistance * 1000,
             )

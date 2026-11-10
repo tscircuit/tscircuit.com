@@ -1,3 +1,5 @@
+import { fetchPackageArtifact } from "./fetch-package-artifact"
+
 /** Read ordinary package JSON files, including compressed large-board artifacts. */
 export async function downloadPackageCircuitJson({
   apiBaseUrl,
@@ -10,13 +12,12 @@ export async function downloadPackageCircuitJson({
   token?: string
   signal?: AbortSignal
 }): Promise<any[]> {
-  const response = await fetch(
-    `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: packageFileId })}`,
-    {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-      signal,
-    },
-  )
+  const response = await fetchPackageArtifact({
+    apiBaseUrl,
+    packageFileId,
+    token,
+    signal,
+  })
   if (!response.ok)
     throw new Error(`Unable to load Circuit JSON (${response.status})`)
   const bytes = new Uint8Array(await response.arrayBuffer())
