@@ -282,7 +282,7 @@ export default function RepoPageContent({
         element.type === "schematic_component" &&
         element.source_component_id === source_component_id,
     )
-    if (!component || component.type !== "schematic_component") return
+    if (!component) return
     focusSchematicComponent(component.schematic_component_id)
     handleViewChange("schematic")
   }

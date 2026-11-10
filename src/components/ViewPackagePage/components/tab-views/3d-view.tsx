@@ -1,19 +1,19 @@
-import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
-import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getPackageFileLookupParams } from "@/lib/package-model-assets"
-import {
-  downloadPackagePreviewGlb,
-  findPackagePreviewGlb,
-} from "@/lib/package-preview-glb"
-import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import { CadViewer } from "@tscircuit/3d-viewer"
-import type { AnyCircuitElement } from "circuit-json"
-import { type ComponentProps, Suspense, useMemo } from "react"
-import { useQuery } from "react-query"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { Suspense, useMemo, type ComponentProps } from "react"
+import type { AnyCircuitElement } from "circuit-json"
+import { useQuery } from "react-query"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
+import {
+  findPackagePreviewGlb,
+  downloadPackagePreviewGlb,
+} from "@/lib/package-preview-glb"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   const { author, packageName, version, releaseId } =
@@ -68,6 +68,7 @@ export default function ThreeDView({
   isFetchingPackageFiles = false,
   onViewSchematicComponent,
 }: ThreeDViewProps) {
+  const { preview } = usePackagePreviewIdentity()
   const { componentPath, previewFilePath, isLoading } =
     useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
@@ -75,8 +76,8 @@ export default function ThreeDView({
   const { manifest } = usePackagePreviewParameters()
   const glb = manifest
     ? packageFiles?.find(
-        (f) =>
-          f.file_path ===
+        (file) =>
+          file.file_path ===
           findParameterVariantByPath(manifest, previewFilePath).glbPath,
       )
     : findPackagePreviewGlb(packageFiles, componentPath)
@@ -90,19 +91,19 @@ export default function ThreeDView({
         signal,
       }),
     {
-      enabled: arePackageFilesFetched && !isLoading && Boolean(glb),
+      enabled: !preview && arePackageFilesFetched && !isLoading && Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      keepPreviousData: true,
+      staleTime: 120_000,
     },
   )
 
+  const glbBuffer = preview ? preview.glb : download.data
   if (
     !arePackageFilesFetched ||
     isLoading ||
     (!glb && isFetchingPackageFiles) ||
-    (glb && download.isLoading)
+    (!preview && glb && download.isLoading)
   )
     return (
       <div className="h-[620px] flex items-center justify-center">
@@ -110,13 +111,17 @@ export default function ThreeDView({
       </div>
     )
 
-  if (download.data && glb && !download.error)
+  if (glbBuffer && glb)
     return (
-      <div className="h-[620px] [&:has(canvas)_[role=status]]:hidden">
-        {/* CadViewer retains its last scene while parsing the next GLB. Keep
-            that scene visible without covering it with a loading message. */}
+      <div
+        className={
+          preview
+            ? "h-[620px] [&:has(canvas)_[role=status]]:hidden"
+            : "h-[620px]"
+        }
+      >
         <CadViewer
-          glbData={download.data}
+          glbData={glbBuffer}
           clickToInteractEnabled
           onViewSchematicComponent={onViewSchematicComponent}
         />

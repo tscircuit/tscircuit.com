@@ -45,7 +45,6 @@ export default function DatasheetReferenceDesignsPage() {
       <main className="mx-auto w-full flex-grow px-4 py-8 md:px-20 lg:px-28">
         <DatasheetBreadcrumbs
           chipName={chipName}
-          referenceDesigns
           referenceDesignName={name ? packageName : undefined}
         />
         <h1

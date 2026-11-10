@@ -8,8 +8,10 @@ import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-ci
 export default function PCBView({
   onViewSchematicComponent,
   className,
+  renderer,
 }: {
   className?: string
+  renderer?: ComponentProps<typeof PcbViewerWithContainerHeight>["renderer"]
   onViewSchematicComponent?: ComponentProps<
     typeof PcbViewerWithContainerHeight
   >["onViewSchematicComponent"]
@@ -19,8 +21,7 @@ export default function PCBView({
     () => (changes ? getPcbChangeGraphics(changes) : undefined),
     [changes],
   )
-  const { circuitJson, packageFiles, isLoading, error } =
-    useCurrentPackageCircuitJson()
+  const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
 
   if (isLoading) {
     return (
@@ -48,21 +49,11 @@ export default function PCBView({
       }
     >
       <PcbViewerWithContainerHeight
-        // Parameter previews keep the same backend across prepared configurations.
-        renderer={
-          packageFiles?.some((file) => file.file_path === "dist/preview.json")
-            ? "canvas"
-            : getPackagePcbRenderer(circuitJson)
-        }
+        renderer={renderer ?? getPackagePcbRenderer(circuitJson)}
         debugGraphics={debugGraphics}
         disablePcbGroups
         clickToInteractEnabled
-        circuitJson={
-          // The viewer bundles an older Circuit JSON type definition.
-          circuitJson as ComponentProps<
-            typeof PcbViewerWithContainerHeight
-          >["circuitJson"]
-        }
+        circuitJson={circuitJson}
         onViewSchematicComponent={onViewSchematicComponent}
         containerClassName="w-full h-[620px]"
       />

@@ -13,9 +13,6 @@ type ComponentKey = string
 type SourceGroupId = string
 
 export type CircuitComponentChange = {
-  key: ComponentKey
-  name: string
-  kind: "modified" | "added"
   schematic?: SchematicComponent
   pcb?: PcbComponent
 }
@@ -68,7 +65,6 @@ function indexComponents(circuitJson: readonly AnyCircuitElement[]) {
   const components = new Map<
     ComponentKey,
     {
-      source: SourceComponent
       schematic?: SchematicComponent
       pcb?: PcbComponent
       signature: string
@@ -105,7 +101,6 @@ function indexComponents(circuitJson: readonly AnyCircuitElement[]) {
         )
       : []
     components.set(key, {
-      source,
       schematic,
       pcb,
       signature: JSON.stringify(
@@ -149,9 +144,6 @@ export function getPackageCircuitChanges({
     const previousComponent = previous.get(key)
     if (previousComponent?.signature === currentComponent?.signature) continue
     components.push({
-      key,
-      name: currentComponent.source.name,
-      kind: previousComponent ? "modified" : "added",
       schematic: currentComponent.schematic,
       pcb: currentComponent.pcb,
     })

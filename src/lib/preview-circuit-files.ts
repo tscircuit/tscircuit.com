@@ -28,14 +28,7 @@ export function getDefaultPreviewFilePath(
   if (componentPath) {
     return getPackageFileArtifactPaths(componentPath, files).circuitJsonPath
   }
-  return (
-    [
-      "dist/circuit.json",
-      "dist/index/circuit.json",
-      "dist/circuit.json.gz",
-      "dist/index/circuit.json.gz",
-    ].find((path) =>
-      files.some((file) => normalizePreviewPath(file.file_path) === path),
-    ) ?? files.find((file) => /\.json\.gz$/i.test(file.file_path))?.file_path
+  return ["dist/circuit.json", "dist/index/circuit.json"].find((path) =>
+    files.some((file) => normalizePreviewPath(file.file_path) === path),
   )
 }

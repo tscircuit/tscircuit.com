@@ -20,17 +20,14 @@ export function useDatasheetReferenceDesignPackages(chipName: string) {
       datasheetReferenceDesignPackageNames,
     ],
     () =>
-      loadReferenceDesignCatalog(
-        datasheetReferenceDesignPackageNames,
-        axios.get.bind(axios),
-      ),
+      loadReferenceDesignCatalog(datasheetReferenceDesignPackageNames, axios),
     { staleTime: 5 * 60_000, refetchOnWindowFocus: false, retry: false },
   )
   return {
     packages: referenceDesignsForPart({
       entries: query.data?.entries ?? [],
       names: datasheetReferenceDesignPackageNames,
-      chipName: chipName,
+      chipName,
     }),
     failed: query.data?.failed ?? [],
     isLoading: query.isLoading,

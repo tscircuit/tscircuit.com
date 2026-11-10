@@ -29,6 +29,7 @@ export function PackageCircuitPreview({
       </KeepMountedView>
       <KeepMountedView active={view === "pcb"}>
         <PCBView
+          renderer="canvas"
           className="h-[620px]"
           onViewSchematicComponent={onViewSchematicComponent}
         />

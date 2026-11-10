@@ -1,11 +1,13 @@
+import type { AnyCircuitElement } from "circuit-json"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { type ReactNode, createContext, useContext } from "react"
 import { useParams } from "wouter"
 
 type PackagePreviewScope = {
-  packageName: string
-  releaseId: string
+  releaseId?: string
   previewFilePath?: string
+  circuitJson: AnyCircuitElement[] | null
+  glb?: ArrayBuffer
 }
 
 const Context = createContext<PackagePreviewScope | null>(null)
@@ -22,12 +24,12 @@ export function usePackagePreviewIdentity() {
   const scope = useContext(Context)
   const route = useParams()
   const params = useUrlParams()
-  const [scopeAuthor, scopeName] = scope?.packageName.split("/") ?? []
   return {
-    author: scope ? scopeAuthor : route.author,
-    packageName: scope ? scopeName : route.packageName,
-    packageId: scope ? undefined : params.package_id,
-    version: scope ? undefined : params.version,
+    preview: scope,
+    author: route.author,
+    packageName: route.packageName,
+    packageId: params.package_id,
+    version: params.version,
     releaseId: scope ? scope.releaseId : params.package_release_id,
     previewFilePath: scope ? scope.previewFilePath : params.preview_file,
   }

@@ -1,13 +1,11 @@
 import { downloadPackagePreviewGlb } from "@/lib/package-preview-glb"
 import {
   downloadPreviewCircuitBundle,
-  findParameterVariant,
   findParameterVariantByPath,
-  type PreviewParameterValues,
 } from "@/lib/package-preview-parameters"
 import type { PackagePreviewSelection } from "@/lib/package-preview-selection"
 import { useEffect, useState } from "react"
-import { useQuery, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 import { useGlobalStore } from "./use-global-store"
 import { usePackageByName } from "./use-package-by-package-name"
 import { usePackageFiles } from "./use-package-files"
@@ -49,7 +47,6 @@ export function usePackageConfiguration({
     : undefined
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
-  const client = useQueryClient()
   const view = selection.view ?? "schematic"
 
   const circuits = useQuery(
@@ -58,35 +55,13 @@ export function usePackageConfiguration({
       const file = files.data!.find(
         (f) => f.file_path === manifest!.bundlePath,
       )!
-      const bundle = await downloadPreviewCircuitBundle({
+      return downloadPreviewCircuitBundle({
         apiBaseUrl,
         packageFileId: file.package_file_id,
         token,
         signal,
         manifest: manifest!,
       })
-      for (const state of manifest!.variants) {
-        const circuitFile = files.data!.find(
-          (f) => f.file_path === state.circuitJsonPath,
-        )!
-        client.setQueryData(
-          [
-            "previewCircuitJson",
-            { package_release_id: releaseId },
-            circuitFile.package_file_id,
-            apiBaseUrl,
-            token,
-          ],
-          {
-            preview_circuit_json_response: {
-              circuit_json: bundle[state.circuitJsonPath],
-              component_path: state.circuitJsonPath,
-              circuit_json_found: true,
-            },
-          },
-        )
-      }
-      return bundle
     },
     {
       enabled: Boolean(manifest),
@@ -114,10 +89,6 @@ export function usePackageConfiguration({
               signal,
             })
             buffers[file.package_file_id] = buffer
-            client.setQueryData(
-              ["packagePreviewGlb", apiBaseUrl, file.package_file_id, token],
-              buffer,
-            )
           }
         }),
       )
@@ -130,36 +101,6 @@ export function usePackageConfiguration({
       refetchOnWindowFocus: false,
     },
   )
-
-  const selectParameters = (values: PreviewParameterValues) => {
-    if (!manifest || !circuits.data) return
-    const next = findParameterVariant(manifest, values)!
-    // Re-prime after inactive viewer queries have been garbage collected.
-    const file = files.data!.find((f) => f.file_path === next.circuitJsonPath)!
-    client.setQueryData(
-      [
-        "previewCircuitJson",
-        { package_release_id: releaseId },
-        file.package_file_id,
-        apiBaseUrl,
-        token,
-      ],
-      {
-        preview_circuit_json_response: {
-          circuit_json: circuits.data[next.circuitJsonPath],
-          component_path: next.circuitJsonPath,
-          circuit_json_found: true,
-        },
-      },
-    )
-    const glb = files.data!.find((f) => f.file_path === next.glbPath)!
-    if (models.data?.[glb.package_file_id])
-      client.setQueryData(
-        ["packagePreviewGlb", apiBaseUrl, glb.package_file_id, token],
-        models.data[glb.package_file_id],
-      )
-    return next.circuitJsonPath
-  }
 
   const hasManifest = files.data?.some(
     (f) => f.file_path === "dist/preview.json",
@@ -199,15 +140,18 @@ export function usePackageConfiguration({
     ready,
     metadataReady,
     error,
-    selectParameters,
     circuitJson: variant ? circuits.data?.[variant.circuitJsonPath] : undefined,
-    scope: releaseId
-      ? {
-          packageName: name,
-          releaseId,
-          previewFilePath: variant?.circuitJsonPath ?? selection.file,
-        }
-      : null,
+    scope: {
+      releaseId,
+      previewFilePath: variant?.circuitJsonPath ?? selection.file,
+      circuitJson: variant
+        ? (circuits.data?.[variant.circuitJsonPath] ?? null)
+        : null,
+      glb: models.data?.[
+        files.data?.find((f) => f.file_path === variant?.glbPath)
+          ?.package_file_id ?? ""
+      ],
+    },
     retry: () => {
       if (pkg.error) void pkg.refetch()
       if (release.error) void release.refetch()

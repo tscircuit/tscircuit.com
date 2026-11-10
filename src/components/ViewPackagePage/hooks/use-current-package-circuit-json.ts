@@ -1,52 +1,66 @@
-import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
-import { useAxios } from "@/hooks/use-axios"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageFiles } from "@/hooks/use-package-files"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 import {
   getDefaultPreviewFilePath,
   getPreviewCircuitFiles,
   normalizePreviewPath,
 } from "@/lib/preview-circuit-files"
-import type { AnyCircuitElement } from "circuit-json"
+import { useAxios } from "@/hooks/use-axios"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { useQuery } from "react-query"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 
 type PreviewCircuitJsonResponse = {
   preview_circuit_json_response: {
-    circuit_json?: AnyCircuitElement[]
+    circuit_json?: any[]
     component_path?: string
     circuit_json_found: boolean
   }
 }
 
-type PreviewCircuitQuery = Record<string, string | boolean>
-type PreviewCircuitFile = { file_path: string; package_file_id: string }
+export function useCurrentPackageCircuitJson() {
+  const { packageId } = useCurrentPackageId()
+  const { author, packageName, version, releaseId, previewFilePath, preview } =
+    usePackagePreviewIdentity()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((state) => state.session?.token)
+  const axios = useAxios()
 
-function getPreviewCircuitQueryOptions({
-  query,
-  selectedFile,
-  axios,
-  apiBaseUrl,
-  token,
-}: {
-  query: PreviewCircuitQuery | null
-  selectedFile?: PreviewCircuitFile
-  axios: ReturnType<typeof useAxios>
-  apiBaseUrl: string
-  token?: string
-}) {
-  return {
-    queryKey: [
-      "previewCircuitJson",
-      query,
-      selectedFile?.package_file_id,
-      apiBaseUrl,
-      token,
-    ],
-    queryFn: async ({ signal }: { signal?: AbortSignal }) => {
+  const { packageRelease } = useCurrentPackageRelease({
+    refetchOnMount: preview ? false : undefined,
+  })
+  const { data: packageFiles, isFetched: areFilesFetched } = usePackageFiles(
+    packageRelease?.package_release_id,
+    // Viewer mounts must not restart the file query and unmount the 3D fallback.
+    { refetchOnMount: false },
+  )
+  const previewFiles = getPreviewCircuitFiles(packageFiles)
+  // A link from another release must never select a file outside this release.
+  const selectedFile = previewFiles.find(
+    (file) => normalizePreviewPath(file.file_path) === previewFilePath,
+  )
+
+  let query: Record<string, string | boolean> | null = null
+
+  if (author && packageName && !version && !releaseId) {
+    query = { package_name: `${author}/${packageName}`, is_latest: true }
+  } else if (releaseId) {
+    query = { package_release_id: releaseId }
+  } else if (version && author && packageName) {
+    query = { package_name_with_version: `${author}/${packageName}@${version}` }
+  } else if (packageId) {
+    query = { package_id: packageId, is_latest: true }
+  }
+
+  const { data, isLoading, error } = useQuery<
+    PreviewCircuitJsonResponse,
+    Error & { status: number }
+  >(
+    ["previewCircuitJson", query, selectedFile?.package_file_id],
+    async (queryContext) => {
       if (!query) {
         throw new Error("Missing package release info")
       }
@@ -57,7 +71,7 @@ function getPreviewCircuitQueryOptions({
             apiBaseUrl,
             packageFileId: selectedFile.package_file_id,
             token,
-            signal,
+            signal: queryContext.signal,
           })
           return {
             preview_circuit_json_response: {
@@ -92,71 +106,28 @@ function getPreviewCircuitQueryOptions({
 
       return response.data
     },
-    // Release artifacts are immutable; keep visited configurations for this session.
-    staleTime: Infinity,
-    cacheTime: 5 * 60_000,
-    retry: false,
-  }
-}
-
-export function useCurrentPackageCircuitJson() {
-  const { packageId } = useCurrentPackageId()
-  const { author, packageName, version, releaseId, previewFilePath } =
-    usePackagePreviewIdentity()
-  const axios = useAxios()
-  const apiBaseUrl = useApiBaseUrl()
-  const token = useGlobalStore((state) => state.session?.token)
-
-  const { packageRelease } = useCurrentPackageRelease({ refetchOnMount: false })
-  const { data: packageFiles, isFetched: areFilesFetched } = usePackageFiles(
-    packageRelease?.package_release_id,
-    // Viewer mounts must not restart the file query and unmount the 3D fallback.
-    { refetchOnMount: false },
+    {
+      enabled:
+        !preview && Boolean(query) && (!previewFilePath || areFilesFetched),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 60_000 * 2,
+      cacheTime: 60_000 * 2,
+    },
   )
-  const previewFiles = getPreviewCircuitFiles(packageFiles)
-  // A link from another release must never select a file outside this release.
-  const explicitFile = previewFiles.find(
-    (file) => normalizePreviewPath(file.file_path) === previewFilePath,
-  )
-  const defaultPath = getDefaultPreviewFilePath(previewFiles)
-  const selectedFile =
-    explicitFile ??
-    (!previewFilePath && defaultPath?.endsWith(".gz")
-      ? previewFiles.find(
-          (file) => normalizePreviewPath(file.file_path) === defaultPath,
-        )
-      : undefined)
 
-  let query: PreviewCircuitQuery | null = null
-
-  if (packageRelease?.package_release_id) {
-    query = { package_release_id: packageRelease.package_release_id }
-  } else if (author && packageName && !version && !releaseId) {
-    query = { package_name: `${author}/${packageName}`, is_latest: true }
-  } else if (releaseId) {
-    query = { package_release_id: releaseId }
-  } else if (version && author && packageName) {
-    query = { package_name_with_version: `${author}/${packageName}@${version}` }
-  } else if (packageId) {
-    query = { package_id: packageId, is_latest: true }
-  }
-
-  const { data, isLoading, isPreviousData, error, refetch } = useQuery<
-    PreviewCircuitJsonResponse,
-    Error & { status: number }
-  >({
-    ...getPreviewCircuitQueryOptions({
-      query,
-      selectedFile,
-      axios,
-      apiBaseUrl,
-      token,
-    }),
-    enabled: Boolean(query) && areFilesFetched,
-    retry: false,
-    refetchOnWindowFocus: false,
-    keepPreviousData: true,
-  })
+  if (preview)
+    return {
+      circuitJson: preview.circuitJson,
+      circuitJsonFound: Boolean(preview.circuitJson),
+      packageFiles,
+      previewFiles,
+      hasPreviewFiles: previewFiles.length > 0,
+      previewFilePath: preview.previewFilePath,
+      componentPath: preview.previewFilePath,
+      isLoading: !preview.circuitJson,
+      error: null,
+    }
 
   const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
   const circuitJsonFound =
@@ -169,29 +140,21 @@ export function useCurrentPackageCircuitJson() {
       : null
 
   return {
-    refetch,
-    packageFiles,
     circuitJson,
     circuitJsonFound,
+    packageFiles,
     previewFiles,
     hasPreviewFiles: previewFiles.length > 0,
-    previewFilePath: isPreviousData
-      ? getDefaultPreviewFilePath(
+    previewFilePath: selectedFile
+      ? normalizePreviewPath(selectedFile.file_path)
+      : getDefaultPreviewFilePath(
           previewFiles,
           data?.preview_circuit_json_response.component_path,
-        )
-      : selectedFile
-        ? normalizePreviewPath(selectedFile.file_path)
-        : getDefaultPreviewFilePath(
-            previewFiles,
-            data?.preview_circuit_json_response.component_path,
-          ),
-    componentPath: isPreviousData
-      ? data?.preview_circuit_json_response.component_path
-      : selectedFile
-        ? normalizePreviewPath(selectedFile.file_path)
-        : data?.preview_circuit_json_response.component_path,
-    isLoading: isLoading || !areFilesFetched,
+        ),
+    componentPath: selectedFile
+      ? normalizePreviewPath(selectedFile.file_path)
+      : data?.preview_circuit_json_response.component_path,
+    isLoading,
     error: errorMessage,
   }
 }

@@ -21,81 +21,63 @@ import { Link } from "wouter"
 export function DatasheetBreadcrumbs({
   chipName,
   referenceDesignName,
-  referenceDesigns = false,
 }: {
   chipName: string
   referenceDesignName?: string
-  referenceDesigns?: boolean
 }) {
   const items = [
     { label: "Datasheets", href: "/datasheets" },
     { label: chipName, href: `/datasheets/${encodeURIComponent(chipName)}` },
-    ...(referenceDesigns
-      ? [{ label: "Reference designs", href: getReferenceDesignsUrl(chipName) }]
-      : []),
+    { label: "Reference designs", href: getReferenceDesignsUrl(chipName) },
     ...(referenceDesignName ? [{ label: referenceDesignName, href: "" }] : []),
   ]
   return (
     <Breadcrumb className="mb-4">
-      <BreadcrumbList className={referenceDesigns ? "flex-nowrap" : undefined}>
-        {referenceDesigns && (
-          <BreadcrumbItem className="sm:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5"
-                  aria-label="Show parent pages"
-                >
-                  <BreadcrumbEllipsis className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {items.slice(0, 2).map((item) => (
-                  <DropdownMenuItem asChild key={item.href}>
-                    <Link href={item.href}>{item.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </BreadcrumbItem>
-        )}
+      <BreadcrumbList className="flex-nowrap">
+        <BreadcrumbItem className="sm:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5"
+                aria-label="Show parent pages"
+              >
+                <BreadcrumbEllipsis className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {items.slice(0, 2).map((item) => (
+                <DropdownMenuItem asChild key={item.href}>
+                  <Link href={item.href}>{item.label}</Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </BreadcrumbItem>
         {items.map((item, index) => (
           <Fragment key={`${index}:${item.href}`}>
             {index > 0 && (
               <BreadcrumbSeparator
-                className={
-                  referenceDesigns && index < 2
-                    ? "hidden sm:list-item"
-                    : "shrink-0"
-                }
+                className={index < 2 ? "hidden sm:list-item" : "shrink-0"}
               />
             )}
             <BreadcrumbItem
               className={
-                referenceDesigns && index < 2
+                index < 2
                   ? "hidden min-w-0 sm:inline-flex"
-                  : referenceDesigns && index === 2
+                  : index === 2
                     ? "min-w-0 shrink-0"
                     : "min-w-0"
               }
             >
               {index === items.length - 1 ? (
-                <BreadcrumbPage
-                  className={referenceDesigns ? "truncate" : "break-all"}
-                >
+                <BreadcrumbPage className="truncate">
                   {item.label}
                 </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink
-                  asChild
-                  className={referenceDesigns ? "truncate" : undefined}
-                >
-                  <Link
-                    href={item.href}
-                    className={referenceDesigns ? "truncate" : "break-all"}
-                  >
+                <BreadcrumbLink asChild className="truncate">
+                  <Link href={item.href} className="truncate">
                     {item.label}
                   </Link>
                 </BreadcrumbLink>

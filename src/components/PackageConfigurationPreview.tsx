@@ -1,3 +1,4 @@
+import { findParameterVariant } from "@/lib/package-preview-parameters"
 import { PackagePreviewToolbar } from "@/components/PackagePreviewToolbar"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { PackagePreviewChangesProvider } from "@/components/PackagePreviewChanges"
@@ -81,8 +82,11 @@ export function PackageConfigurationPreview({
               values={variant.values}
               disabled={!ready || Boolean(error)}
               onChange={(values) => {
-                const file = configuration.selectParameters(values)
-                if (file) onSelectionChange({ ...resolvedSelection, file })
+                const next = findParameterVariant(manifest, values)!
+                onSelectionChange({
+                  ...resolvedSelection,
+                  file: next.circuitJsonPath,
+                })
               }}
             />
           ) : !metadataReady && !error ? (

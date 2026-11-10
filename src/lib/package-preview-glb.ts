@@ -1,5 +1,3 @@
-import { fetchPackageArtifact } from "./fetch-package-artifact"
-
 type PreviewFile = { file_path: string; package_file_id: string }
 
 const normalizePath = (path: string) =>
@@ -15,7 +13,7 @@ export function findPackagePreviewGlb<T extends PreviewFile>(
     const path = normalizePath(componentPath)
     if (
       path === "circuit.json" ||
-      /\/circuit\.json(?:\.gz)?$/.test(path) ||
+      path.endsWith("/circuit.json") ||
       path.startsWith("dist/")
     ) {
       const directory = path.slice(0, path.lastIndexOf("/") + 1)
@@ -24,8 +22,8 @@ export function findPackagePreviewGlb<T extends PreviewFile>(
     // A built output may only use the assembly beside that output.
     if (
       path === "circuit.json" ||
-      /\/circuit\.json(?:\.gz)?$/.test(path) ||
-      (path.startsWith("dist/") && /\.circuit\.json(?:\.gz)?$/.test(path))
+      path.endsWith("/circuit.json") ||
+      (path.startsWith("dist/") && path.endsWith(".circuit.json"))
     ) {
       return files.find(
         (file) => normalizePath(file.file_path) === candidates[0],
@@ -57,14 +55,15 @@ export async function downloadPackagePreviewGlb({
   token?: string
   signal?: AbortSignal
 }): Promise<ArrayBuffer> {
-  const response = await fetchPackageArtifact({
-    apiBaseUrl,
-    packageFileId,
-    token,
-    signal: signal
-      ? AbortSignal.any([signal, AbortSignal.timeout(30_000)])
-      : AbortSignal.timeout(30_000),
-  })
+  const response = await fetch(
+    `${apiBaseUrl.replace(/\/$/, "")}/package_files/download?${new URLSearchParams({ package_file_id: packageFileId })}`,
+    {
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(30_000)])
+        : AbortSignal.timeout(30_000),
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  )
   if (!response.ok)
     throw new Error(`Unable to load preview GLB (${response.status})`)
   const bytes = await response.arrayBuffer()

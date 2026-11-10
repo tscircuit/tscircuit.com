@@ -1,20 +1,27 @@
-import { DatasheetBreadcrumbs } from "@/components/DatasheetBreadcrumbs"
-import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
-import { DatasheetPinTable } from "@/components/DatasheetPinTable"
-import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
-import { DatasheetViews } from "@/components/DatasheetViews"
-import Footer from "@/components/Footer"
-import Header from "@/components/Header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
-import { useDatasheet } from "@/hooks/use-datasheet"
 import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
 import { getReferenceDesignsUrl } from "@/lib/reference-design-selection"
-import { AlertCircle, Copy, FileText, Loader2 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "wouter"
+import { useDatasheet } from "@/hooks/use-datasheet"
+import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
+import { DatasheetPinTable } from "@/components/DatasheetPinTable"
+import { DatasheetViews } from "@/components/DatasheetViews"
+import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
+import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Loader2, AlertCircle, FileText, Copy } from "lucide-react"
 
 const SectionCard = ({
   title,
@@ -47,7 +54,19 @@ export const DatasheetPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow  mx-auto px-4 md:px-20 lg:px-28 py-8 w-full">
-        <DatasheetBreadcrumbs chipName={chipName} />
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/datasheets">Datasheets</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage className="break-all">{chipName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
@@ -172,7 +191,8 @@ export const DatasheetPage = () => {
               )}
             </SectionCard>
           </>
-        ) : datasheetQuery.error && datasheetQuery.error.status === 404 ? (
+        ) : datasheetQuery.error &&
+          (datasheetQuery.error as any).status === 404 ? (
           <SectionCard title="No Datasheet Found">
             <div className="flex flex-col items-center gap-4">
               <AlertCircle className="w-8 h-8 text-red-500" />

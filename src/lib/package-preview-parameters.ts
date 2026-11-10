@@ -43,7 +43,11 @@ const parameterControlSchema = z.discriminatedUnion("type", [
       .max(128),
   }),
 ])
-const previewArtifactFields = {
+export const previewParameterManifestSchema = z.object({
+  version: z.literal(2),
+  parameters: z.array(parameterControlSchema).max(16),
+  defaults: z.record(parameterValueSchema),
+  componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
   bundlePath: artifactPathSchema,
   variants: z
     .array(
@@ -55,13 +59,6 @@ const previewArtifactFields = {
     )
     .min(1)
     .max(256),
-}
-export const previewParameterManifestSchema = z.object({
-  version: z.literal(2),
-  parameters: z.array(parameterControlSchema).max(16),
-  defaults: z.record(parameterValueSchema),
-  componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
-  ...previewArtifactFields,
 })
 export type PreviewParameterManifest = z.infer<
   typeof previewParameterManifestSchema
@@ -113,7 +110,6 @@ export function parsePreviewParameterManifest({
   const defaultIds = Object.keys(manifest.defaults)
   if (
     new Set(ids).size !== ids.length ||
-    defaultIds.length !== Object.keys(domains).length ||
     manifest.parameters.some(
       (p) =>
         !(p.id in manifest.defaults) || p.default !== manifest.defaults[p.id],

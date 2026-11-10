@@ -1,101 +1,46 @@
-import { z } from "zod"
+import type redaxios from "redaxios"
+import type { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { previewParameterManifestSchema } from "./package-preview-parameters"
-
-type RegistryGet = (
-  route: string,
-  options: { params: Record<string, string> },
-) => Promise<{ data: unknown }>
 
 export type ReferenceDesignCatalogEntry = {
   name: string
   componentPartNumbers: string[]
 }
 
-const packageResponseSchema = z.object({
-  package: z.object({ last_built_release_id: z.string().nullish() }),
-})
-const packageFilesResponseSchema = z.object({
-  package_files: z.array(
-    z.object({ file_path: z.string(), package_file_id: z.string() }),
-  ),
-})
-const packageFileResponseSchema = z.object({
-  package_file: z.object({ content_text: z.string() }),
-})
-const circuitPreviewResponseSchema = z.object({
-  preview_circuit_json_response: z.object({
-    circuit_json: z
-      .array(
-        z.object({
-          type: z.string(),
-          manufacturer_part_number: z.string().nullish(),
-        }),
-      )
-      .nullish(),
-  }),
-})
-const normalizePartNumber = (partNumber: string) =>
-  partNumber.trim().toUpperCase()
-
-/** Inspect ordinary package builds; older static builds need no preview manifest. */
 async function loadReferenceDesignCatalogEntry(
   name: string,
-  get: RegistryGet,
+  axios: Pick<typeof redaxios, "get">,
 ): Promise<ReferenceDesignCatalogEntry> {
-  const packageResponse = await get("/packages/get", { params: { name } })
-  const { package: registryPackage } = packageResponseSchema.parse(
-    packageResponse.data,
-  )
-  const { last_built_release_id } = registryPackage
-  if (!last_built_release_id) throw new Error(`No completed build for ${name}`)
-  const filesResponse = await get("/package_files/list", {
-    params: { package_release_id: last_built_release_id },
+  const {
+    data: { package: pkg },
+  } = await axios.get<{ package: Package }>("/packages/get", {
+    params: { name },
   })
-  const { package_files } = packageFilesResponseSchema.parse(filesResponse.data)
+  if (!pkg.last_built_release_id)
+    throw new Error(`No completed build for ${name}`)
+  const {
+    data: { package_files },
+  } = await axios.get<{ package_files: PackageFile[] }>("/package_files/list", {
+    params: { package_release_id: pkg.last_built_release_id },
+  })
   const manifestFile = package_files.find(
     (file) => file.file_path === "dist/preview.json",
   )
-  if (manifestFile) {
-    const manifestResponse = await get("/package_files/get", {
-      params: { package_file_id: manifestFile.package_file_id },
-    })
-    const { package_file } = packageFileResponseSchema.parse(
-      manifestResponse.data,
-    )
-    const manifest = previewParameterManifestSchema.parse(
-      JSON.parse(package_file.content_text),
-    )
-    return { name, componentPartNumbers: manifest.componentPartNumbers }
-  }
-  const previewResponse = await get(
-    "/package_releases/get_preview_circuit_json",
-    {
-      params: { package_release_id: last_built_release_id },
-    },
+  if (!manifestFile) throw new Error(`No reference-design manifest for ${name}`)
+  const {
+    data: { package_file },
+  } = await axios.get<{ package_file: PackageFile }>("/package_files/get", {
+    params: { package_file_id: manifestFile.package_file_id },
+  })
+  const manifest = previewParameterManifestSchema.parse(
+    JSON.parse(package_file.content_text!),
   )
-  const { preview_circuit_json_response } = circuitPreviewResponseSchema.parse(
-    previewResponse.data,
-  )
-  const circuitJson = preview_circuit_json_response.circuit_json
-  if (!circuitJson) throw new Error(`No built circuit for ${name}`)
-  return {
-    name,
-    componentPartNumbers: [
-      ...new Set(
-        circuitJson.flatMap((element) =>
-          element.type === "source_component" &&
-          element.manufacturer_part_number
-            ? [element.manufacturer_part_number]
-            : [],
-        ),
-      ),
-    ],
-  }
+  return { name, componentPartNumbers: manifest.componentPartNumbers }
 }
 
 export async function loadReferenceDesignCatalog(
   names: readonly string[],
-  get: RegistryGet,
+  axios: Pick<typeof redaxios, "get">,
 ) {
   const pending = [...new Set(names)]
   const entries: ReferenceDesignCatalogEntry[] = []
@@ -105,7 +50,7 @@ export async function loadReferenceDesignCatalog(
       while (pending.length) {
         const name = pending.shift()!
         try {
-          entries.push(await loadReferenceDesignCatalogEntry(name, get))
+          entries.push(await loadReferenceDesignCatalogEntry(name, axios))
         } catch {
           failed.push(name)
         }
@@ -128,7 +73,7 @@ export function referenceDesignsForPart({
     entries
       .filter((entry) =>
         entry.componentPartNumbers.some(
-          (mpn) => normalizePartNumber(mpn) === normalizePartNumber(chipName),
+          (mpn) => mpn.trim().toUpperCase() === chipName.trim().toUpperCase(),
         ),
       )
       .map((entry) => entry.name),
