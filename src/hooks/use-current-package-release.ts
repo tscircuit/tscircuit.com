@@ -1,10 +1,10 @@
-import { useParams } from "wouter"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { useCurrentPackageId } from "./use-current-package-id"
 import { usePackageRelease } from "./use-package-release"
-import { useUrlParams } from "./use-url-params"
 import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageRelease = (options?: {
+  refetchOnMount?: boolean
   include_ai_review?: boolean
   include_logs?: boolean
   refetchInterval?:
@@ -13,11 +13,8 @@ export const useCurrentPackageRelease = (options?: {
     | ((data: PublicPackageRelease | undefined) => number | false)
 }) => {
   const { packageId } = useCurrentPackageId()
-  const urlParams = useUrlParams()
-  const { author, packageName } = useParams()
-
-  const version = urlParams.version
-  const releaseId = urlParams.package_release_id
+  const { author, packageName, version, releaseId } =
+    usePackagePreviewIdentity()
 
   let query: Parameters<typeof usePackageRelease>[0] | null = null
 
@@ -42,6 +39,7 @@ export const useCurrentPackageRelease = (options?: {
 
   const { data: packageRelease, ...rest } = usePackageRelease(query, {
     refetchInterval: options?.refetchInterval,
+    refetchOnMount: options?.refetchOnMount,
   })
 
   return { packageRelease, ...rest }

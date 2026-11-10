@@ -7,9 +7,8 @@ import {
 } from "@/lib/preview-circuit-files"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { useUrlParams } from "@/hooks/use-url-params"
 import { useQuery } from "react-query"
-import { useParams } from "wouter"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
@@ -24,15 +23,15 @@ type PreviewCircuitJsonResponse = {
 
 export function useCurrentPackageCircuitJson() {
   const { packageId } = useCurrentPackageId()
-  const urlParams = useUrlParams()
-  const { author, packageName } = useParams()
+  const { author, packageName, version, releaseId, previewFilePath, preview } =
+    usePackagePreviewIdentity()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((state) => state.session?.token)
   const axios = useAxios()
 
-  const version = urlParams.version
-  const releaseId = urlParams.package_release_id
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({
+    refetchOnMount: preview ? false : undefined,
+  })
   const { data: packageFiles, isFetched: areFilesFetched } = usePackageFiles(
     packageRelease?.package_release_id,
     // Viewer mounts must not restart the file query and unmount the 3D fallback.
@@ -41,7 +40,7 @@ export function useCurrentPackageCircuitJson() {
   const previewFiles = getPreviewCircuitFiles(packageFiles)
   // A link from another release must never select a file outside this release.
   const selectedFile = previewFiles.find(
-    (file) => normalizePreviewPath(file.file_path) === urlParams.preview_file,
+    (file) => normalizePreviewPath(file.file_path) === previewFilePath,
   )
 
   let query: Record<string, string | boolean> | null = null
@@ -108,13 +107,27 @@ export function useCurrentPackageCircuitJson() {
       return response.data
     },
     {
-      enabled: Boolean(query) && (!urlParams.preview_file || areFilesFetched),
+      enabled:
+        !preview && Boolean(query) && (!previewFilePath || areFilesFetched),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 60_000 * 2,
       cacheTime: 60_000 * 2,
     },
   )
+
+  if (preview)
+    return {
+      circuitJson: preview.circuitJson,
+      circuitJsonFound: Boolean(preview.circuitJson),
+      packageFiles,
+      previewFiles,
+      hasPreviewFiles: previewFiles.length > 0,
+      previewFilePath: preview.previewFilePath,
+      componentPath: preview.previewFilePath,
+      isLoading: !preview.circuitJson,
+      error: null,
+    }
 
   const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
   const circuitJsonFound =

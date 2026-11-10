@@ -2,21 +2,20 @@ import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
 import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useUrlParams } from "@/hooks/use-url-params"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Suspense, useMemo, type ComponentProps } from "react"
-import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 import { useQuery } from "react-query"
+import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import {
   findPackagePreviewGlb,
   downloadPackagePreviewGlb,
 } from "@/lib/package-preview-glb"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
-  const { author, packageName } = useParams()
-  const { version, package_release_id: releaseId } = useUrlParams()
+  const { author, packageName, version, releaseId } =
+    usePackagePreviewIdentity()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
   const request = useMemo(() => {
@@ -67,6 +66,7 @@ export default function ThreeDView({
   isFetchingPackageFiles = false,
   onViewSchematicComponent,
 }: ThreeDViewProps) {
+  const { preview } = usePackagePreviewIdentity()
   const { componentPath, isLoading } = useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
@@ -81,18 +81,19 @@ export default function ThreeDView({
         signal,
       }),
     {
-      enabled: arePackageFilesFetched && !isLoading && Boolean(glb),
+      enabled: !preview && arePackageFilesFetched && !isLoading && Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 120_000,
     },
   )
 
+  const glbBuffer = preview ? preview.glb : download.data
   if (
     !arePackageFilesFetched ||
     isLoading ||
     (!glb && isFetchingPackageFiles) ||
-    (glb && download.isLoading)
+    (!preview && glb && download.isLoading)
   )
     return (
       <div className="h-[620px] flex items-center justify-center">
@@ -100,11 +101,17 @@ export default function ThreeDView({
       </div>
     )
 
-  if (download.data && glb)
+  if (glbBuffer && glb)
     return (
-      <div className="h-[620px]">
+      <div
+        className={
+          preview
+            ? "h-[620px] [&:has(canvas)_[role=status]]:hidden"
+            : "h-[620px]"
+        }
+      >
         <CadViewer
-          glbData={download.data}
+          glbData={glbBuffer}
           clickToInteractEnabled
           onViewSchematicComponent={onViewSchematicComponent}
         />
