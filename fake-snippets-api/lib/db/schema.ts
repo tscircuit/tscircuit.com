@@ -461,6 +461,7 @@ export const packageSchema = z.object({
   is_source_from_github: z.boolean().default(false),
   snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   latest_package_release_id: z.string().nullable(),
+  last_built_release_id: z.string().uuid().nullable().optional(),
   latest_version: z.string().nullable(),
   license: z.string().nullable(),
   website: z.string().nullable().default(null),
