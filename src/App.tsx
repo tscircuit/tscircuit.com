@@ -1,10 +1,10 @@
 import { ComponentType, Suspense, lazy } from "react"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
+import { ContextProviders } from "./ContextProviders"
+import React from "react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { Loader2 } from "lucide-react"
-import React from "react"
-import { ContextProviders } from "./ContextProviders"
 
 export const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -74,6 +74,9 @@ const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const LoginPage = lazyImport(() => import("@/pages/login"))
 const CliLoginPage = lazyImport(() => import("@/pages/cli-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
+const CustomizePackagePage = lazyImport(
+  () => import("@/pages/customize-package"),
+)
 const ViewPackageDirectoryPage = lazyImport(
   () => import("@/pages/view-package-directory"),
 )
@@ -359,7 +362,7 @@ function App() {
             />
             <Route
               path="/:author/:packageName/customize"
-              component={ViewPackagePage}
+              component={CustomizePackagePage}
             />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
             {/* 404 fallback */}

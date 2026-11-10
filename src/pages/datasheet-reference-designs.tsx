@@ -8,6 +8,7 @@ import { getReferenceDesignUrl } from "@/lib/reference-design-selection"
 import { ArrowRight } from "lucide-react"
 import { Suspense, lazy } from "react"
 import { Link, useParams } from "wouter"
+import { Helmet } from "react-helmet-async"
 
 const DatasheetReferenceDesign = lazy(
   () => import("@/pages/datasheet-reference-design"),
@@ -35,6 +36,9 @@ export default function DatasheetReferenceDesignsPage() {
     useDatasheetReferenceDesignPackages(chipName)
   return (
     <div className="flex min-h-screen flex-col" data-reference-design-page>
+      <Helmet>
+        <title>{`${chipName} Reference Designs - tscircuit`}</title>
+      </Helmet>
       <Header />
       <main className="mx-auto w-full flex-grow px-4 py-8 md:px-20 lg:px-28">
         <DatasheetBreadcrumbs

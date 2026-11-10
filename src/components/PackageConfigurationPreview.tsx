@@ -105,7 +105,7 @@ function PackageConfigurationCircuit({
             {!parameters.manifest && previewFiles.length > 1 && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Configuration</span>
-                <PreviewFileSelector label="Configuration" />
+                <PreviewFileSelector />
               </div>
             )}
             <div

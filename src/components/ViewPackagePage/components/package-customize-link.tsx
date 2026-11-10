@@ -4,7 +4,6 @@ import { usePackagePreviewParameters } from "@/hooks/use-package-preview-paramet
 import { usePackagePreviewSelection } from "@/hooks/use-package-preview-selection"
 import { getPackagePreviewUrl } from "@/lib/package-file-routes"
 import { SlidersHorizontal } from "lucide-react"
-import { useQueryClient } from "react-query"
 import { Link } from "wouter"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 
@@ -14,7 +13,6 @@ export function PackageCustomizeLink() {
   const { manifest } = usePackagePreviewParameters()
   const { previewFilePath } = useCurrentPackageCircuitJson()
   const selection = usePackagePreviewSelection()
-  const queryClient = useQueryClient()
   if (!packageInfo || !packageRelease || !manifest?.parameters.length)
     return null
   const [author, packageName] = packageInfo.name.split("/")
@@ -31,15 +29,6 @@ export function PackageCustomizeLink() {
         },
         customize: true,
       })}
-      onClick={() =>
-        queryClient.setQueryData(
-          [
-            "packageRelease",
-            { package_release_id: packageRelease.package_release_id },
-          ],
-          packageRelease,
-        )
-      }
     >
       <SlidersHorizontal
         className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]"

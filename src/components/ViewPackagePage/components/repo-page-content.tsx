@@ -1,35 +1,37 @@
+import { useState, useEffect, useMemo, useCallback } from "react"
+import MainContentHeader from "./main-content-header"
+import Sidebar from "./sidebar"
+import MobileSidebar from "./mobile-sidebar"
+import ImportantFilesView from "./important-files-view"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
-import { useCallback, useEffect, useMemo, useState } from "react"
-import ImportantFilesView from "./important-files-view"
-import MainContentHeader from "./main-content-header"
-import MobileSidebar from "./mobile-sidebar"
-import Sidebar from "./sidebar"
 
-import Footer from "@/components/Footer"
-import Header from "@/components/Header"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
-import type {
-  PackageFile as ApiPackageFile,
-  Package,
-  PublicPackageRelease,
-} from "fake-snippets-api/lib/db/schema"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+// Tab Views
+import FilesView from "./tab-views/files-view"
+import ThreeDView from "./tab-views/3d-view"
+import PCBView from "./tab-views/pcb-view"
+import { KeepMountedView } from "./keep-mounted-view"
+import SchematicView from "./tab-views/schematic-view"
+import SystemView from "./tab-views/system-view"
+import BOMView from "./tab-views/bom-view"
+import PackageFileView from "./tab-views/package-file-view"
 import {
   isPackageFileImportant,
   scorePackageFileImportance,
 } from "../utils/is-package-file-important"
-import { PackageCircuitPreview } from "./package-circuit-preview"
-import { PackageCustomizationContent } from "./package-customization-content"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
-import { RelatedPackagesSection } from "./related-packages-section"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import type {
+  Package,
+  PackageFile as ApiPackageFile,
+  PublicPackageRelease,
+} from "fake-snippets-api/lib/db/schema"
+import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
 import SidebarReleasesSection from "./sidebar-releases-section"
-import BOMView from "./tab-views/bom-view"
-// Tab Views
-import FilesView from "./tab-views/files-view"
-import PackageFileView from "./tab-views/package-file-view"
-import SystemView from "./tab-views/system-view"
+import { RelatedPackagesSection } from "./related-packages-section"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
@@ -37,7 +39,6 @@ interface PackageFile extends ApiPackageFile {
 }
 
 interface RepoPageContentProps {
-  customizing?: boolean
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: Package
@@ -76,7 +77,6 @@ const normalizeView = (view: string | null | undefined): string | null => {
 }
 
 export default function RepoPageContent({
-  customizing = false,
   packageFiles,
   arePackageFilesFetched = false,
   isFetchingPackageFiles = false,
@@ -129,7 +129,7 @@ export default function RepoPageContent({
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
-    if (customizing || !packageInfo || !arePackageFilesFetched) return
+    if (!packageInfo || !arePackageFilesFetched) return
 
     if (fileBrowserMode) {
       setActiveView("files")
@@ -189,7 +189,6 @@ export default function RepoPageContent({
       }
     }
   }, [
-    customizing,
     packageInfo?.default_view,
     arePackageFilesFetched,
     circuitJsonExists,
@@ -256,7 +255,7 @@ export default function RepoPageContent({
       case "pcb":
         return null
       case "schematic":
-        return null
+        return <SchematicView controller={schematicController} />
       case "system":
         return <SystemView onComponentClick={handleViewSchematicComponent} />
       case "bom":
@@ -300,93 +299,103 @@ export default function RepoPageContent({
         }
       />
 
-      {customizing ? (
-        <PackageCustomizationContent />
-      ) : (
-        <>
-          {/* Mobile Sidebar */}
-          <div className="max-w-[1200px] mx-auto">
-            <MobileSidebar
+      {/* Mobile Sidebar */}
+      <div className="max-w-[1200px] mx-auto">
+        <MobileSidebar
+          onViewChange={handleViewChange}
+          isLoading={!packageInfo}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-[1200px] mx-auto">
+        <div className="flex flex-col md:flex-row">
+          <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
+            {/* Main Content Header with Tabs */}
+            <MainContentHeader
+              activeView={activeView}
+              packageFiles={packageFiles ?? []}
               onViewChange={handleViewChange}
+              packageInfo={packageInfo}
+              currentVersion={currentVersion}
+              latestVersion={latestVersion}
+              onVersionChange={onVersionChange}
+              packageRelease={packageRelease}
+            />
+
+            {/* Dynamic Content based on active view */}
+            <KeepMountedView
+              key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
+              active={activeView === "3d"}
+            >
+              <ThreeDView
+                packageFiles={packageFiles}
+                arePackageFilesFetched={arePackageFilesFetched}
+                isFetchingPackageFiles={isFetchingPackageFiles}
+                onViewSchematicComponent={
+                  circuitJson?.some(
+                    (element) => element.type === "schematic_component",
+                  )
+                    ? handleViewSchematicComponent
+                    : undefined
+                }
+              />
+            </KeepMountedView>
+            <KeepMountedView
+              key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
+              active={activeView === "pcb"}
+            >
+              <PCBView
+                onViewSchematicComponent={
+                  circuitJson?.some(
+                    (element) => element.type === "schematic_component",
+                  )
+                    ? handleViewSchematicComponent
+                    : undefined
+                }
+              />
+            </KeepMountedView>
+            {renderContent()}
+            {fileBrowserMode !== "file" && (
+              <ImportantFilesView
+                importantFiles={importantFiles}
+                isFetched={arePackageFilesFetched}
+                pkg={packageInfo}
+                onEditClicked={onEditClicked}
+                onRequestAiDescriptionUpdate={() => {
+                  if (packageInfo) {
+                    updateAiDescription({
+                      package_id: packageInfo.package_id,
+                    })
+                  }
+                }}
+                onLicenseFileRequested={licenseFileRequested}
+              />
+            )}
+          </div>
+
+          <div className="hidden md:block md:w-[296px] flex-shrink-0">
+            <Sidebar
+              packageInfo={packageInfo}
               isLoading={!packageInfo}
+              onViewChange={handleViewChange}
+              onLicenseClick={handleLicenseFileRequest}
             />
           </div>
-
-          {/* Main Content */}
-          <div className="max-w-[1200px] mx-auto">
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
-                {/* Main Content Header with Tabs */}
-                <MainContentHeader
-                  activeView={activeView}
-                  packageFiles={packageFiles ?? []}
-                  onViewChange={handleViewChange}
-                  packageInfo={packageInfo}
-                  currentVersion={currentVersion}
-                  latestVersion={latestVersion}
-                  onVersionChange={onVersionChange}
-                  packageRelease={packageRelease}
-                />
-
-                {/* Dynamic Content based on active view */}
-                <PackageCircuitPreview
-                  view={activeView}
-                  packageReleaseId={packageRelease?.package_release_id}
-                  packageFiles={packageFiles}
-                  arePackageFilesFetched={arePackageFilesFetched}
-                  isFetchingPackageFiles={isFetchingPackageFiles}
-                  schematicController={schematicController}
-                  onViewSchematicComponent={
-                    circuitJson?.some(
-                      (element) => element.type === "schematic_component",
-                    )
-                      ? handleViewSchematicComponent
-                      : undefined
-                  }
-                />
-                {renderContent()}
-                {fileBrowserMode !== "file" && (
-                  <ImportantFilesView
-                    importantFiles={importantFiles}
-                    isFetched={arePackageFilesFetched}
-                    pkg={packageInfo}
-                    onEditClicked={onEditClicked}
-                    onRequestAiDescriptionUpdate={() => {
-                      if (packageInfo) {
-                        updateAiDescription({
-                          package_id: packageInfo.package_id,
-                        })
-                      }
-                    }}
-                    onLicenseFileRequested={licenseFileRequested}
-                  />
-                )}
-              </div>
-
-              <div className="hidden md:block md:w-[296px] flex-shrink-0">
-                <Sidebar
-                  packageInfo={packageInfo}
-                  isLoading={!packageInfo}
-                  onViewChange={handleViewChange}
-                  onLicenseClick={handleLicenseFileRequest}
-                />
-              </div>
-              <div className="block md:hidden w-full px-5">
-                <SidebarReleasesSection />
-              </div>
-            </div>
+          <div className="block md:hidden w-full px-5">
+            <SidebarReleasesSection />
           </div>
-          <RelatedPackagesSection
-            packageId={
-              packageInfo?.is_public !== false &&
-              !packageInfo?.is_private &&
-              !packageInfo?.is_unlisted
-                ? (packageInfo?.package_id ?? null)
-                : null
-            }
-          />
-        </>
-      )}
+        </div>
+      </div>
+      <RelatedPackagesSection
+        packageId={
+          packageInfo?.is_public !== false &&
+          !packageInfo?.is_private &&
+          !packageInfo?.is_unlisted
+            ? (packageInfo?.package_id ?? null)
+            : null
+        }
+      />
       <Footer />
     </div>
   )
