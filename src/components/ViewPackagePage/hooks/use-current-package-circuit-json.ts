@@ -8,7 +8,8 @@ import {
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
-import { useQuery } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
+import { useCallback } from "react"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
@@ -29,7 +30,7 @@ export function useCurrentPackageCircuitJson() {
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((state) => state.session?.token)
 
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchOnMount: false })
   const { data: packageFiles, isFetched: areFilesFetched } = usePackageFiles(
     packageRelease?.package_release_id,
     // Viewer mounts must not restart the file query and unmount the 3D fallback.
@@ -51,7 +52,9 @@ export function useCurrentPackageCircuitJson() {
 
   let query: Record<string, string | boolean> | null = null
 
-  if (author && packageName && !version && !releaseId) {
+  if (packageRelease?.package_release_id) {
+    query = { package_release_id: packageRelease.package_release_id }
+  } else if (author && packageName && !version && !releaseId) {
     query = { package_name: `${author}/${packageName}`, is_latest: true }
   } else if (releaseId) {
     query = { package_release_id: releaseId }
@@ -61,24 +64,47 @@ export function useCurrentPackageCircuitJson() {
     query = { package_id: packageId, is_latest: true }
   }
 
-  const { data, isLoading, error, refetch } = useQuery<
-    PreviewCircuitJsonResponse,
-    Error & { status: number }
-  >(
-    ["previewCircuitJson", query, selectedFile?.package_file_id],
-    async ({ signal }) => {
-      if (!query) {
-        throw new Error("Missing package release info")
-      }
+  const queryClient = useQueryClient()
+  const getQueryOptions = (file: typeof selectedFile) => {
+    const selectedFile = file
+    return {
+      queryKey: [
+        "previewCircuitJson",
+        query,
+        selectedFile?.package_file_id,
+        apiBaseUrl,
+        token,
+      ],
+      queryFn: async ({ signal }: { signal?: AbortSignal }) => {
+        if (!query) {
+          throw new Error("Missing package release info")
+        }
 
-      if (selectedFile) {
-        if (selectedFile.file_path.endsWith(".gz")) {
-          const circuitJson = await downloadPackageCircuitJson({
-            apiBaseUrl,
-            packageFileId: selectedFile.package_file_id,
-            token,
-            signal,
+        if (selectedFile) {
+          if (selectedFile.file_path.endsWith(".gz")) {
+            const circuitJson = await downloadPackageCircuitJson({
+              apiBaseUrl,
+              packageFileId: selectedFile.package_file_id,
+              token,
+              signal,
+            })
+            return {
+              preview_circuit_json_response: {
+                circuit_json: circuitJson,
+                component_path: normalizePreviewPath(selectedFile.file_path),
+                circuit_json_found: true,
+              },
+            }
+          }
+          const { data } = await axios.get("/package_files/get", {
+            params: { package_file_id: selectedFile.package_file_id },
           })
+          const circuitJson = JSON.parse(data.package_file.content_text)
+          if (!Array.isArray(circuitJson)) {
+            throw new Error(
+              "Selected file does not contain a Circuit JSON array",
+            )
+          }
           return {
             preview_circuit_json_response: {
               circuit_json: circuitJson,
@@ -87,38 +113,44 @@ export function useCurrentPackageCircuitJson() {
             },
           }
         }
-        const { data } = await axios.get("/package_files/get", {
-          params: { package_file_id: selectedFile.package_file_id },
-        })
-        const circuitJson = JSON.parse(data.package_file.content_text)
-        if (!Array.isArray(circuitJson)) {
-          throw new Error("Selected file does not contain a Circuit JSON array")
-        }
-        return {
-          preview_circuit_json_response: {
-            circuit_json: circuitJson,
-            component_path: normalizePreviewPath(selectedFile.file_path),
-            circuit_json_found: true,
+
+        const response = await axios.get<PreviewCircuitJsonResponse>(
+          "/package_releases/get_preview_circuit_json",
+          {
+            params: query,
           },
-        }
-      }
+        )
 
-      const response = await axios.get<PreviewCircuitJsonResponse>(
-        "/package_releases/get_preview_circuit_json",
-        {
-          params: query,
-        },
-      )
-
-      return response.data
-    },
-    {
-      enabled: Boolean(query) && areFilesFetched,
+        return response.data
+      },
+      // Release artifacts are immutable; keep visited configurations for this session.
+      staleTime: Infinity,
+      cacheTime: 5 * 60_000,
       retry: false,
-      refetchOnWindowFocus: false,
-      staleTime: 60_000 * 2,
-      cacheTime: selectedFile?.file_path.endsWith(".gz") ? 0 : 60_000 * 2,
+    }
+  }
+  const { data, isLoading, isPreviousData, error, refetch } = useQuery<
+    PreviewCircuitJsonResponse,
+    Error & { status: number }
+  >({
+    ...getQueryOptions(selectedFile),
+    enabled: Boolean(query) && areFilesFetched,
+    retry: false,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+  })
+  const prefetchPreview = useCallback(
+    (path: string, prepare = false) => {
+      const file = packageFiles?.find(
+        (file) =>
+          normalizePreviewPath(file.file_path) === normalizePreviewPath(path),
+      )
+      if (query && file)
+        return prepare
+          ? queryClient.fetchQuery(getQueryOptions(file))
+          : queryClient.prefetchQuery(getQueryOptions(file))
     },
+    [queryClient, JSON.stringify(query), packageFiles, apiBaseUrl, token],
   )
 
   const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
@@ -133,19 +165,28 @@ export function useCurrentPackageCircuitJson() {
 
   return {
     refetch,
+    prefetchPreview,
+    packageFiles,
     circuitJson,
     circuitJsonFound,
     previewFiles,
     hasPreviewFiles: previewFiles.length > 0,
-    previewFilePath: selectedFile
-      ? normalizePreviewPath(selectedFile.file_path)
-      : getDefaultPreviewFilePath(
+    previewFilePath: isPreviousData
+      ? getDefaultPreviewFilePath(
           previewFiles,
           data?.preview_circuit_json_response.component_path,
-        ),
-    componentPath: selectedFile
-      ? normalizePreviewPath(selectedFile.file_path)
-      : data?.preview_circuit_json_response.component_path,
+        )
+      : selectedFile
+        ? normalizePreviewPath(selectedFile.file_path)
+        : getDefaultPreviewFilePath(
+            previewFiles,
+            data?.preview_circuit_json_response.component_path,
+          ),
+    componentPath: isPreviousData
+      ? data?.preview_circuit_json_response.component_path
+      : selectedFile
+        ? normalizePreviewPath(selectedFile.file_path)
+        : data?.preview_circuit_json_response.component_path,
     isLoading: isLoading || !areFilesFetched,
     error: errorMessage,
   }

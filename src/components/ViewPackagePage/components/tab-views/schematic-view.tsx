@@ -19,7 +19,7 @@ export default function SchematicView({
 }) {
   const { circuitJson, componentPath, isLoading, error } =
     useCurrentPackageCircuitJson()
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchOnMount: false })
   const { data: files } = usePackageFiles(packageRelease?.package_release_id, {
     refetchOnMount: false,
   })
@@ -61,7 +61,8 @@ export default function SchematicView({
       enabled: Boolean(selectedSheet),
       retry: false,
       refetchOnWindowFocus: false,
-      staleTime: 120_000,
+      staleTime: Infinity,
+      keepPreviousData: true,
     },
   )
   const selectSheet = (name: string) => {

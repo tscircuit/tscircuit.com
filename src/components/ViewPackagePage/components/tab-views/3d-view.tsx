@@ -5,7 +5,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Suspense, useMemo, type ComponentProps } from "react"
+import { Suspense, useCallback, useMemo, type ComponentProps } from "react"
 import type { AnyCircuitElement } from "circuit-json"
 import { useQuery } from "react-query"
 import {
@@ -52,6 +52,7 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
 }
 
 type ThreeDViewProps = {
+  onReady?: () => void
   packageFiles?: { file_path: string; package_file_id: string }[]
   arePackageFilesFetched?: boolean
   isFetchingPackageFiles?: boolean
@@ -65,8 +66,15 @@ export default function ThreeDView({
   arePackageFilesFetched = false,
   isFetchingPackageFiles = false,
   onViewSchematicComponent,
+  onReady,
 }: ThreeDViewProps) {
   const { componentPath, isLoading } = useCurrentPackageCircuitJson()
+  const handleCameraReady = useCallback(
+    (controller: unknown) => {
+      if (controller) onReady?.()
+    },
+    [onReady],
+  )
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
   const glb = findPackagePreviewGlb(packageFiles, componentPath)
@@ -83,7 +91,8 @@ export default function ThreeDView({
       enabled: arePackageFilesFetched && !isLoading && Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
-      staleTime: 120_000,
+      staleTime: Infinity,
+      keepPreviousData: true,
     },
   )
 
@@ -99,11 +108,14 @@ export default function ThreeDView({
       </div>
     )
 
-  if (download.data && glb)
+  if (download.data && glb && !download.error)
     return (
-      <div className="h-[620px]">
+      <div className="h-[620px] [&:has(canvas)_[role=status]]:hidden">
+        {/* CadViewer retains its last scene while parsing the next GLB. Keep
+            that scene visible without covering it with a loading message. */}
         <CadViewer
           glbData={download.data}
+          onCameraControllerReady={handleCameraReady}
           clickToInteractEnabled
           onViewSchematicComponent={onViewSchematicComponent}
         />

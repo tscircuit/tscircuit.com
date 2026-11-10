@@ -1,4 +1,12 @@
 import { useState } from "react"
+import { useQueryClient } from "react-query"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useUrlParams } from "@/hooks/use-url-params"
+import {
+  downloadPackagePreviewGlb,
+  findPackagePreviewGlb,
+} from "@/lib/package-preview-glb"
 import { Check, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,82 +47,130 @@ export default function PreviewFileSelector({
 }: { label?: string } = {}) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
-  const { previewFiles, previewFilePath } = useCurrentPackageCircuitJson()
+  const { previewFiles, previewFilePath, packageFiles, prefetchPreview } =
+    useCurrentPackageCircuitJson()
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string>()
+  const queryClient = useQueryClient()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((state) => state.session?.token)
+  const params = useUrlParams()
   const scope = usePackagePreviewScope()
 
   if (previewFiles.length < 2) return null
 
-  const selectFile = (path: string) => {
-    if (scope) {
-      scope.selectFile(path)
-      setOpen(false)
-      setSearch("")
-      return
-    }
-    const url = new URL(window.location.href)
-    url.searchParams.set("preview_file", path)
-    window.history.pushState({}, "", url)
-    window.dispatchEvent(new Event("popstate"))
+  const selectFile = async (path: string) => {
+    const startingUrl = window.location.href
     setOpen(false)
     setSearch("")
+    setPending(true)
+    setError(undefined)
+    try {
+      // Commit the selection only after its assets are cached. A cold switch
+      // keeps the current configuration and its label in place until ready.
+      const view = scope
+        ? (params.reference_view ?? "3d")
+        : window.location.hash.slice(1) || "3d"
+      const glb = view === "3d" && findPackagePreviewGlb(packageFiles, path)
+      await Promise.all([
+        prefetchPreview(path, true),
+        glb &&
+          queryClient.fetchQuery(
+            ["packagePreviewGlb", apiBaseUrl, glb.package_file_id, token],
+            ({ signal }) =>
+              downloadPackagePreviewGlb({
+                apiBaseUrl,
+                packageFileId: glb.package_file_id,
+                token,
+                signal,
+              }),
+            { staleTime: Infinity, cacheTime: 5 * 60_000, retry: false },
+          ),
+      ])
+      // Respect navigation that happened while a cold selection was preparing.
+      if (window.location.href !== startingUrl) return
+      if (scope) scope.selectFile(path)
+      else {
+        const url = new URL(window.location.href)
+        url.searchParams.set("preview_file", path)
+        window.history.pushState({}, "", url)
+        window.dispatchEvent(new Event("popstate"))
+      }
+    } catch {
+      setError("Unable to switch configuration. Please try again.")
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen)
-        setSearch("")
-      }}
-    >
-      <PopoverTrigger asChild>
-        <Button
-          size="sm"
-          role="combobox"
-          aria-label={label ?? "Preview file"}
-          aria-expanded={open}
-          className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
+    <>
+      <Popover
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen)
+          setSearch("")
+        }}
+      >
+        <PopoverTrigger asChild>
+          <Button
+            size="sm"
+            role="combobox"
+            aria-label={label ?? "Preview file"}
+            aria-expanded={open}
+            aria-busy={pending}
+            disabled={pending}
+            className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
+          >
+            {label
+              ? configurationLabel(previewFilePath)
+              : `${previewFiles.length} Builds`}
+            <ChevronDown className="w-4 h-4 ml-1" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          className="w-80 max-w-[calc(100vw-2rem)] p-0"
         >
-          {label
-            ? configurationLabel(previewFilePath)
-            : `${previewFiles.length} Builds`}
-          <ChevronDown className="w-4 h-4 ml-1" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 max-w-[calc(100vw-2rem)] p-0">
-        <Command>
-          <CommandInput
-            placeholder="Find a preview file…"
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
-            <CommandEmpty>No matching preview files.</CommandEmpty>
-            <CommandGroup>
-              {previewFiles.map((file) => {
-                const path = normalizePreviewPath(file.file_path)
-                return (
-                  <CommandItem
-                    key={file.package_file_id}
-                    value={path}
-                    onSelect={() => selectFile(path)}
-                    className="cursor-pointer gap-2 hover:bg-gray-100 data-[selected=true]:bg-gray-100 dark:hover:bg-gray-800 dark:data-[selected=true]:bg-gray-800"
-                  >
-                    <span className="break-all text-xs font-mono flex-1">
-                      {label
-                        ? configurationLabel(path)
-                        : path.replace(/^dist\//, "")}
-                    </span>
-                    {previewFilePath === path && (
-                      <Check className="h-4 w-4 shrink-0" />
-                    )}
-                  </CommandItem>
-                )
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+          <Command>
+            <CommandInput
+              placeholder="Find a preview file…"
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>No matching preview files.</CommandEmpty>
+              <CommandGroup>
+                {previewFiles.map((file) => {
+                  const path = normalizePreviewPath(file.file_path)
+                  return (
+                    <CommandItem
+                      key={file.package_file_id}
+                      value={path}
+                      onSelect={() => selectFile(path)}
+                      className="cursor-pointer gap-2 hover:bg-gray-100 data-[selected=true]:bg-gray-100 dark:hover:bg-gray-800 dark:data-[selected=true]:bg-gray-800"
+                    >
+                      <span className="break-all text-xs font-mono flex-1">
+                        {label
+                          ? configurationLabel(path)
+                          : path.replace(/^dist\//, "")}
+                      </span>
+                      {previewFilePath === path && (
+                        <Check className="h-4 w-4 shrink-0" />
+                      )}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {error && (
+        <p role="alert" className="mt-2 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+    </>
   )
 }

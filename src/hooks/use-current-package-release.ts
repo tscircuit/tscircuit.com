@@ -4,6 +4,7 @@ import { usePackageRelease } from "./use-package-release"
 import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageRelease = (options?: {
+  refetchOnMount?: boolean
   include_ai_review?: boolean
   include_logs?: boolean
   refetchInterval?:
@@ -38,6 +39,7 @@ export const useCurrentPackageRelease = (options?: {
 
   const { data: packageRelease, ...rest } = usePackageRelease(query, {
     refetchInterval: options?.refetchInterval,
+    refetchOnMount: options?.refetchOnMount,
   })
 
   return { packageRelease, ...rest }
