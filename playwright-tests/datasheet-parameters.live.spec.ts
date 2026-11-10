@@ -103,7 +103,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   if (!bundleFile) throw new Error("Missing published circuit bundle")
   const bundleId = bundleFile.package_file_id
   const region = page.getByRole("region", {
-    name: "Reference design",
+    name: "CC2340R52E0RGER Reference Designs",
     exact: true,
   })
   const panel = region.getByRole("complementary", {
@@ -342,7 +342,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   expect(page.url()).toBe(datasheetUrl)
   await expect(panel).toBeVisible()
   await packagePage
-    .getByRole("button", { name: "Parameters", exact: true })
+    .getByRole("link", { name: "Customize", exact: true })
     .click({ timeout: 120_000 })
   const popup = packagePage.getByRole("complementary", {
     name: "Circuit parameters",

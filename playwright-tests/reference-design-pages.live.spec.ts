@@ -35,7 +35,10 @@ test("datasheets link to a design index and a dedicated, shared design page with
   page.on("pageerror", (error) => errors.push(error.message))
   await page.goto("/datasheets/CC2340R52E0RGER")
   await expect(
-    page.getByRole("region", { name: "Reference design", exact: true }),
+    page.getByRole("region", {
+      name: "CC2340R52E0RGER Reference Designs",
+      exact: true,
+    }),
   ).toHaveCount(0)
   await page
     .getByRole("link", { name: "Reference designs", exact: true })
@@ -45,6 +48,9 @@ test("datasheets link to a design index and a dedicated, shared design page with
   )
   const breadcrumbs = page.getByRole("navigation", { name: "breadcrumb" })
   await expect(breadcrumbs).toContainText("Reference designs")
+  await expect(
+    page.getByRole("heading", { name: /^Reference designs?$/i }),
+  ).toHaveCount(0)
   await expect(
     page.getByRole("complementary", { name: "Circuit parameters" }),
   ).toHaveCount(0)
@@ -83,7 +89,7 @@ test("datasheets link to a design index and a dedicated, shared design page with
   )
   await expect(breadcrumbs).toContainText("cc2340r5-reference-design")
   const region = page.getByRole("region", {
-    name: "Reference design",
+    name: "CC2340R52E0RGER Reference Designs",
     exact: true,
   })
   await expect(
@@ -100,6 +106,9 @@ test("datasheets link to a design index and a dedicated, shared design page with
     panel.getByRole("switch", { name: "External LF crystal" }),
   ).toBeEnabled({ timeout: 120_000 })
   expect(await getReferenceDesignFrame(page)).toEqual(indexFrame)
+  await expect(
+    page.getByRole("heading", { name: /^Reference designs?$/i }),
+  ).toHaveCount(0)
   await expect(
     page.getByRole("heading", {
       name: "CC2340R52E0RGER Reference Designs",

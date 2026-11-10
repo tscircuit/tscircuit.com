@@ -1,4 +1,4 @@
-import { PackageCustomizeButton } from "./package-customize-button"
+import { PackageCustomizeLink } from "./package-customize-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -245,7 +245,9 @@ const MobileSidebar = ({
         </div>
       </div>
 
-      <PackageCustomizeButton />
+      <div className="mt-4">
+        <PackageCustomizeLink />
+      </div>
       <div>
         <PreviewImageSquares
           large

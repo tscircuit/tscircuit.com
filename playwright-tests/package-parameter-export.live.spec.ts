@@ -15,8 +15,9 @@ test("a cold package link restores combined parameters and exports the exact cir
   const release =
     process.env.TSCIRCUIT_PARAMETER_RELEASE ||
     "e68c98ee-6946-4d75-9fba-e3ca545d412f"
-  await page.goto("/")
-  const path = await page.evaluate(async (release) => {
+  const manifestPage = await page.context().newPage()
+  await manifestPage.goto("/")
+  const path = await manifestPage.evaluate(async (release) => {
     const response = await fetch(
       `https://registry-api.tscircuit.com/package_files/get?package_release_id=${release}&file_path=dist%2Fpreview.json`,
     )
@@ -35,6 +36,7 @@ test("a cold package link restores combined parameters and exports the exact cir
       throw new Error("The build is missing the requested combined state")
     return selected.circuitJsonPath
   }, release)
+  await manifestPage.close()
   const query = new URLSearchParams({
     package_release_id: release,
     preview_file: path,
@@ -43,7 +45,7 @@ test("a cold package link restores combined parameters and exports the exact cir
     `/ShiboSoftwareDev/cc2340r5-reference-design?${query}#schematic`,
   )
   await page
-    .getByRole("button", { name: "Parameters", exact: true })
+    .getByRole("link", { name: "Customize", exact: true })
     .click({ timeout: 120_000 })
   const panel = page.getByRole("complementary", { name: "Circuit parameters" })
   await expect(panel.getByRole("switch", { name: "SWD header" })).toBeEnabled({
@@ -63,7 +65,7 @@ test("a cold package link restores combined parameters and exports the exact cir
     await expect(
       panel.getByLabel(`${label} value`, { exact: true }),
     ).toHaveText(value)
-  await page.keyboard.press("Escape")
+  await page.getByRole("link", { name: "Back to package", exact: true }).click()
   const schematic = page
     .locator("svg:has([data-schematic-component-id])")
     .last()

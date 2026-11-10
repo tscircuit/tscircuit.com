@@ -2,7 +2,7 @@ import { DatasheetBreadcrumbs } from "@/components/DatasheetBreadcrumbs"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
 import { getReferenceDesignUrl } from "@/lib/reference-design-selection"
 import { ArrowRight } from "lucide-react"
@@ -42,7 +42,10 @@ export default function DatasheetReferenceDesignsPage() {
           referenceDesigns
           referenceDesignName={name ? packageName : undefined}
         />
-        <h1 className="mb-8 break-words text-3xl font-bold text-gray-900 md:text-4xl">
+        <h1
+          id="reference-design-heading"
+          className="mb-8 break-words text-3xl font-bold text-gray-900 md:text-4xl"
+        >
           {chipName} Reference Designs
         </h1>
         <Card
@@ -50,12 +53,7 @@ export default function DatasheetReferenceDesignsPage() {
           aria-labelledby="reference-design-heading"
           className="min-w-0"
         >
-          <CardHeader>
-            <CardTitle id="reference-design-heading" className="text-xl">
-              {name ? "Reference design" : "Reference designs"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {name ? (
               <>
                 <div className="mb-4 px-2 py-4">

@@ -24,6 +24,9 @@ test("About opens a schema-driven customizer and keeps the release, config, view
   const customize = page.getByRole("link", { name: "Customize", exact: true })
   await expect(customize).toBeVisible({ timeout: 120_000 })
   await expect(customize.locator("svg")).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Parameters", exact: true }),
+  ).toHaveCount(0)
   const href = new URL(
     (await customize.getAttribute("href")) as string,
     page.url(),
@@ -57,6 +60,9 @@ test("About opens a schema-driven customizer and keeps the release, config, view
     /\/cc2340r5-reference-design\/customize\?.*#schematic$/,
   )
   const region = page.getByRole("region", { name: "Customize", exact: true })
+  await expect(
+    region.getByRole("link", { name: "Open package", exact: true }),
+  ).toHaveCount(0)
   const panel = region.getByRole("complementary", {
     name: "Circuit parameters",
   })

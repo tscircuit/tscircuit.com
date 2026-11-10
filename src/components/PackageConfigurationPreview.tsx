@@ -26,11 +26,13 @@ function PackageConfigurationCircuit({
   releaseId,
   selection,
   onSelectionChange,
+  showPackageLink,
 }: {
   name: string
   releaseId: string
   selection: PackagePreviewSelection
   onSelectionChange: (selection: PackagePreviewSelection) => void
+  showPackageLink: boolean
 }) {
   const parameters = usePackagePreviewParameters()
   const view = views.some((item) => item.id === selection.view)
@@ -124,16 +126,18 @@ function PackageConfigurationCircuit({
               ))}
             </div>
           </div>
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Open package in a new tab"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
-          >
-            Open package
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
+          {showPackageLink && (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open package in a new tab"
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
+            >
+              Open package
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          )}
         </div>
         <div
           className={
@@ -203,10 +207,12 @@ export function PackageConfigurationPreview({
   name,
   selection,
   onSelectionChange,
+  showPackageLink = true,
 }: {
   name: string
   selection: PackagePreviewSelection
   onSelectionChange: (selection: PackagePreviewSelection) => void
+  showPackageLink?: boolean
 }) {
   const { data: pkg, isLoading, error, refetch } = usePackageByName(name)
   const [resolvedRelease, setResolvedRelease] = useState<string>()
@@ -270,6 +276,7 @@ export function PackageConfigurationPreview({
         releaseId={releaseId}
         selection={selection}
         onSelectionChange={onSelectionChange}
+        showPackageLink={showPackageLink}
       />
     </PackagePreviewProvider>
   )

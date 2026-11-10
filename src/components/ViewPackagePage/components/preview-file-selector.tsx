@@ -1,4 +1,3 @@
-import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { usePackagePreviewScope } from "@/components/PackagePreviewScope"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,10 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import {
-  usePackagePreviewParameters,
-  usePreparedPackageParameters,
-} from "@/hooks/use-package-preview-parameters"
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import {
   downloadPackagePreviewGlb,
@@ -167,44 +163,6 @@ function PreviewBuildSelector({ label }: { label?: string } = {}) {
 
 export default function PreviewFileSelector(props: { label?: string } = {}) {
   const { manifest, error, isLoading } = usePackagePreviewParameters()
-  if (manifest)
-    return manifest.parameters.length ? (
-      <ParameterSelector manifest={manifest} />
-    ) : null
-  if (isLoading)
-    return (
-      <Button size="sm" variant="outline" disabled>
-        Parameters
-      </Button>
-    )
-  if (error)
-    return (
-      <p role="alert" className="text-sm text-red-600">
-        Unable to load circuit parameters.
-      </p>
-    )
+  if (manifest || error || isLoading) return null
   return <PreviewBuildSelector {...props} />
-}
-
-function ParameterSelector({
-  manifest,
-}: {
-  manifest: import("@/lib/package-preview-parameters").PreviewParameterManifest
-}) {
-  usePreparedPackageParameters(manifest)
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button size="sm" variant="outline">
-          Parameters
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="max-h-[75vh] w-80 overflow-y-auto p-0"
-      >
-        <PackageParameterPanel manifest={manifest} />
-      </PopoverContent>
-    </Popover>
-  )
 }
