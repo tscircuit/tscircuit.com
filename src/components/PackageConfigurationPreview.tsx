@@ -1,3 +1,4 @@
+import { PackagePreviewToolbar } from "@/components/PackagePreviewToolbar"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { PackagePreviewChangesProvider } from "@/components/PackagePreviewChanges"
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
@@ -6,13 +7,6 @@ import type { usePackageConfiguration } from "@/hooks/use-package-configuration"
 import { getPackagePreviewUrl } from "@/lib/package-file-routes"
 import type { PackagePreviewSelection } from "@/lib/package-preview-selection"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
-import { ExternalLink } from "lucide-react"
-
-const views = [
-  { id: "3d", label: "3D" },
-  { id: "pcb", label: "PCB" },
-  { id: "schematic", label: "Schematic" },
-]
 
 export function PackageConfigurationPreview({
   configuration,
@@ -63,42 +57,17 @@ export function PackageConfigurationPreview({
       selectionKey={`${releaseId}:${variant?.circuitJsonPath}`}
     >
       <div>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div
-            className="flex gap-1 rounded-md bg-gray-100 p-1"
-            role="group"
-            aria-label="Circuit view"
-          >
-            {views.map((item) => (
-              <Button
-                key={item.id}
-                size="sm"
-                variant={view === item.id ? "outline" : "ghost"}
-                disabled={!metadataReady}
-                aria-pressed={view === item.id}
-                onClick={() => changeView(item.id)}
-              >
-                {item.label}
-              </Button>
-            ))}
-          </div>
-          {!hidePackageLink && (
-            <a
-              href={getPackagePreviewUrl({
-                author,
-                packageName,
-                selection: resolvedSelection,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Open package in a new tab"
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
-            >
-              Open package{" "}
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-          )}
-        </div>
+        <PackagePreviewToolbar
+          view={view}
+          onViewChange={changeView}
+          disabled={!metadataReady}
+          hidePackageLink={hidePackageLink}
+          packageUrl={getPackagePreviewUrl({
+            author,
+            packageName,
+            selection: resolvedSelection,
+          })}
+        />
         <div
           className={
             hasControls || (!metadataReady && !error)

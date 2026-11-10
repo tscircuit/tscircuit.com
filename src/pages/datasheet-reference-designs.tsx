@@ -1,3 +1,4 @@
+import { PackagePreviewToolbar } from "@/components/PackagePreviewToolbar"
 import { DatasheetBreadcrumbs } from "@/components/DatasheetBreadcrumbs"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
@@ -15,7 +16,15 @@ const DatasheetReferenceDesign = lazy(
 )
 
 function ReferenceDesignLoading() {
-  return <div className="h-[676px] rounded-md bg-gray-50" aria-busy="true" />
+  return (
+    <div aria-busy="true">
+      <PackagePreviewToolbar disabled />
+      <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="h-[620px] rounded-md bg-gray-50" />
+        <div className="h-[620px] rounded-md bg-gray-50" />
+      </div>
+    </div>
+  )
 }
 
 export default function DatasheetReferenceDesignsPage() {
