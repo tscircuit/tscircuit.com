@@ -11,7 +11,10 @@ const picker = (page: Page) =>
   page.getByRole("combobox", { name: "Preview file" })
 
 async function interactWithViewer(page: Page) {
-  const overlay = page.getByText("Click to Interact", { exact: true })
+  const overlay = page
+    .getByText("Click to Interact", { exact: true })
+    .filter({ visible: true })
+    .first()
   if (await overlay.isVisible()) {
     const bounds = await overlay.boundingBox()
     if (!bounds) throw new Error("Viewer interaction overlay has no bounds")

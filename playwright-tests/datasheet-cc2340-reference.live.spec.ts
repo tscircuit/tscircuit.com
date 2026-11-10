@@ -12,7 +12,10 @@ test.skip(
 )
 
 async function activate(page: Page, region: Locator) {
-  const overlay = region.getByText("Click to Interact", { exact: true })
+  const overlay = region
+    .getByText("Click to Interact", { exact: true })
+    .filter({ visible: true })
+    .first()
   if (!(await overlay.isVisible())) return
   const bounds = await overlay.boundingBox()
   if (!bounds) throw new Error("Viewer activation overlay has no bounds")
