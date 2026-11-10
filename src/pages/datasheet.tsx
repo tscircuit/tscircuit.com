@@ -1,3 +1,5 @@
+import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
+import { getReferenceDesignsUrl } from "@/lib/reference-design-selection"
 import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
@@ -36,6 +38,8 @@ const SectionCard = ({
 export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
   const datasheetQuery = useDatasheet(chipName)
+  const { packages: referenceDesigns } =
+    useDatasheetReferenceDesignPackages(chipName)
   const createDatasheet = useCreateDatasheet()
   const { copyToClipboard } = useCopyToClipboard()
   const componentTsx = datasheetQuery.data?.generated_tsx
@@ -91,9 +95,18 @@ export const DatasheetPage = () => {
               </a>
             </div>
           </div>
-          {datasheetQuery.data && (
-            <DatasheetSupplierParts datasheet={datasheetQuery.data} />
-          )}
+          <div className="flex flex-wrap items-start gap-3">
+            {referenceDesigns.length > 0 && (
+              <Button variant="outline" asChild>
+                <Link href={getReferenceDesignsUrl(chipName)}>
+                  Reference designs
+                </Link>
+              </Button>
+            )}
+            {datasheetQuery.data && (
+              <DatasheetSupplierParts datasheet={datasheetQuery.data} />
+            )}
+          </div>
         </div>
 
         {datasheetQuery.isLoading ? (
