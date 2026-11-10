@@ -17,7 +17,6 @@ export function PackageParameterPanel({
   const scope = usePackagePreviewScope()
   const prepared = usePreparedPackageParameters(manifest)
   const [error, setError] = useState<string>()
-  const [inputReset, setInputReset] = useState(0)
   const current = findParameterVariantByPath(manifest, previewFilePath)
   const select = (values: typeof current.values) => {
     const variant = findParameterVariant(manifest, values)
@@ -47,10 +46,7 @@ export function PackageParameterPanel({
           size="sm"
           variant="ghost"
           disabled={!prepared.data}
-          onClick={() => {
-            setInputReset((n) => n + 1)
-            select(manifest.defaults)
-          }}
+          onClick={() => select(manifest.defaults)}
         >
           Reset to defaults
         </Button>
@@ -88,38 +84,23 @@ export function PackageParameterPanel({
                     }
                   />
                 )}
+                {parameter.type === "number" && (
+                  <output
+                    htmlFor={id}
+                    aria-label={`${parameter.label} value`}
+                    className="shrink-0 text-sm tabular-nums text-gray-600"
+                  >
+                    {parameter.options.find((o) => o.value === value)!.number}{" "}
+                    {parameter.unit}
+                  </output>
+                )}
               </div>
-              <p
-                id={`${id}-description`}
-                className="mb-2 text-xs leading-relaxed text-gray-500"
-              >
-                {parameter.description}
-              </p>
               {parameter.type === "number" && (
                 <>
-                  <div className="mb-2 flex items-center gap-2">
-                    <NumericParameter
-                      key={`${String(value)}:${inputReset}`}
-                      label={parameter.label}
-                      value={
-                        parameter.options.find((o) => o.value === value)!.number
-                      }
-                      options={parameter.options}
-                      disabled={!prepared.data}
-                      unit={parameter.unit}
-                      onValue={(v) =>
-                        select({ ...current.values, [parameter.id]: v })
-                      }
-                    />
-                    <span className="text-xs text-gray-600">
-                      {parameter.unit}
-                    </span>
-                  </div>
                   <input
                     id={id}
                     type="range"
                     aria-label={`${parameter.label} slider`}
-                    aria-describedby={`${id}-description`}
                     aria-valuetext={`${parameter.options.find((o) => o.value === value)!.number} ${parameter.unit}`}
                     min={0}
                     max={parameter.options.length - 1}
@@ -154,58 +135,5 @@ export function PackageParameterPanel({
         </p>
       )}
     </aside>
-  )
-}
-function NumericParameter({
-  label,
-  value,
-  options,
-  disabled,
-  unit,
-  onValue,
-}: {
-  label: string
-  value: number
-  options: { value: string | number | boolean; number: number }[]
-  disabled: boolean
-  unit: string
-  onValue: (value: string | number | boolean) => void
-}) {
-  const [text, setText] = useState(String(value))
-  const [invalid, setInvalid] = useState(false)
-  const commit = () => {
-    const option = options.find(
-      (o) => o.number === Number(text) && text.trim() !== "",
-    )
-    if (option) {
-      setInvalid(false)
-      onValue(option.value)
-    } else setInvalid(true)
-  }
-  return (
-    <div className="min-w-0 flex-1">
-      <input
-        aria-label={`${label} value`}
-        type="number"
-        step="any"
-        value={text}
-        disabled={disabled}
-        aria-invalid={invalid}
-        className="w-full rounded border bg-gray-50 px-2 py-1 text-sm"
-        onChange={(e) => {
-          setText(e.target.value)
-          setInvalid(false)
-        }}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") commit()
-        }}
-      />
-      {invalid && (
-        <p role="alert" className="mt-1 text-xs text-red-600">
-          Choose {options.map((o) => o.number).join(", ")} {unit}.
-        </p>
-      )}
-    </div>
   )
 }

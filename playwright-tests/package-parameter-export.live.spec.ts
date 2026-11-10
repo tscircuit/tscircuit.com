@@ -33,13 +33,13 @@ test("a cold package link restores combined parameters and exports the exact cir
     panel.getByRole("switch", { name: "External LF crystal" }),
   ).not.toBeChecked()
   for (const [label, value] of [
-    ["Supply voltage", "3.3"],
-    ["Input bulk capacitor", "22"],
-    ["Reset pull-up", "10"],
+    ["Supply voltage", "3.3 V"],
+    ["Input bulk capacitor", "22 µF"],
+    ["Reset pull-up", "10 kΩ"],
   ])
     await expect(
-      panel.getByRole("spinbutton", { name: `${label} value` }),
-    ).toHaveValue(value)
+      panel.getByLabel(`${label} value`, { exact: true }),
+    ).toHaveText(value)
   await page.keyboard.press("Escape")
   const schematic = page
     .locator("svg:has([data-schematic-component-id])")

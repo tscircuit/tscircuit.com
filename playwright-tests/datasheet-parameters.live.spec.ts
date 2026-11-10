@@ -1,10 +1,4 @@
-import {
-  expect,
-  test,
-  type Page,
-  type Request,
-  type Response,
-} from "@playwright/test"
+import { expect, test, type Request, type Response } from "@playwright/test"
 import { gunzipSync } from "node:zlib"
 
 test.skip(
@@ -81,8 +75,8 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await panel.scrollIntoViewIfNeeded()
   const lf = panel.getByRole("switch", { name: "External LF crystal" })
   const header = panel.getByRole("switch", { name: "SWD header" })
-  const number = (name: string) =>
-    panel.getByRole("spinbutton", { name: `${name} value` })
+  const displayValue = (name: string) =>
+    panel.getByLabel(`${name} value`, { exact: true })
   const range = (name: string) =>
     panel.getByRole("slider", { name: `${name} slider` })
   await expect(lf).toBeEnabled({ timeout: 120_000 })
@@ -95,7 +89,13 @@ test("independent controls compose all 64 exact states offline and preserve the 
   )
   await expect(lf).toBeChecked()
   await expect(header).toBeChecked()
-  await expect(number("Supply voltage")).toHaveValue("2.5")
+  await expect(panel.getByRole("spinbutton")).toHaveCount(0)
+  for (const parameter of manifest.parameters)
+    if (parameter.description)
+      await expect(
+        panel.getByText(parameter.description, { exact: true }),
+      ).toHaveCount(0)
+  await expect(displayValue("Supply voltage")).toHaveText("2.5 V")
   const canvas = region.locator("canvas:visible").last()
   await expect(canvas).toBeVisible()
   await canvas.evaluate((e) => e.setAttribute("data-parameter-canvas", "true"))
@@ -127,9 +127,9 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await range("Supply voltage").press("End")
   await range("Input bulk capacitor").press("End")
   await range("Reset pull-up").press("Home")
-  await expect(number("Supply voltage")).toHaveValue("3.3")
-  await expect(number("Input bulk capacitor")).toHaveValue("22")
-  await expect(number("Reset pull-up")).toHaveValue("10")
+  await expect(displayValue("Supply voltage")).toHaveText("3.3 V")
+  await expect(displayValue("Input bulk capacitor")).toHaveText("22 µF")
+  await expect(displayValue("Reset pull-up")).toHaveText("10 kΩ")
   await expect(
     region.locator('canvas[data-parameter-canvas="true"]'),
   ).toBeVisible()
@@ -143,11 +143,14 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await region.screenshot({
     path: info.outputPath("combined-parameters-schematic.png"),
   })
-  const setNumber = async (name: string, value: number) => {
-    if ((await number(name).inputValue()) !== String(value)) {
-      await number(name).fill(String(value))
-      await number(name).press("Enter")
-    }
+  const setSlider = async (name: string, value: number) => {
+    const parameter = manifest.parameters.find((p: any) => p.label === name)
+    const target = parameter.options.findIndex((o: any) => o.number === value)
+    expect(target).toBeGreaterThanOrEqual(0)
+    const current = Number(await range(name).inputValue())
+    for (let step = 0; step < Math.abs(target - current); step++)
+      await range(name).press(target > current ? "ArrowRight" : "ArrowLeft")
+    await expect(range(name)).toHaveValue(String(target))
   }
   // All exact combinations, with each field preserving every other setting.
   let checked = 0
@@ -158,9 +161,9 @@ test("independent controls compose all 64 exact states offline and preserve the 
           for (const resistance of [100, 10]) {
             await lf.setChecked(ext)
             await header.setChecked(debug)
-            await setNumber("Input bulk capacitor", cap)
-            await setNumber("Supply voltage", voltage)
-            await setNumber("Reset pull-up", resistance)
+            await setSlider("Input bulk capacitor", cap)
+            await setSlider("Supply voltage", voltage)
+            await setSlider("Reset pull-up", resistance)
             const values = {
               externalLfCrystal: ext,
               debugHeader: debug,
@@ -274,23 +277,18 @@ test("independent controls compose all 64 exact states offline and preserve the 
   expect(requests).toEqual([])
   monitor = false
   await context.setOffline(false)
-  const finalPath = new URL(page.url()).searchParams.get("reference_file")
   await page.reload()
   await expect(lf).toBeEnabled({ timeout: 120_000 })
   await expect(lf).not.toBeChecked()
   await expect(header).not.toBeChecked()
-  await expect(number("Supply voltage")).toHaveValue("3.3")
-  await expect(number("Input bulk capacitor")).toHaveValue("22")
-  await expect(number("Reset pull-up")).toHaveValue("10")
-  await number("Input bulk capacitor").fill("15")
-  await number("Input bulk capacitor").press("Enter")
-  await expect(panel.getByRole("alert")).toContainText("Choose 10, 22")
-  expect(new URL(page.url()).searchParams.get("reference_file")).toBe(finalPath)
+  await expect(displayValue("Supply voltage")).toHaveText("3.3 V")
+  await expect(displayValue("Input bulk capacitor")).toHaveText("22 µF")
+  await expect(displayValue("Reset pull-up")).toHaveText("10 kΩ")
   await panel.getByRole("button", { name: "Reset to defaults" }).click()
   await expect(lf).toBeChecked()
   await expect(header).toBeChecked()
-  await expect(number("Input bulk capacitor")).toHaveValue("10")
-  await expect(number("Supply voltage")).toHaveValue("2.5")
+  await expect(displayValue("Input bulk capacitor")).toHaveText("10 µF")
+  await expect(displayValue("Supply voltage")).toHaveText("2.5 V")
   await page.setViewportSize({ width: 390, height: 844 })
   await panel.scrollIntoViewIfNeeded()
   expect(

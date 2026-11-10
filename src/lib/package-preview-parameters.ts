@@ -6,7 +6,6 @@ const path = z.string().regex(/^dist\/(?!.*(?:\.\.|\\|:\/\/))[^?#]+$/)
 const common = {
   id: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]*$/),
   label: z.string().min(1).max(120),
-  description: z.string().max(1000),
 }
 const parameter = z.discriminatedUnion("type", [
   z.object({ ...common, type: z.literal("boolean"), default: z.boolean() }),

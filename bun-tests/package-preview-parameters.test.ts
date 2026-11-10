@@ -13,14 +13,12 @@ const manifest = () => ({
       id: "header",
       type: "boolean",
       label: "Header",
-      description: "Fit header",
       default: true,
     },
     {
       id: "resistor",
       type: "number",
       label: "Pull-up",
-      description: "Reset resistor",
       unit: "kΩ",
       default: "100k",
       options: [
