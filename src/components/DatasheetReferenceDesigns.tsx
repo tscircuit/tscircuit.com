@@ -14,6 +14,7 @@ import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
 import PreviewFileSelector from "@/components/ViewPackagePage/components/preview-file-selector"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Accordion,
   AccordionContent,
@@ -329,58 +330,64 @@ function ReferenceDesignList({ packages }: { packages: readonly string[] }) {
   }
 
   return (
-    <section
+    <Card
       id="reference-designs"
+      role="region"
       aria-labelledby="reference-designs-heading"
-      className="mb-6"
+      className="mb-6 min-w-0"
     >
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h2 id="reference-designs-heading" className="text-xl font-semibold">
+      <CardHeader className="pb-2">
+        <CardTitle
+          id="reference-designs-heading"
+          className="text-xl font-semibold"
+        >
           Reference designs
-        </h2>
-      </div>
-      <Accordion
-        type="single"
-        collapsible
-        value={state.open}
-        onValueChange={selectDesign}
-        className="space-y-3"
-      >
-        {packages.map((name) => (
-          <AccordionItem
-            key={name}
-            value={name}
-            className="rounded-lg border bg-white shadow-sm"
-          >
-            <AccordionTrigger
-              aria-label={name}
-              className="gap-3 rounded-lg px-4 text-left hover:no-underline md:px-6"
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Accordion
+          type="single"
+          collapsible
+          value={state.open}
+          onValueChange={selectDesign}
+          className="divide-y divide-slate-200"
+        >
+          {packages.map((name) => (
+            <AccordionItem
+              key={name}
+              value={name}
+              className="border-0 [&:not(:first-child)]:pt-4"
             >
-              <span className="min-w-0">
-                <span className="block break-words text-base font-semibold">
-                  {name.split("/")[1]}
+              <AccordionTrigger
+                aria-label={name}
+                className="gap-3 pb-4 pt-0 text-left hover:no-underline"
+              >
+                <span className="min-w-0">
+                  <span className="block break-words text-base font-semibold">
+                    {name.split("/")[1]}
+                  </span>
+                  <span className="block text-xs font-normal text-gray-500">
+                    {name.split("/")[0]}
+                  </span>
                 </span>
-                <span className="block text-xs font-normal text-gray-500">
-                  {name.split("/")[0]}
-                </span>
-              </span>
-            </AccordionTrigger>
-            {state.selections[name] && (
-              <div hidden={state.open !== name}>
-                <AccordionContent forceMount className="px-4 md:px-6">
-                  <ReferenceDesignPackage
-                    name={name}
-                    selection={state.selections[name]}
-                    onSelectionChange={(selection) =>
-                      changeSelection(name, selection)
-                    }
-                  />
-                </AccordionContent>
-              </div>
-            )}
-          </AccordionItem>
-        ))}
-      </Accordion>
-    </section>
+              </AccordionTrigger>
+              {state.selections[name] && (
+                <div hidden={state.open !== name}>
+                  <AccordionContent forceMount className="pb-0">
+                    <ReferenceDesignPackage
+                      name={name}
+                      selection={state.selections[name]}
+                      onSelectionChange={(selection) =>
+                        changeSelection(name, selection)
+                      }
+                    />
+                  </AccordionContent>
+                </div>
+              )}
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </CardContent>
+    </Card>
   )
 }
