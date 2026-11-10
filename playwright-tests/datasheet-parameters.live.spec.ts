@@ -1,5 +1,6 @@
 import { expect, test, type Request, type Response } from "@playwright/test"
 import { gunzipSync } from "node:zlib"
+import { parsePreviewParameterManifest } from "../src/lib/package-preview-parameters"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -58,12 +59,24 @@ test("independent controls compose all 64 exact states offline and preserve the 
     (f: any) => f.file_path === "dist/preview.json",
   )
   expect(manifestFile).toBeTruthy()
-  const manifest = await page.evaluate(async (id) => {
+  const rawManifest = await page.evaluate(async (id) => {
     const r = await fetch(
       `https://registry-api.tscircuit.com/package_files/get?package_file_id=${id}`,
     )
     return JSON.parse((await r.json()).package_file.content_text)
   }, manifestFile.package_file_id)
+  const schemaFile = files.find(
+    (f: any) => f.file_path === rawManifest.propsSchemaPath,
+  )
+  const schema = schemaFile
+    ? await page.evaluate(async (id) => {
+        const response = await fetch(
+          `https://registry-api.tscircuit.com/package_files/get?package_file_id=${id}`,
+        )
+        return JSON.parse((await response.json()).package_file.content_text)
+      }, schemaFile.package_file_id)
+    : undefined
+  const manifest = parsePreviewParameterManifest(rawManifest, files, schema)
   expect(manifest.variants).toHaveLength(64)
   expect(new Set(manifest.variants.map((v: any) => v.glbPath)).size).toBe(8)
   const bundleId = files.find(
@@ -97,7 +110,7 @@ test("independent controls compose all 64 exact states offline and preserve the 
   await expect(header).toBeChecked()
   await expect(panel.getByRole("spinbutton")).toHaveCount(0)
   for (const parameter of manifest.parameters)
-    if (parameter.description)
+    if ("description" in parameter && parameter.description)
       await expect(
         panel.getByText(parameter.description, { exact: true }),
       ).toHaveCount(0)

@@ -125,6 +125,34 @@ export function PackageParameterPanel({
                   </div>
                 </>
               )}
+              {parameter.type === "enum" && (
+                <select
+                  id={id}
+                  aria-label={parameter.label}
+                  value={JSON.stringify(value)}
+                  disabled={!prepared.data}
+                  className="w-full rounded border px-2 py-1 text-sm"
+                  onChange={(event) => {
+                    const option = parameter.options.find(
+                      (o) => JSON.stringify(o.value) === event.target.value,
+                    )
+                    if (option)
+                      select({
+                        ...current.values,
+                        [parameter.id]: option.value,
+                      })
+                  }}
+                >
+                  {parameter.options.map((option) => (
+                    <option
+                      key={JSON.stringify(option.value)}
+                      value={JSON.stringify(option.value)}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )
         })}

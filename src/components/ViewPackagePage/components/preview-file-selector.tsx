@@ -185,7 +185,10 @@ function PreviewBuildSelector({ label }: { label?: string } = {}) {
 
 export default function PreviewFileSelector(props: { label?: string } = {}) {
   const { manifest, error, isLoading } = usePackagePreviewParameters()
-  if (manifest) return <ParameterSelector manifest={manifest} />
+  if (manifest)
+    return manifest.parameters.length ? (
+      <ParameterSelector manifest={manifest} />
+    ) : null
   if (isLoading)
     return (
       <Button size="sm" variant="outline" disabled>

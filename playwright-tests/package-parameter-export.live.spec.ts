@@ -13,7 +13,26 @@ test("a cold package link restores combined parameters and exports the exact cir
   const release =
     process.env.TSCIRCUIT_PARAMETER_RELEASE ||
     "3c0e9272-49aa-486b-b269-1e4b0b218b40"
-  const path = "dist/index/states/lf-0_swd-0_v-3v3_c-22uF_r-10k/circuit.json.gz"
+  await page.goto("/")
+  const path = await page.evaluate(async (release) => {
+    const response = await fetch(
+      `https://registry-api.tscircuit.com/package_files/get?package_release_id=${release}&file_path=dist%2Fpreview.json`,
+    )
+    const manifest = JSON.parse(
+      (await response.json()).package_file.content_text,
+    )
+    const selected = manifest.variants.find(
+      (v: any) =>
+        v.values.externalLfCrystal === false &&
+        v.values.debugHeader === false &&
+        v.values.supplyVoltage === 3.3 &&
+        v.values.inputBulkCapacitance === "22uF" &&
+        v.values.resetPullupResistance === "10k",
+    )
+    if (!selected)
+      throw new Error("The build is missing the requested combined state")
+    return selected.circuitJsonPath as string
+  }, release)
   const query = new URLSearchParams({
     package_release_id: release,
     preview_file: path,

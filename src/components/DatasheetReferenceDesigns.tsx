@@ -7,7 +7,7 @@ import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useUrlParams } from "@/hooks/use-url-params"
-import { getDatasheetReferenceDesignPackages } from "@/lib/datasheet-reference-design-packages"
+import { useDatasheetReferenceDesignPackages } from "@/hooks/use-datasheet-reference-design-packages"
 import { getPackageRootUrl } from "@/lib/package-file-routes"
 import { PackagePreviewProvider } from "@/components/PackagePreviewScope"
 import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
@@ -149,14 +149,15 @@ function ReferenceDesignPreview({
       </div>
       <div
         className={
-          parameters.manifest
+          parameters.manifest?.parameters.length
             ? "grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
             : ""
         }
       >
-        {parameters.manifest && (
-          <PackageParameterPanel manifest={parameters.manifest} />
-        )}
+        {Boolean(parameters.manifest?.parameters.length) &&
+          parameters.manifest && (
+            <PackageParameterPanel manifest={parameters.manifest} />
+          )}
         <div className="min-w-0">
           {mismatchedRelease ? (
             <p role="alert" className="p-8 text-red-600">
@@ -286,7 +287,22 @@ function ReferenceDesignPackage({
 }
 
 export function DatasheetReferenceDesigns({ chipName }: { chipName: string }) {
-  const packages = getDatasheetReferenceDesignPackages(chipName)
+  const { packages, failed, refetch } =
+    useDatasheetReferenceDesignPackages(chipName)
+  if (!packages.length && failed.length)
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-xl">Reference designs</CardTitle>
+        </CardHeader>
+        <CardContent role="alert">
+          <p>Unable to load reference designs.</p>
+          <Button variant="outline" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    )
   if (packages.length === 0) return null
   return <ReferenceDesignList key={chipName} packages={packages} />
 }

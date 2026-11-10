@@ -7,6 +7,7 @@ import { useGlobalStore } from "./use-global-store"
 import {
   downloadPreviewCircuitBundle,
   parsePreviewParameterManifest,
+  previewParameterManifestSchema,
   type PreviewParameterManifest,
 } from "@/lib/package-preview-parameters"
 import { downloadPackagePreviewGlb } from "@/lib/package-preview-glb"
@@ -31,10 +32,22 @@ export function usePackagePreviewParameters() {
       const { data } = await axios.get("/package_files/get", {
         params: { package_file_id: file!.package_file_id },
       })
-      return parsePreviewParameterManifest(
+      const manifest = previewParameterManifestSchema.parse(
         JSON.parse(data.package_file.content_text),
-        files!,
       )
+      let schema: unknown
+      if (manifest.version === 2) {
+        const schemaFile = files!.find(
+          (f) => f.file_path === manifest.propsSchemaPath,
+        )
+        if (!schemaFile)
+          throw new Error("The package build's props schema is missing")
+        const { data } = await axios.get("/package_files/get", {
+          params: { package_file_id: schemaFile.package_file_id },
+        })
+        schema = JSON.parse(data.package_file.content_text)
+      }
+      return parsePreviewParameterManifest(manifest, files!, schema)
     },
     {
       enabled: Boolean(file),

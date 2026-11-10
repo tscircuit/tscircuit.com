@@ -1,5 +1,9 @@
 import { z } from "zod"
 import { fetchPackageArtifact } from "./fetch-package-artifact"
+import {
+  derivePackageParameters,
+  type PackagePropsSchema,
+} from "./package-props-schema"
 
 const value = z.union([z.boolean(), z.string().max(128), z.number().finite()])
 const path = z.string().regex(/^dist\/(?!.*(?:\.\.|\\|:\/\/))[^?#]+$/)
@@ -19,73 +23,52 @@ const parameter = z.discriminatedUnion("type", [
       .min(2)
       .max(128),
   }),
+  z.object({
+    ...common,
+    type: z.literal("enum"),
+    default: value,
+    options: z
+      .array(z.object({ value, label: z.string().max(128) }))
+      .min(2)
+      .max(128),
+  }),
 ])
-export const previewParameterManifestSchema = z
-  .object({
+const artifacts = {
+  bundlePath: path,
+  variants: z
+    .array(
+      z.object({
+        values: z.record(value),
+        circuitJsonPath: path,
+        glbPath: path,
+      }),
+    )
+    .min(1)
+    .max(256),
+}
+export const previewParameterManifestSchema = z.discriminatedUnion("version", [
+  z.object({
     version: z.literal(1),
     parameters: z.array(parameter).min(1).max(16),
     defaults: z.record(value),
-    bundlePath: path,
-    variants: z
-      .array(
-        z.object({
-          values: z.record(value),
-          circuitJsonPath: path,
-          glbPath: path,
-        }),
-      )
-      .min(1)
-      .max(256),
-  })
-  .superRefine((manifest, ctx) => {
-    const keys = new Set<string>()
-    const paths = new Set<string>()
-    const ids = manifest.parameters.map((p) => p.id)
-    if (new Set(ids).size !== ids.length)
-      ctx.addIssue({ code: "custom", message: "Duplicate parameter IDs" })
-    const valid = (values: Record<string, unknown>) =>
-      Object.keys(values).length === ids.length &&
-      manifest.parameters.every((p) =>
-        p.type === "boolean"
-          ? typeof values[p.id] === "boolean"
-          : p.options.some((o) => o.value === values[p.id]),
-      )
-    if (
-      !valid(manifest.defaults) ||
-      manifest.parameters.some((p) => p.default !== manifest.defaults[p.id])
-    )
-      ctx.addIssue({ code: "custom", message: "Invalid parameter defaults" })
-    for (const p of manifest.parameters)
-      if (
-        p.type === "number" &&
-        (new Set(p.options.map((o) => o.value)).size !== p.options.length ||
-          p.options.some(
-            (o, i) => i > 0 && o.number <= p.options[i - 1].number,
-          ))
-      )
-        ctx.addIssue({
-          code: "custom",
-          message: "Slider options must be unique and ordered",
-        })
-    for (const v of manifest.variants) {
-      const key = parameterStateKey(v.values)
-      if (!valid(v.values) || keys.has(key) || paths.has(v.circuitJsonPath))
-        ctx.addIssue({
-          code: "custom",
-          message: "Invalid or duplicate parameter state",
-        })
-      keys.add(key)
-      paths.add(v.circuitJsonPath)
-    }
-    if (!keys.has(parameterStateKey(manifest.defaults)))
-      ctx.addIssue({
-        code: "custom",
-        message: "Missing default parameter state",
-      })
-  })
-export type PreviewParameterManifest = z.infer<
-  typeof previewParameterManifestSchema
->
+    ...artifacts,
+  }),
+  z.object({
+    version: z.literal(2),
+    propsSchemaPath: path,
+    componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
+    ...artifacts,
+  }),
+])
+export type PreviewParameterManifest = {
+  version: 1 | 2
+  parameters: z.infer<typeof parameter>[]
+  defaults: Record<string, boolean | number | string>
+  bundlePath: string
+  variants: z.infer<typeof artifacts.variants>
+  propsSchemaPath?: string
+  componentPartNumbers?: string[]
+}
 export type PreviewParameterValues = PreviewParameterManifest["defaults"]
 export const parameterStateKey = (values: Record<string, unknown>) =>
   JSON.stringify(
@@ -98,25 +81,96 @@ export const findParameterVariant = (
   values: PreviewParameterValues,
 ) =>
   manifest.variants.find(
-    (v) => parameterStateKey(v.values) === parameterStateKey(values),
+    (variant) =>
+      parameterStateKey(variant.values) === parameterStateKey(values),
   )
 export const findParameterVariantByPath = (
   manifest: PreviewParameterManifest,
-  path?: string,
+  file?: string,
 ) =>
-  manifest.variants.find((v) => v.circuitJsonPath === path) ??
+  manifest.variants.find((variant) => variant.circuitJsonPath === file) ??
   findParameterVariant(manifest, manifest.defaults)!
 
 export function parsePreviewParameterManifest(
   data: unknown,
   files: { file_path: string }[],
-) {
-  const manifest = previewParameterManifestSchema.parse(data)
-  const paths = new Set(files.map((f) => f.file_path))
+  propsSchema?: unknown,
+): PreviewParameterManifest {
+  const raw = previewParameterManifestSchema.parse(data)
+  let manifest: PreviewParameterManifest
+  let domains: Record<string, (string | boolean | number)[]>
+  if (raw.version === 2) {
+    if (!propsSchema)
+      throw new Error("This package build requires its published props schema")
+    const generated = derivePackageParameters(propsSchema as PackagePropsSchema)
+    manifest = {
+      ...raw,
+      parameters: z.array(parameter).parse(generated.parameters),
+      defaults: z.record(value).parse(generated.defaults),
+    }
+    domains = generated.domains
+  } else {
+    manifest = raw
+    domains = Object.fromEntries(
+      raw.parameters.map((p) => [
+        p.id,
+        p.type === "boolean"
+          ? [false, true]
+          : p.options.map((option) => option.value),
+      ]),
+    )
+  }
+  const ids = manifest.parameters.map((p) => p.id)
+  const defaultIds = Object.keys(manifest.defaults)
   if (
-    !paths.has(manifest.bundlePath) ||
+    new Set(ids).size !== ids.length ||
+    defaultIds.length !== Object.keys(domains).length ||
+    manifest.parameters.some((p) => p.default !== manifest.defaults[p.id]) ||
+    defaultIds.some((id) => !domains[id]?.includes(manifest.defaults[id]))
+  )
+    throw new Error("Invalid parameter defaults or duplicate IDs")
+  for (const p of manifest.parameters) {
+    if (p.type === "boolean") continue
+    if (
+      new Set(p.options.map((o) => o.value)).size !== p.options.length ||
+      (p.type === "number" &&
+        p.options.some((o, i) => i > 0 && o.number <= p.options[i - 1].number))
+    )
+      throw new Error(
+        "Parameter choices must be unique and numeric options ordered",
+      )
+  }
+  const keys = new Set<string>(),
+    paths = new Set<string>()
+  for (const variant of manifest.variants) {
+    const key = parameterStateKey(variant.values)
+    if (
+      Object.keys(variant.values).length !== defaultIds.length ||
+      defaultIds.some((id) => !domains[id]?.includes(variant.values[id])) ||
+      keys.has(key) ||
+      paths.has(variant.circuitJsonPath)
+    )
+      throw new Error("Invalid or duplicate parameter state")
+    keys.add(key)
+    paths.add(variant.circuitJsonPath)
+  }
+  if (
+    Object.values(domains).reduce(
+      (count, choices) => count * choices.length,
+      1,
+    ) !== keys.size
+  )
+    throw new Error("The build must include every supported schema combination")
+  if (!keys.has(parameterStateKey(manifest.defaults)))
+    throw new Error("Missing default parameter state")
+  const available = new Set(files.map((file) => file.file_path))
+  if (
+    !available.has(manifest.bundlePath) ||
+    (manifest.propsSchemaPath && !available.has(manifest.propsSchemaPath)) ||
     manifest.variants.some(
-      (v) => !paths.has(v.circuitJsonPath) || !paths.has(v.glbPath),
+      (variant) =>
+        !available.has(variant.circuitJsonPath) ||
+        !available.has(variant.glbPath),
     )
   )
     throw new Error("Parameter artifacts are missing from this release")

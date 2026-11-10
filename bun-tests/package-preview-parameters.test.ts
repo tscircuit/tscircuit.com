@@ -108,3 +108,59 @@ test("loads a compressed circuit bundle and rejects incomplete combined states",
     globalThis.fetch = original
   }
 })
+
+test("v2 fetch contract derives all fields from the published schema without parameters metadata", () => {
+  const schema = {
+    type: "object",
+    properties: {
+      turbo: { type: "boolean", default: false },
+      level: { type: "integer", minimum: 1, maximum: 2, default: 1 },
+      revision: { const: "B" },
+    },
+  }
+  const raw = {
+    version: 2,
+    propsSchemaPath: "dist/props.schema.json",
+    componentPartNumbers: ["EXAMPLE123"],
+    bundlePath: "dist/bundle.gz",
+    variants: [false, true].flatMap((turbo) =>
+      [1, 2].map((level) => ({
+        values: { turbo, level, revision: "B" },
+        circuitJsonPath: `dist/${turbo}-${level}.json.gz`,
+        glbPath: "dist/3d.glb",
+      })),
+    ),
+  }
+  const listed = [
+    raw.propsSchemaPath,
+    raw.bundlePath,
+    "dist/3d.glb",
+    ...raw.variants.map((v) => v.circuitJsonPath),
+  ].map((file_path) => ({ file_path }))
+  const parsed = parsePreviewParameterManifest(raw, listed, schema)
+  expect(parsed.parameters.map((p) => [p.id, p.type])).toEqual([
+    ["turbo", "boolean"],
+    ["level", "number"],
+  ])
+  expect(parsed.defaults).toEqual({ turbo: false, level: 1, revision: "B" })
+  expect(() => parsePreviewParameterManifest(raw, listed)).toThrow(/schema/)
+  expect(() =>
+    parsePreviewParameterManifest(
+      { ...raw, variants: raw.variants.slice(1) },
+      listed,
+      schema,
+    ),
+  ).toThrow(/combination/)
+  expect(() =>
+    parsePreviewParameterManifest(
+      raw,
+      listed.filter((f) => f.file_path !== raw.propsSchemaPath),
+      schema,
+    ),
+  ).toThrow(/artifacts/)
+  const changed = structuredClone(raw)
+  changed.variants[0].values.level = 9
+  expect(() => parsePreviewParameterManifest(changed, listed, schema)).toThrow(
+    /state/,
+  )
+})
