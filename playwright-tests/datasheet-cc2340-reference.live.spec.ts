@@ -1,4 +1,10 @@
-import { expect, test, type Locator, type Page } from "@playwright/test"
+import {
+  expect,
+  test,
+  type Locator,
+  type Page,
+  type Request,
+} from "@playwright/test"
 
 test.skip(
   !process.env.TSCIRCUIT_LIVE_URL,
@@ -24,11 +30,20 @@ test("CC2340 postbuild configurations render inline from their published package
   const downloads = new Set<string>()
   page.on("pageerror", (error) => errors.push(error.message))
   page.on("response", (response) => {
-    if (response.ok() && response.url().includes("/package_files/download?"))
-      downloads.add(
-        new URL(response.url()).searchParams.get("package_file_id")!,
-      )
+    if (!response.ok()) return
+    for (
+      let request: Request | null = response.request();
+      request;
+      request = request.redirectedFrom()
+    ) {
+      const url = new URL(request.url())
+      if (url.pathname.endsWith("/package_files/download")) {
+        downloads.add(url.searchParams.get("package_file_id")!)
+        break
+      }
+    }
   })
+
   const listResponse = page.waitForResponse(
     (response) =>
       response.ok() && response.url().includes("/package_files/list?"),
