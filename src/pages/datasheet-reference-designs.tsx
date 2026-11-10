@@ -15,14 +15,7 @@ const DatasheetReferenceDesign = lazy(
 )
 
 function ReferenceDesignLoading() {
-  return (
-    <div
-      className="flex h-[620px] items-center justify-center text-sm text-gray-500"
-      role="status"
-    >
-      Loading reference design...
-    </div>
-  )
+  return <div className="h-[676px] rounded-md bg-gray-50" aria-busy="true" />
 }
 
 export default function DatasheetReferenceDesignsPage() {
