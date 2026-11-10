@@ -1,3 +1,4 @@
+import { PackageCustomizeButton } from "./package-customize-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -244,6 +245,7 @@ const MobileSidebar = ({
         </div>
       </div>
 
+      <PackageCustomizeButton />
       <div>
         <PreviewImageSquares
           large

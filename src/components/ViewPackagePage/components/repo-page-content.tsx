@@ -1,3 +1,4 @@
+import { PackageCustomizationContent } from "./package-customization-content"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -36,6 +37,7 @@ interface PackageFile extends ApiPackageFile {
 }
 
 interface RepoPageContentProps {
+  customizing?: boolean
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: Package
@@ -74,6 +76,7 @@ const normalizeView = (view: string | null | undefined): string | null => {
 }
 
 export default function RepoPageContent({
+  customizing = false,
   packageFiles,
   arePackageFilesFetched = false,
   isFetchingPackageFiles = false,
@@ -126,7 +129,7 @@ export default function RepoPageContent({
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
-    if (!packageInfo || !arePackageFilesFetched) return
+    if (customizing || !packageInfo || !arePackageFilesFetched) return
 
     if (fileBrowserMode) {
       setActiveView("files")
@@ -186,6 +189,7 @@ export default function RepoPageContent({
       }
     }
   }, [
+    customizing,
     packageInfo?.default_view,
     arePackageFilesFetched,
     circuitJsonExists,
@@ -285,7 +289,10 @@ export default function RepoPageContent({
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
+    <div
+      className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans"
+      data-package-page
+    >
       <Header />
       <PackageHeader
         packageInfo={packageInfo}
@@ -296,87 +303,93 @@ export default function RepoPageContent({
         }
       />
 
-      {/* Mobile Sidebar */}
-      <div className="max-w-[1200px] mx-auto">
-        <MobileSidebar
-          onViewChange={handleViewChange}
-          isLoading={!packageInfo}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-[1200px] mx-auto">
-        <div className="flex flex-col md:flex-row">
-          <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
-            {/* Main Content Header with Tabs */}
-            <MainContentHeader
-              activeView={activeView}
-              packageFiles={packageFiles ?? []}
+      {customizing ? (
+        <PackageCustomizationContent />
+      ) : (
+        <>
+          {/* Mobile Sidebar */}
+          <div className="max-w-[1200px] mx-auto">
+            <MobileSidebar
               onViewChange={handleViewChange}
-              packageInfo={packageInfo}
-              currentVersion={currentVersion}
-              latestVersion={latestVersion}
-              onVersionChange={onVersionChange}
-              packageRelease={packageRelease}
-            />
-
-            {/* Dynamic Content based on active view */}
-            <PackageCircuitPreview
-              view={activeView}
-              packageReleaseId={packageRelease?.package_release_id}
-              packageFiles={packageFiles}
-              arePackageFilesFetched={arePackageFilesFetched}
-              isFetchingPackageFiles={isFetchingPackageFiles}
-              schematicController={schematicController}
-              onViewSchematicComponent={
-                circuitJson?.some(
-                  (element) => element.type === "schematic_component",
-                )
-                  ? handleViewSchematicComponent
-                  : undefined
-              }
-            />
-            {renderContent()}
-            {fileBrowserMode !== "file" && (
-              <ImportantFilesView
-                importantFiles={importantFiles}
-                isFetched={arePackageFilesFetched}
-                pkg={packageInfo}
-                onEditClicked={onEditClicked}
-                onRequestAiDescriptionUpdate={() => {
-                  if (packageInfo) {
-                    updateAiDescription({
-                      package_id: packageInfo.package_id,
-                    })
-                  }
-                }}
-                onLicenseFileRequested={licenseFileRequested}
-              />
-            )}
-          </div>
-
-          <div className="hidden md:block md:w-[296px] flex-shrink-0">
-            <Sidebar
-              packageInfo={packageInfo}
               isLoading={!packageInfo}
-              onViewChange={handleViewChange}
-              onLicenseClick={handleLicenseFileRequest}
             />
           </div>
-          <div className="block md:hidden w-full px-5">
-            <SidebarReleasesSection />
+
+          {/* Main Content */}
+          <div className="max-w-[1200px] mx-auto">
+            <div className="flex flex-col md:flex-row">
+              <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
+                {/* Main Content Header with Tabs */}
+                <MainContentHeader
+                  activeView={activeView}
+                  packageFiles={packageFiles ?? []}
+                  onViewChange={handleViewChange}
+                  packageInfo={packageInfo}
+                  currentVersion={currentVersion}
+                  latestVersion={latestVersion}
+                  onVersionChange={onVersionChange}
+                  packageRelease={packageRelease}
+                />
+
+                {/* Dynamic Content based on active view */}
+                <PackageCircuitPreview
+                  view={activeView}
+                  packageReleaseId={packageRelease?.package_release_id}
+                  packageFiles={packageFiles}
+                  arePackageFilesFetched={arePackageFilesFetched}
+                  isFetchingPackageFiles={isFetchingPackageFiles}
+                  schematicController={schematicController}
+                  onViewSchematicComponent={
+                    circuitJson?.some(
+                      (element) => element.type === "schematic_component",
+                    )
+                      ? handleViewSchematicComponent
+                      : undefined
+                  }
+                />
+                {renderContent()}
+                {fileBrowserMode !== "file" && (
+                  <ImportantFilesView
+                    importantFiles={importantFiles}
+                    isFetched={arePackageFilesFetched}
+                    pkg={packageInfo}
+                    onEditClicked={onEditClicked}
+                    onRequestAiDescriptionUpdate={() => {
+                      if (packageInfo) {
+                        updateAiDescription({
+                          package_id: packageInfo.package_id,
+                        })
+                      }
+                    }}
+                    onLicenseFileRequested={licenseFileRequested}
+                  />
+                )}
+              </div>
+
+              <div className="hidden md:block md:w-[296px] flex-shrink-0">
+                <Sidebar
+                  packageInfo={packageInfo}
+                  isLoading={!packageInfo}
+                  onViewChange={handleViewChange}
+                  onLicenseClick={handleLicenseFileRequest}
+                />
+              </div>
+              <div className="block md:hidden w-full px-5">
+                <SidebarReleasesSection />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <RelatedPackagesSection
-        packageId={
-          packageInfo?.is_public !== false &&
-          !packageInfo?.is_private &&
-          !packageInfo?.is_unlisted
-            ? (packageInfo?.package_id ?? null)
-            : null
-        }
-      />
+          <RelatedPackagesSection
+            packageId={
+              packageInfo?.is_public !== false &&
+              !packageInfo?.is_private &&
+              !packageInfo?.is_unlisted
+                ? (packageInfo?.package_id ?? null)
+                : null
+            }
+          />
+        </>
+      )}
       <Footer />
     </div>
   )

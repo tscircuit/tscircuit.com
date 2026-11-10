@@ -1,3 +1,5 @@
+import type { PackagePreviewSelection } from "./package-preview-selection"
+
 const encodePath = (path: string) =>
   path
     .replace(/^\/+|\/+$/g, "")
@@ -50,3 +52,24 @@ export const getPackageFileUrl = ({
   packageName: string
   filePath: string
 }) => `${getPackageRootUrl(author, packageName)}/blob/${encodePath(filePath)}`
+
+export function getPackagePreviewUrl({
+  author,
+  packageName,
+  selection,
+  customize = false,
+}: {
+  author: string
+  packageName: string
+  selection: PackagePreviewSelection
+  customize?: boolean
+}) {
+  const params = new URLSearchParams()
+  if (selection.release) params.set("package_release_id", selection.release)
+  if (selection.file) params.set("preview_file", selection.file)
+  if (selection.sheet) params.set("schematic_sheet", selection.sheet)
+  const view = ["schematic", "pcb", "3d"].includes(selection.view ?? "")
+    ? selection.view
+    : "schematic"
+  return `${getPackageRootUrl(author, packageName)}${customize ? "/customize" : ""}${params.size ? `?${params}` : ""}#${view}`
+}

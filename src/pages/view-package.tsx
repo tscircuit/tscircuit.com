@@ -1,7 +1,7 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useLocation, useParams } from "wouter"
+import { useLocation, useParams, useRoute } from "wouter"
 import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
@@ -30,6 +30,7 @@ export const ViewPackagePage = ({
     packageName: string
     "*"?: string
   }>()
+  const [customizing] = useRoute("/:author/:packageName/customize")
   const packageNameFull = `${author}/${packageName}`
   const [, setLocation] = useLocation()
   const urlParams = useUrlParams()
@@ -153,12 +154,15 @@ export const ViewPackagePage = ({
     <>
       <Helmet>
         <title>
-          {fileBrowserMode === "file" && fileBrowserPath
-            ? `${fileBrowserPath} - ${author}/${packageName} - tscircuit`
-            : `${author}/${packageName} - tscircuit`}
+          {customizing
+            ? `Customize - ${author}/${packageName} - tscircuit`
+            : fileBrowserMode === "file" && fileBrowserPath
+              ? `${fileBrowserPath} - ${author}/${packageName} - tscircuit`
+              : `${author}/${packageName} - tscircuit`}
         </title>
       </Helmet>
       <RepoPageContent
+        customizing={customizing}
         packageFiles={packageFiles ?? []}
         arePackageFilesFetched={arePackageFilesFetched}
         isFetchingPackageFiles={isFetchingPackageFiles}

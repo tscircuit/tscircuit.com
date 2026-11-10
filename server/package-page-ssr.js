@@ -87,6 +87,14 @@ export function parsePackagePageRoute(requestUrl) {
     }
   }
 
+  if (rest[0] === "customize" && rest.length === 1) {
+    return {
+      ...baseRoute,
+      kind: "customize",
+      releaseId: url.searchParams.get("package_release_id") || undefined,
+    }
+  }
+
   if (rest[0] === "settings" && rest.length === 1) {
     return { ...baseRoute, kind: "settings" }
   }
@@ -418,6 +426,10 @@ const renderRouteContent = ({
     return `<section><h2>Build ${escapeHtml(
       packageBuild?.package_build_id || route.buildId,
     )}</h2>${renderBuild(packageBuild)}</section>`
+  }
+
+  if (route.kind === "customize") {
+    return "<section><h2>Customize</h2><p>Loading configurations...</p></section>"
   }
 
   if (route.kind === "settings") {

@@ -1,4 +1,4 @@
-import { readReferenceDesignSelection } from "@/lib/reference-design-selection"
+import { readPackagePreviewSelection } from "@/lib/package-preview-selection"
 import { useSyncExternalStore } from "react"
 
 const subscribe = (onNavigate: () => void) => {
@@ -11,8 +11,8 @@ const subscribe = (onNavigate: () => void) => {
 }
 const getLocation = () => window.location.search + window.location.hash
 
-export function useReferenceDesignSelection() {
-  return readReferenceDesignSelection(
+export function usePackagePreviewSelection() {
+  return readPackagePreviewSelection(
     useSyncExternalStore(subscribe, getLocation, () => ""),
   )
 }

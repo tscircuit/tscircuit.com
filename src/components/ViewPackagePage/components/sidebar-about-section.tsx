@@ -1,3 +1,4 @@
+import { PackageCustomizeButton } from "./package-customize-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -253,6 +254,7 @@ export default function SidebarAboutSection({
           </>
         )}
       </div>
+      <PackageCustomizeButton />
     </div>
   )
 }

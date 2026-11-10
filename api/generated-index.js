@@ -629,6 +629,8 @@ const getPackagePageTitle = (route, packageInfo, packageRelease) => {
   if (route.kind === "builds") return `${packageTitle} Builds - tscircuit`
   if (route.kind === "build")
     return `${packageTitle} Build ${route.buildId} - tscircuit`
+  if (route.kind === "customize")
+    return `Customize - ${packageTitle} - tscircuit`
   if (route.kind === "settings") return `${packageTitle} Settings - tscircuit`
   return `${packageTitle} - tscircuit`
 }

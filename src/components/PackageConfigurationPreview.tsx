@@ -9,8 +9,8 @@ import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
-import { getPackageRootUrl } from "@/lib/package-file-routes"
-import type { ReferenceDesignSelection } from "@/lib/reference-design-selection"
+import { getPackagePreviewUrl } from "@/lib/package-file-routes"
+import type { PackagePreviewSelection } from "@/lib/package-preview-selection"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { ExternalLink } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -21,7 +21,7 @@ const views = [
   { id: "schematic", label: "Schematic" },
 ]
 
-function ReferenceDesignCircuit({
+function PackageConfigurationCircuit({
   name,
   releaseId,
   selection,
@@ -29,8 +29,8 @@ function ReferenceDesignCircuit({
 }: {
   name: string
   releaseId: string
-  selection: ReferenceDesignSelection
-  onSelectionChange: (selection: ReferenceDesignSelection) => void
+  selection: PackagePreviewSelection
+  onSelectionChange: (selection: PackagePreviewSelection) => void
 }) {
   const parameters = usePackagePreviewParameters()
   const view = views.some((item) => item.id === selection.view)
@@ -59,10 +59,16 @@ function ReferenceDesignCircuit({
   const { controller, focusSchematicComponent } = useSchematicViewerController()
   const { data: pkg } = usePackageByName(name)
   const [author, packageName] = name.split("/")
-  const packageParams = new URLSearchParams({ package_release_id: releaseId })
-  if (previewFilePath) packageParams.set("preview_file", previewFilePath)
-  if (selection.sheet) packageParams.set("schematic_sheet", selection.sheet)
-  const href = `${getPackageRootUrl(author, packageName)}?${packageParams}#${view}`
+  const href = getPackagePreviewUrl({
+    author,
+    packageName,
+    selection: {
+      ...selection,
+      release: releaseId,
+      file: previewFilePath,
+      view,
+    },
+  })
   const error = releaseError || filesError || circuitError
   const mismatchedRelease =
     packageRelease && pkg && packageRelease.package_id !== pkg.package_id
@@ -103,7 +109,7 @@ function ReferenceDesignCircuit({
             <div
               className="flex gap-1 rounded-md bg-gray-100 p-1"
               role="group"
-              aria-label="Reference design view"
+              aria-label="Circuit view"
             >
               {views.map((item) => (
                 <Button
@@ -143,14 +149,14 @@ function ReferenceDesignCircuit({
           <div className="min-w-0">
             {mismatchedRelease ? (
               <p role="alert" className="p-8 text-red-600">
-                This release does not belong to the selected design.
+                This release does not belong to the selected package.
               </p>
             ) : error ? (
               <div
                 className="flex min-h-64 flex-col items-center justify-center gap-3"
                 role="alert"
               >
-                <p>Unable to load the reference design.</p>
+                <p>Unable to load the circuit preview.</p>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -167,7 +173,7 @@ function ReferenceDesignCircuit({
                 className="flex h-[620px] items-center justify-center text-sm text-gray-500"
                 role="status"
               >
-                Loading reference design...
+                Loading circuit preview...
               </div>
             ) : (
               <PackageCircuitPreview
@@ -193,14 +199,14 @@ function ReferenceDesignCircuit({
   )
 }
 
-export function ReferenceDesignPreview({
+export function PackageConfigurationPreview({
   name,
   selection,
   onSelectionChange,
 }: {
   name: string
-  selection: ReferenceDesignSelection
-  onSelectionChange: (selection: ReferenceDesignSelection) => void
+  selection: PackagePreviewSelection
+  onSelectionChange: (selection: PackagePreviewSelection) => void
 }) {
   const { data: pkg, isLoading, error, refetch } = usePackageByName(name)
   const [resolvedRelease, setResolvedRelease] = useState<string>()
@@ -222,7 +228,7 @@ export function ReferenceDesignPreview({
         className="flex min-h-64 flex-col items-center justify-center gap-3"
         role="alert"
       >
-        <p>Unable to load the reference design.</p>
+        <p>Unable to load the circuit preview.</p>
         <Button variant="outline" onClick={() => refetch()}>
           Retry
         </Button>
@@ -234,7 +240,7 @@ export function ReferenceDesignPreview({
         className="flex h-[620px] items-center justify-center text-sm text-gray-500"
         role="status"
       >
-        Loading reference design...
+        Loading circuit preview...
       </div>
     )
 
@@ -259,7 +265,7 @@ export function ReferenceDesignPreview({
           }),
       }}
     >
-      <ReferenceDesignCircuit
+      <PackageConfigurationCircuit
         name={name}
         releaseId={releaseId}
         selection={selection}

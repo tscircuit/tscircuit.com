@@ -17,6 +17,7 @@ describe("parsePackagePageRoute", () => {
     ["/alice/board/releases/v1.2.3/builds", "builds"],
     ["/alice/board/releases/v1.2.3/builds/build-1", "build"],
     ["/alice/board/settings", "settings"],
+    ["/alice/board/customize?package_release_id=release-1", "customize"],
     ["/view-package/alice/board", "package"],
   ])("recognizes %s as a %s page", (url, kind) => {
     expect(parsePackagePageRoute(url)?.kind).toBe(kind)
@@ -34,6 +35,14 @@ describe("parsePackagePageRoute", () => {
       filePath: "docs/USB C #1.md",
       version: "1.2.3",
     })
+  })
+
+  test("customize routes preserve the selected release", () => {
+    expect(
+      parsePackagePageRoute(
+        "/alice/board/customize?package_release_id=release-123",
+      ),
+    ).toMatchObject({ kind: "customize", releaseId: "release-123" })
   })
 
   test("does not treat application and organization routes as packages", () => {
@@ -76,6 +85,16 @@ const baseData = {
 }
 
 describe("renderPackagePageContent", () => {
+  test("customize pages show a configuration placeholder instead of the file browser", () => {
+    const html = renderPackagePageContent({
+      ...baseData,
+      route: { ...baseData.route, kind: "customize" },
+    })
+    expect(html).toContain("<h2>Customize</h2>")
+    expect(html).toContain("Loading configurations...")
+    expect(html).not.toContain("<h2>Files</h2>")
+  })
+
   test("renders package metadata, files, and README content", () => {
     const html = renderPackagePageContent(baseData)
 

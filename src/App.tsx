@@ -357,6 +357,10 @@ function App() {
               path="/:author/:packageName/settings"
               component={PackageSettingsPage}
             />
+            <Route
+              path="/:author/:packageName/customize"
+              component={ViewPackagePage}
+            />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
             {/* 404 fallback */}
             <Route component={lazyImport(() => import("@/pages/404"))} />
