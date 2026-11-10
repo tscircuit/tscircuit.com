@@ -105,7 +105,8 @@ test("datasheets link to a design index and a dedicated, shared design page with
     panel.getByLabel("Supply voltage value", { exact: true }),
   ).toHaveText("3.3 V")
   await panel.getByRole("switch", { name: "External LF crystal" }).uncheck()
-  await expect(removedBoxes).toHaveCount(3)
+  await expect(boxes).toHaveCount(0)
+  await expect(removedBoxes).toHaveCount(0)
   await region.screenshot({ path: info.outputPath("removed-parts-boxes.png") })
   await region.getByRole("button", { name: "PCB", exact: true }).click()
   await expect(region.getByRole("alert")).toHaveCount(0)
@@ -123,8 +124,32 @@ test("datasheets link to a design index and a dedicated, shared design page with
         if (pixels[index] > 0) count++
       return count
     })
+  await expect.poll(highlightPixels).toBe(0)
+  await region.screenshot({
+    path: info.outputPath("removed-parts-pcb-no-boxes.png"),
+  })
+  // Reappearing parts receive boxes in both viewers; removed parts never do.
+  await panel.getByRole("switch", { name: "External LF crystal" }).check()
   await expect.poll(highlightPixels).toBeGreaterThan(0)
-  await region.screenshot({ path: info.outputPath("pcb-boxes.png") })
+  await region.getByRole("button", { name: "Schematic", exact: true }).click()
+  await expect(
+    region.locator(
+      "svg g[data-schematic-component-id] > rect[data-preview-change-highlight]",
+    ),
+  ).toHaveCount(3)
+  for (const name of ["Y1", "C14", "C15"])
+    await expect(
+      region
+        .locator("svg g[data-schematic-component-id]")
+        .filter({ has: page.getByText(name, { exact: true }) })
+        .locator("rect[data-preview-change-highlight]"),
+    ).toHaveCount(1)
+  await expect(removedBoxes).toHaveCount(0)
+  await region.screenshot({ path: info.outputPath("added-parts-boxes.png") })
+  await region.getByRole("button", { name: "PCB", exact: true }).click()
+  await region.screenshot({
+    path: info.outputPath("added-parts-pcb-boxes.png"),
+  })
   await expect.poll(highlightPixels, { timeout: 5000 }).toBe(0)
   await region.getByRole("button", { name: "Schematic", exact: true }).click()
   await expect(removedBoxes).toHaveCount(0)

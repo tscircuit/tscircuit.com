@@ -2,7 +2,6 @@ import { expect, test } from "bun:test"
 import {
   getPackageCircuitChanges,
   getPcbChangeGraphics,
-  getRemovedSchematicOutlines,
 } from "@/lib/package-circuit-changes"
 import type { AnyCircuitElement } from "circuit-json"
 
@@ -72,7 +71,7 @@ test("value differences find the actual part despite regenerated source and view
   expect(JSON.stringify({ previous, current })).toBe(snapshot)
 })
 
-test("removed parts have view-only previous-position outlines; added parts are distinct", () => {
+test("removed parts produce no viewer highlights; newly added parts are highlighted", () => {
   const populated = [
     ...resistor({ name: "R7", index: 1 }),
     ...resistor({ name: "R8", index: 2 }),
@@ -82,12 +81,8 @@ test("removed parts have view-only previous-position outlines; added parts are d
     previousCircuit: populated,
     currentCircuit: unpopulated,
   })
-  expect(
-    removed.components.map((change) => [change.name, change.kind]),
-  ).toEqual([["R8", "removed"]])
-  const outlines = getRemovedSchematicOutlines(removed)
-  expect(outlines).toHaveLength(1)
-  expect(outlines[0].type).toBe("schematic_path")
+  expect(removed.components).toEqual([])
+  expect(getPcbChangeGraphics(removed).rects).toEqual([])
   expect(unpopulated).toHaveLength(3)
   const added = getPackageCircuitChanges({
     previousCircuit: unpopulated,
@@ -96,7 +91,7 @@ test("removed parts have view-only previous-position outlines; added parts are d
   expect(added.components.map((change) => [change.name, change.kind])).toEqual([
     ["R8", "added"],
   ])
-  expect(getRemovedSchematicOutlines(added)).toEqual([])
+  expect(getPcbChangeGraphics(added).rects).toHaveLength(1)
 })
 
 test("free annotations such as input voltage are matched by location, not generated text IDs", () => {

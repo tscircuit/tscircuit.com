@@ -19,7 +19,7 @@ function drawHighlights({
   removeHighlights(container)
   const targets = [
     ...changes.components
-      .filter((change) => change.kind !== "removed" && change.schematic)
+      .filter((change) => change.schematic)
       .map((change) => ({
         attribute: "data-schematic-component-id",
         id: change.schematic!.schematic_component_id,

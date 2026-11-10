@@ -7,10 +7,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useSchematicChangeHighlights } from "@/hooks/use-schematic-change-highlights"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
-import {
-  emptyCircuitChanges,
-  getRemovedSchematicOutlines,
-} from "@/lib/package-circuit-changes"
+import { emptyCircuitChanges } from "@/lib/package-circuit-changes"
 import {
   SchematicViewer,
   type SchematicViewerController,
@@ -81,21 +78,17 @@ export default function SchematicView({
   }
   const displayedCircuit = selectedSheet ? sheet.data : circuitJson
   const changes = usePackagePreviewChanges()
-  const removedOutlines = useMemo(
-    () => getRemovedSchematicOutlines(changes ?? emptyCircuitChanges),
-    [changes],
-  )
   const revision = useRef(0)
   const viewerCircuit = useMemo(
     () =>
       displayedCircuit
-        ? Object.assign([...displayedCircuit, ...removedOutlines], {
+        ? Object.assign([...displayedCircuit], {
             // The viewer caches SVGs by array length and editCount. Value-only
             // parameter changes need a revision even when no parts are added.
             editCount: ++revision.current,
           })
         : undefined,
-    [displayedCircuit, removedOutlines],
+    [displayedCircuit],
   )
   const containerRef = useRef<HTMLDivElement>(null)
   useSchematicChangeHighlights({

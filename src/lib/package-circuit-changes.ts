@@ -15,7 +15,7 @@ type SourceGroupId = string
 export type CircuitComponentChange = {
   key: ComponentKey
   name: string
-  kind: "modified" | "added" | "removed"
+  kind: "modified" | "added"
   schematic?: SchematicComponent
   pcb?: PcbComponent
 }
@@ -134,6 +134,7 @@ function indexNotes(circuitJson: readonly AnyCircuitElement[]) {
   return notes
 }
 
+/** Highlight only additions and changes still visible in the current circuit. */
 export function getPackageCircuitChanges({
   previousCircuit,
   currentCircuit,
@@ -144,21 +145,15 @@ export function getPackageCircuitChanges({
   const previous = indexComponents(previousCircuit)
   const current = indexComponents(currentCircuit)
   const components: CircuitComponentChange[] = []
-  for (const key of new Set([...previous.keys(), ...current.keys()])) {
+  for (const [key, currentComponent] of current) {
     const previousComponent = previous.get(key)
-    const currentComponent = current.get(key)
     if (previousComponent?.signature === currentComponent?.signature) continue
-    const component = currentComponent ?? previousComponent!
     components.push({
       key,
-      name: component.source.name,
-      kind: !previousComponent
-        ? "added"
-        : !currentComponent
-          ? "removed"
-          : "modified",
-      schematic: component.schematic,
-      pcb: component.pcb,
+      name: currentComponent.source.name,
+      kind: previousComponent ? "modified" : "added",
+      schematic: currentComponent.schematic,
+      pcb: currentComponent.pcb,
     })
   }
   const previousNotes = indexNotes(previousCircuit)
@@ -167,37 +162,6 @@ export function getPackageCircuitChanges({
     .filter(([key, note]) => previousNotes.get(key)?.text !== note.text)
     .map(([, note]) => note.schematic_text_id)
   return { components, schematicTextIds }
-}
-
-/** View-only outlines mark the previous location of removed symbols. */
-export function getRemovedSchematicOutlines(
-  changes: PackageCircuitChanges,
-): AnyCircuitElement[] {
-  return changes.components
-    .filter((change) => change.kind === "removed" && change.schematic)
-    .map((change, index) => {
-      const component = change.schematic!
-      const halfSize =
-        Math.max(component.size.width, component.size.height) / 2 + 0.3
-      const { x, y } = component.center
-      return {
-        type: "schematic_path",
-        schematic_path_id: `preview_change_${index}`,
-        schematic_sheet_id: component.schematic_sheet_id,
-        points: [
-          { x: x - halfSize, y: y - halfSize },
-          { x: x + halfSize, y: y - halfSize },
-          { x: x + halfSize, y: y + halfSize },
-          { x: x - halfSize, y: y + halfSize },
-          { x: x - halfSize, y: y - halfSize },
-        ],
-        is_dashed: true,
-        dash_length: 0.15,
-        dash_gap: 0.1,
-        stroke_width: 0.06,
-        stroke_color: circuitChangeOutlineColor,
-      }
-    })
 }
 
 export function getPcbChangeGraphics(changes: PackageCircuitChanges) {
