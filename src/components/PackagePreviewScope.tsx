@@ -6,9 +6,6 @@ type PackagePreviewScope = {
   packageName: string
   releaseId: string
   previewFilePath?: string
-  selectFile: (path: string) => void
-  schematicSheet?: string
-  selectSchematicSheet?: (name: string) => void
 }
 
 const Context = createContext<PackagePreviewScope | null>(null)
@@ -16,15 +13,13 @@ const Context = createContext<PackagePreviewScope | null>(null)
 export function PackagePreviewProvider({
   value,
   children,
-}: { value: PackagePreviewScope; children: ReactNode }) {
+}: { value: PackagePreviewScope | null; children: ReactNode }) {
   return <Context.Provider value={value}>{children}</Context.Provider>
 }
 
-export const usePackagePreviewScope = () => useContext(Context)
-
 /** Resolve package identity for both a package route and an embedded preview. */
 export function usePackagePreviewIdentity() {
-  const scope = usePackagePreviewScope()
+  const scope = useContext(Context)
   const route = useParams()
   const params = useUrlParams()
   const [scopeAuthor, scopeName] = scope?.packageName.split("/") ?? []

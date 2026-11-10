@@ -1,11 +1,6 @@
 import type { AnyCircuitElement } from "circuit-json"
 import { z } from "zod"
 import { fetchPackageArtifact } from "./fetch-package-artifact"
-import {
-  type PackagePropsSchema,
-  derivePackageParameters,
-} from "./package-props-schema"
-
 const parameterValueSchema = z.union([
   z.boolean(),
   z.string().max(128),
@@ -61,29 +56,16 @@ const previewArtifactFields = {
     .min(1)
     .max(256),
 }
-export const previewParameterManifestSchema = z.discriminatedUnion("version", [
-  z.object({
-    version: z.literal(1),
-    parameters: z.array(parameterControlSchema).min(1).max(16),
-    defaults: z.record(parameterValueSchema),
-    ...previewArtifactFields,
-  }),
-  z.object({
-    version: z.literal(2),
-    propsSchemaPath: artifactPathSchema,
-    componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
-    ...previewArtifactFields,
-  }),
-])
-export type PreviewParameterManifest = {
-  version: 1 | 2
-  parameters: z.infer<typeof parameterControlSchema>[]
-  defaults: Record<string, boolean | number | string>
-  bundlePath: string
-  variants: z.infer<typeof previewArtifactFields.variants>
-  propsSchemaPath?: string
-  componentPartNumbers?: string[]
-}
+export const previewParameterManifestSchema = z.object({
+  version: z.literal(2),
+  parameters: z.array(parameterControlSchema).max(16),
+  defaults: z.record(parameterValueSchema),
+  componentPartNumbers: z.array(z.string().min(1).max(512)).max(10000),
+  ...previewArtifactFields,
+})
+export type PreviewParameterManifest = z.infer<
+  typeof previewParameterManifestSchema
+>
 export type PreviewParameterValues = PreviewParameterManifest["defaults"]
 export const parameterStateKey = (values: Record<string, unknown>) =>
   JSON.stringify(
@@ -109,42 +91,33 @@ export const findParameterVariantByPath = (
 export function parsePreviewParameterManifest({
   manifest: publishedManifest,
   files,
-  propsSchema,
 }: {
   manifest: unknown
   files: { file_path: string }[]
-  propsSchema?: unknown
 }): PreviewParameterManifest {
-  const parsedManifest = previewParameterManifestSchema.parse(publishedManifest)
-  let manifest: PreviewParameterManifest
-  let domains: Record<string, (string | boolean | number)[]>
-  if (parsedManifest.version === 2) {
-    if (!propsSchema)
-      throw new Error("This package build requires its published props schema")
-    const generated = derivePackageParameters(propsSchema as PackagePropsSchema)
-    manifest = {
-      ...parsedManifest,
-      parameters: z.array(parameterControlSchema).parse(generated.parameters),
-      defaults: z.record(parameterValueSchema).parse(generated.defaults),
-    }
-    domains = generated.domains
-  } else {
-    manifest = parsedManifest
-    domains = Object.fromEntries(
-      parsedManifest.parameters.map((p) => [
-        p.id,
-        p.type === "boolean"
-          ? [false, true]
-          : p.options.map((option) => option.value),
-      ]),
-    )
-  }
+  const manifest = previewParameterManifestSchema.parse(publishedManifest)
+  const domains = Object.fromEntries(
+    Object.entries(manifest.defaults).map(([id, defaultValue]) => {
+      const control = manifest.parameters.find((p) => p.id === id)
+      return [
+        id,
+        !control
+          ? [defaultValue]
+          : control.type === "boolean"
+            ? [false, true]
+            : control.options.map((option) => option.value),
+      ]
+    }),
+  )
   const ids = manifest.parameters.map((p) => p.id)
   const defaultIds = Object.keys(manifest.defaults)
   if (
     new Set(ids).size !== ids.length ||
     defaultIds.length !== Object.keys(domains).length ||
-    manifest.parameters.some((p) => p.default !== manifest.defaults[p.id]) ||
+    manifest.parameters.some(
+      (p) =>
+        !(p.id in manifest.defaults) || p.default !== manifest.defaults[p.id],
+    ) ||
     defaultIds.some((id) => !domains[id]?.includes(manifest.defaults[id]))
   )
     throw new Error("Invalid parameter defaults or duplicate IDs")
@@ -185,7 +158,6 @@ export function parsePreviewParameterManifest({
   const available = new Set(files.map((file) => file.file_path))
   if (
     !available.has(manifest.bundlePath) ||
-    (manifest.propsSchemaPath && !available.has(manifest.propsSchemaPath)) ||
     manifest.variants.some(
       (variant) =>
         !available.has(variant.circuitJsonPath) ||

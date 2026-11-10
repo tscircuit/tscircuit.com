@@ -7,7 +7,9 @@ import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-ci
 
 export default function PCBView({
   onViewSchematicComponent,
+  className,
 }: {
+  className?: string
   onViewSchematicComponent?: ComponentProps<
     typeof PcbViewerWithContainerHeight
   >["onViewSchematicComponent"]
@@ -39,7 +41,12 @@ export default function PCBView({
   }
 
   return (
-    <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
+    <div
+      className={
+        className ??
+        "border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]"
+      }
+    >
       <PcbViewerWithContainerHeight
         // Parameter previews keep the same backend across prepared configurations.
         renderer={

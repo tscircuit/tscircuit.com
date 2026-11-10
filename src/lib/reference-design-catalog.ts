@@ -65,8 +65,7 @@ async function loadReferenceDesignCatalogEntry(
     const manifest = previewParameterManifestSchema.parse(
       JSON.parse(package_file.content_text),
     )
-    if (manifest.version === 2)
-      return { name, componentPartNumbers: manifest.componentPartNumbers }
+    return { name, componentPartNumbers: manifest.componentPartNumbers }
   }
   const previewResponse = await get(
     "/package_releases/get_preview_circuit_json",

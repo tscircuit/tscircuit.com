@@ -12,8 +12,7 @@ import {
   normalizePreviewPath,
 } from "@/lib/preview-circuit-files"
 import type { AnyCircuitElement } from "circuit-json"
-import { useCallback } from "react"
-import { useQuery, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 
 type PreviewCircuitJsonResponse = {
   preview_circuit_json_response: {
@@ -142,7 +141,6 @@ export function useCurrentPackageCircuitJson() {
     query = { package_id: packageId, is_latest: true }
   }
 
-  const queryClient = useQueryClient()
   const { data, isLoading, isPreviousData, error, refetch } = useQuery<
     PreviewCircuitJsonResponse,
     Error & { status: number }
@@ -159,33 +157,6 @@ export function useCurrentPackageCircuitJson() {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
   })
-  const prefetchPreview = useCallback(
-    (path: string, prepare = false) => {
-      const file = packageFiles?.find(
-        (file) =>
-          normalizePreviewPath(file.file_path) === normalizePreviewPath(path),
-      )
-      if (!query || !file) return
-      const queryOptions = getPreviewCircuitQueryOptions({
-        query,
-        selectedFile: file,
-        axios,
-        apiBaseUrl,
-        token,
-      })
-      return prepare
-        ? queryClient.fetchQuery(queryOptions)
-        : queryClient.prefetchQuery(queryOptions)
-    },
-    [
-      queryClient,
-      JSON.stringify(query),
-      packageFiles,
-      apiBaseUrl,
-      token,
-      axios,
-    ],
-  )
 
   const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
   const circuitJsonFound =
@@ -199,7 +170,6 @@ export function useCurrentPackageCircuitJson() {
 
   return {
     refetch,
-    prefetchPreview,
     packageFiles,
     circuitJson,
     circuitJsonFound,

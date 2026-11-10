@@ -1,19 +1,12 @@
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { PackagePreviewChangesProvider } from "@/components/PackagePreviewChanges"
-import { PackagePreviewProvider } from "@/components/PackagePreviewScope"
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
-import PreviewFileSelector from "@/components/ViewPackagePage/components/preview-file-selector"
-import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
 import { Button } from "@/components/ui/button"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { usePackageByName } from "@/hooks/use-package-by-package-name"
-import { usePackageFiles } from "@/hooks/use-package-files"
-import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import type { usePackageConfiguration } from "@/hooks/use-package-configuration"
 import { getPackagePreviewUrl } from "@/lib/package-file-routes"
 import type { PackagePreviewSelection } from "@/lib/package-preview-selection"
 import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 import { ExternalLink } from "lucide-react"
-import { useEffect, useState } from "react"
 
 const views = [
   { id: "3d", label: "3D" },
@@ -21,66 +14,36 @@ const views = [
   { id: "schematic", label: "Schematic" },
 ]
 
-function PackageConfigurationCircuit({
-  name,
-  releaseId,
-  selection,
+export function PackageConfigurationPreview({
+  configuration,
   onSelectionChange,
-  hidePackageLink,
+  hidePackageLink = false,
 }: {
-  name: string
-  releaseId: string
-  selection: PackagePreviewSelection
+  configuration: ReturnType<typeof usePackageConfiguration>
   onSelectionChange: (selection: PackagePreviewSelection) => void
-  hidePackageLink: boolean
+  hidePackageLink?: boolean
 }) {
-  const parameters = usePackagePreviewParameters()
-  const view = views.some((item) => item.id === selection.view)
-    ? selection.view!
-    : "schematic"
   const {
-    packageRelease,
-    error: releaseError,
-    refetch: refetchRelease,
-  } = useCurrentPackageRelease()
-  const {
-    data: packageFiles,
-    isFetched,
-    isFetching,
-    error: filesError,
-    refetch: refetchFiles,
-  } = usePackageFiles(releaseId, { refetchOnMount: false })
-  const {
+    name,
+    releaseId,
+    selection,
+    view,
+    manifest,
+    variant,
     circuitJson,
-    isLoading,
-    error: circuitError,
-    previewFilePath,
-    previewFiles,
-    refetch,
-  } = useCurrentPackageCircuitJson()
+    metadataReady,
+    ready,
+    error,
+  } = configuration
   const { controller, focusSchematicComponent } = useSchematicViewerController()
-  const { data: pkg } = usePackageByName(name)
   const [author, packageName] = name.split("/")
-  const href = getPackagePreviewUrl({
-    author,
-    packageName,
-    selection: {
-      ...selection,
-      release: releaseId,
-      file: previewFilePath,
-      view,
-    },
-  })
-  const error = releaseError || filesError || circuitError
-  const mismatchedRelease =
-    packageRelease && pkg && packageRelease.package_id !== pkg.package_id
-
-  const changeView = (nextView: string) =>
-    onSelectionChange({
-      ...selection,
-      view: nextView,
-      release: releaseId,
-    })
+  const resolvedSelection = {
+    ...selection,
+    release: releaseId,
+    file: variant?.circuitJsonPath ?? selection.file,
+  }
+  const changeView = (view: string) =>
+    onSelectionChange({ ...resolvedSelection, view })
   const showSchematicComponent = ({
     source_component_id,
   }: { source_component_id: string }) => {
@@ -93,99 +56,97 @@ function PackageConfigurationCircuit({
     focusSchematicComponent(component.schematic_component_id)
     changeView("schematic")
   }
-
+  const hasControls = Boolean(manifest?.parameters.length)
   return (
     <PackagePreviewChangesProvider
-      circuitJson={circuitJson}
-      selectionKey={`${releaseId}:${previewFilePath}`}
+      circuitJson={circuitJson ?? null}
+      selectionKey={`${releaseId}:${variant?.circuitJsonPath}`}
     >
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            {!parameters.manifest && previewFiles.length > 1 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Configuration</span>
-                <PreviewFileSelector />
-              </div>
-            )}
-            <div
-              className="flex gap-1 rounded-md bg-gray-100 p-1"
-              role="group"
-              aria-label="Circuit view"
-            >
-              {views.map((item) => (
-                <Button
-                  key={item.id}
-                  size="sm"
-                  variant={view === item.id ? "outline" : "ghost"}
-                  aria-pressed={view === item.id}
-                  onClick={() => changeView(item.id)}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+          <div
+            className="flex gap-1 rounded-md bg-gray-100 p-1"
+            role="group"
+            aria-label="Circuit view"
+          >
+            {views.map((item) => (
+              <Button
+                key={item.id}
+                size="sm"
+                variant={view === item.id ? "outline" : "ghost"}
+                disabled={!metadataReady}
+                aria-pressed={view === item.id}
+                onClick={() => changeView(item.id)}
+              >
+                {item.label}
+              </Button>
+            ))}
           </div>
           {!hidePackageLink && (
             <a
-              href={href}
+              href={getPackagePreviewUrl({
+                author,
+                packageName,
+                selection: resolvedSelection,
+              })}
               target="_blank"
               rel="noopener noreferrer"
               title="Open package in a new tab"
               className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
             >
-              Open package
+              Open package{" "}
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
             </a>
           )}
         </div>
         <div
           className={
-            parameters.manifest?.parameters.length
-              ? "grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
-              : ""
+            hasControls || !metadataReady
+              ? "grid min-h-[620px] items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
+              : "min-h-[620px]"
           }
         >
-          {Boolean(parameters.manifest?.parameters.length) &&
-            parameters.manifest && (
-              <PackageParameterPanel manifest={parameters.manifest} />
-            )}
+          {hasControls && manifest && variant ? (
+            <PackageParameterPanel
+              manifest={manifest}
+              values={variant.values}
+              disabled={!ready || Boolean(error)}
+              onChange={(values) => {
+                const file = configuration.selectParameters(values)
+                if (file) onSelectionChange({ ...resolvedSelection, file })
+              }}
+            />
+          ) : !metadataReady ? (
+            <div
+              className="h-[620px] rounded-lg bg-gray-50"
+              aria-hidden="true"
+            />
+          ) : null}
           <div className="min-w-0">
-            {mismatchedRelease ? (
-              <p role="alert" className="p-8 text-red-600">
-                This release does not belong to the selected package.
-              </p>
-            ) : error ? (
+            {error ? (
               <div
-                className="flex min-h-64 flex-col items-center justify-center gap-3"
+                className="flex h-[620px] flex-col items-center justify-center gap-3"
                 role="alert"
               >
                 <p>Unable to load the circuit preview.</p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    refetchRelease()
-                    refetchFiles()
-                    refetch()
-                  }}
-                >
+                <Button variant="outline" onClick={configuration.retry}>
                   Retry
                 </Button>
               </div>
-            ) : isLoading || !isFetched ? (
+            ) : !ready ? (
               <div
-                className="flex h-[620px] items-center justify-center text-sm text-gray-500"
-                role="status"
-              >
-                Loading circuit preview...
-              </div>
+                className="h-[620px] rounded-md bg-gray-50"
+                aria-busy="true"
+              />
+            ) : hidePackageLink && !hasControls ? (
+              <p className="py-8 text-sm text-gray-500">
+                This release has no published configuration fields.
+              </p>
             ) : (
               <PackageCircuitPreview
+                key={releaseId}
                 view={view}
-                packageReleaseId={releaseId}
-                packageFiles={packageFiles}
-                arePackageFilesFetched={isFetched}
-                isFetchingPackageFiles={isFetching}
+                packageFiles={configuration.files}
                 schematicController={controller}
                 onViewSchematicComponent={
                   circuitJson?.some(
@@ -200,84 +161,5 @@ function PackageConfigurationCircuit({
         </div>
       </div>
     </PackagePreviewChangesProvider>
-  )
-}
-
-export function PackageConfigurationPreview({
-  name,
-  selection,
-  onSelectionChange,
-  hidePackageLink = false,
-}: {
-  name: string
-  selection: PackagePreviewSelection
-  onSelectionChange: (selection: PackagePreviewSelection) => void
-  hidePackageLink?: boolean
-}) {
-  const { data: pkg, isLoading, error, refetch } = usePackageByName(name)
-  const [resolvedRelease, setResolvedRelease] = useState<string>()
-  useEffect(() => {
-    if (!resolvedRelease && pkg)
-      setResolvedRelease(
-        pkg.last_built_release_id ?? pkg.latest_package_release_id ?? undefined,
-      )
-  }, [pkg, resolvedRelease])
-  const releaseId =
-    selection.release ||
-    resolvedRelease ||
-    pkg?.last_built_release_id ||
-    pkg?.latest_package_release_id
-
-  if (error || (!isLoading && pkg && !releaseId))
-    return (
-      <div
-        className="flex min-h-64 flex-col items-center justify-center gap-3"
-        role="alert"
-      >
-        <p>Unable to load the circuit preview.</p>
-        <Button variant="outline" onClick={() => refetch()}>
-          Retry
-        </Button>
-      </div>
-    )
-  if (!releaseId)
-    return (
-      <div
-        className="flex h-[620px] items-center justify-center text-sm text-gray-500"
-        role="status"
-      >
-        Loading circuit preview...
-      </div>
-    )
-
-  return (
-    <PackagePreviewProvider
-      value={{
-        packageName: name,
-        releaseId,
-        previewFilePath: selection.file,
-        schematicSheet: selection.sheet,
-        selectSchematicSheet: (sheet) =>
-          onSelectionChange({
-            ...selection,
-            sheet,
-            release: releaseId,
-          }),
-        selectFile: (path) =>
-          onSelectionChange({
-            ...selection,
-            file: path,
-            release: releaseId,
-          }),
-      }}
-    >
-      <PackageConfigurationCircuit
-        name={name}
-        releaseId={releaseId}
-        selection={selection}
-        onSelectionChange={onSelectionChange}
-        hidePackageLink={hidePackageLink}
-      />
-    </PackagePreviewProvider>
   )
 }

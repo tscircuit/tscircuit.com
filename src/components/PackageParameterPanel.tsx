@@ -1,70 +1,44 @@
-import { usePreparedPackageParameters } from "@/hooks/use-package-preview-parameters"
-import {
-  type PreviewParameterManifest,
-  findParameterVariant,
-  findParameterVariantByPath,
+import type {
+  PreviewParameterManifest,
+  PreviewParameterValues,
 } from "@/lib/package-preview-parameters"
-import { useId, useState } from "react"
-import { usePackagePreviewScope } from "./PackagePreviewScope"
-import { useCurrentPackageCircuitJson } from "./ViewPackagePage/hooks/use-current-package-circuit-json"
+import { useId } from "react"
 import { Button } from "./ui/button"
 import { Switch } from "./ui/switch"
 
 export function PackageParameterPanel({
   manifest,
-}: { manifest: PreviewParameterManifest }) {
+  values,
+  disabled = false,
+  onChange,
+}: {
+  manifest: PreviewParameterManifest
+  values: PreviewParameterValues
+  disabled?: boolean
+  onChange: (values: PreviewParameterValues) => void
+}) {
   const panelId = useId()
-  const { previewFilePath } = useCurrentPackageCircuitJson()
-  const scope = usePackagePreviewScope()
-  const prepared = usePreparedPackageParameters(manifest)
-  const [error, setError] = useState<string>()
-  const current = findParameterVariantByPath(manifest, previewFilePath)
-  const select = (values: typeof current.values) => {
-    const variant = findParameterVariant(manifest, values)
-    if (!variant) {
-      setError("This combination is not supported.")
-      return
-    }
-    setError(undefined)
-    if (variant.circuitJsonPath === previewFilePath) return
-    prepared.prime(variant)
-    if (scope) scope.selectFile(variant.circuitJsonPath)
-    else {
-      const url = new URL(window.location.href)
-      url.searchParams.set("preview_file", variant.circuitJsonPath)
-      window.history.pushState({}, "", url)
-      window.dispatchEvent(new Event("popstate"))
-    }
-  }
   return (
     <aside
-      className="min-w-0 rounded-lg border bg-white p-4"
+      className="max-h-[620px] min-w-0 overflow-y-auto rounded-lg border bg-white p-4"
       aria-label="Circuit parameters"
-      aria-busy={!prepared.data && !prepared.error}
+      aria-busy={disabled}
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <h4 className="font-semibold">Parameters</h4>
         <Button
           size="sm"
           variant="ghost"
-          disabled={!prepared.data}
-          onClick={() => select(manifest.defaults)}
+          disabled={disabled}
+          onClick={() => onChange(manifest.defaults)}
         >
           Reset to defaults
         </Button>
       </div>
-      {Boolean(prepared.error) && (
-        <div role="alert" className="mb-3 text-sm text-red-600">
-          Unable to prepare parameters.{" "}
-          <button className="underline" onClick={() => prepared.refetch()}>
-            Retry
-          </button>
-        </div>
-      )}
-      <div className={prepared.data ? "space-y-5" : "space-y-5 opacity-50"}>
+      <div className={!disabled ? "space-y-5" : "space-y-5 opacity-50"}>
         {manifest.parameters.map((parameter) => {
           const id = `${panelId}-${parameter.id}`
-          const value = current.values[parameter.id]
+          const value = values[parameter.id]
           return (
             <div key={parameter.id} className="rounded-md p-2">
               <div className="mb-1 flex items-center justify-between gap-3">
@@ -75,9 +49,9 @@ export function PackageParameterPanel({
                   <Switch
                     id={id}
                     checked={Boolean(value)}
-                    disabled={!prepared.data}
+                    disabled={disabled}
                     onCheckedChange={(checked) =>
-                      select({ ...current.values, [parameter.id]: checked })
+                      onChange({ ...values, [parameter.id]: checked })
                     }
                   />
                 )}
@@ -105,11 +79,11 @@ export function PackageParameterPanel({
                     value={parameter.options.findIndex(
                       (o) => o.value === value,
                     )}
-                    disabled={!prepared.data}
+                    disabled={disabled}
                     className="block w-full accent-blue-600 disabled:accent-gray-400"
                     onChange={(event) =>
-                      select({
-                        ...current.values,
+                      onChange({
+                        ...values,
                         [parameter.id]:
                           parameter.options[Number(event.target.value)].value,
                       })
@@ -127,15 +101,15 @@ export function PackageParameterPanel({
                   id={id}
                   aria-label={parameter.label}
                   value={JSON.stringify(value)}
-                  disabled={!prepared.data}
+                  disabled={disabled}
                   className="w-full rounded border px-2 py-1 text-sm"
                   onChange={(event) => {
                     const option = parameter.options.find(
                       (o) => JSON.stringify(o.value) === event.target.value,
                     )
                     if (option)
-                      select({
-                        ...current.values,
+                      onChange({
+                        ...values,
                         [parameter.id]: option.value,
                       })
                   }}
@@ -154,11 +128,6 @@ export function PackageParameterPanel({
           )
         })}
       </div>
-      {error && (
-        <p role="alert" className="mt-3 text-sm text-red-600">
-          {error}
-        </p>
-      )}
     </aside>
   )
 }

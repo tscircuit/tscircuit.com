@@ -11,7 +11,7 @@ import {
 import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import type { AnyCircuitElement } from "circuit-json"
-import { type ComponentProps, Suspense, useCallback, useMemo } from "react"
+import { type ComponentProps, Suspense, useMemo } from "react"
 import { useQuery } from "react-query"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
@@ -54,7 +54,6 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
 }
 
 type ThreeDViewProps = {
-  onReady?: () => void
   packageFiles?: { file_path: string; package_file_id: string }[]
   arePackageFilesFetched?: boolean
   isFetchingPackageFiles?: boolean
@@ -68,16 +67,9 @@ export default function ThreeDView({
   arePackageFilesFetched = false,
   isFetchingPackageFiles = false,
   onViewSchematicComponent,
-  onReady,
 }: ThreeDViewProps) {
   const { componentPath, previewFilePath, isLoading } =
     useCurrentPackageCircuitJson()
-  const handleCameraReady = useCallback(
-    (controller: unknown) => {
-      if (controller) onReady?.()
-    },
-    [onReady],
-  )
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
   const { manifest } = usePackagePreviewParameters()
@@ -125,7 +117,6 @@ export default function ThreeDView({
             that scene visible without covering it with a loading message. */}
         <CadViewer
           glbData={download.data}
-          onCameraControllerReady={handleCameraReady}
           clickToInteractEnabled
           onViewSchematicComponent={onViewSchematicComponent}
         />

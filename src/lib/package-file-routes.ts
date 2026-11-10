@@ -67,7 +67,6 @@ export function getPackagePreviewUrl({
   const params = new URLSearchParams()
   if (selection.release) params.set("package_release_id", selection.release)
   if (selection.file) params.set("preview_file", selection.file)
-  if (selection.sheet) params.set("schematic_sheet", selection.sheet)
   const view = ["schematic", "pcb", "3d"].includes(selection.view ?? "")
     ? selection.view
     : "schematic"
