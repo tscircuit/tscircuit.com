@@ -4,7 +4,7 @@ import {
   findParameterVariant,
   findParameterVariantByPath,
 } from "@/lib/package-preview-parameters"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { usePackagePreviewScope } from "./PackagePreviewScope"
 import { useCurrentPackageCircuitJson } from "./ViewPackagePage/hooks/use-current-package-circuit-json"
 import { Button } from "./ui/button"
@@ -13,6 +13,7 @@ import { Switch } from "./ui/switch"
 export function PackageParameterPanel({
   manifest,
 }: { manifest: PreviewParameterManifest }) {
+  const panelId = useId()
   const { previewFilePath } = useCurrentPackageCircuitJson()
   const scope = usePackagePreviewScope()
   const prepared = usePreparedPackageParameters(manifest)
@@ -66,7 +67,7 @@ export function PackageParameterPanel({
       )}
       <div className="space-y-5">
         {manifest.parameters.map((parameter) => {
-          const id = `parameter-${parameter.id}`
+          const id = `${panelId}-${parameter.id}`
           const value = current.values[parameter.id]
           return (
             <div key={parameter.id}>
