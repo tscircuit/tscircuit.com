@@ -120,10 +120,10 @@ test("cached configurations switch offline without replacing the 3D canvas", asy
     const config = cc2340Configurations.find((item) => item.label === label)!
     const schematic = region.locator("svg:has([data-schematic-component-id])")
     await expect(schematic.last()).toContainText(
-      config.bulk === 22e-6 ? /22\s*[µμu]F/ : /10\s*[µμu]F/,
+      config.bulk === 22e-6 ? /C2\s*22\s*[µμu]F/ : /C2\s*10\s*[µμu]F/,
     )
     await expect(schematic.last()).toContainText(
-      config.reset === 10e3 ? /\b10\s*k(?:Ω)?/ : /\b100\s*k(?:Ω)?/,
+      config.reset === 10e3 ? /R14\s*10\s*k(?:Ω)?/ : /R14\s*100\s*k(?:Ω)?/,
     )
     await expect(region.getByText(/omitted/i)).toHaveCount(0)
     await region.getByRole("button", { name: "PCB", exact: true }).click()
