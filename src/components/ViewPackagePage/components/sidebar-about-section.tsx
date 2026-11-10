@@ -29,6 +29,7 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { Link, useLocation } from "wouter"
+import { PackageCustomizeLink } from "./package-customize-link"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
@@ -252,6 +253,7 @@ export default function SidebarAboutSection({
             )}
           </>
         )}
+        <PackageCustomizeLink />
       </div>
     </div>
   )
