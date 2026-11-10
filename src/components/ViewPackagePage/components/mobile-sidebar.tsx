@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import React, { useEffect, useMemo } from "react"
 import { Link, useLocation } from "wouter"
+import { PackageCustomizeLink } from "./package-customize-link"
 import PreviewImageSquares from "./preview-image-squares"
 
 interface MobileSidebarProps {
@@ -244,6 +245,7 @@ const MobileSidebar = ({
         </div>
       </div>
 
+      <PackageCustomizeLink className="mt-4" />
       <div>
         <PreviewImageSquares
           large
