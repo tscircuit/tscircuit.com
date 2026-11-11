@@ -1,6 +1,4 @@
 import { usePackagePreviewChanges } from "@/components/PackagePreviewChanges"
-import { useSchematicChangeHighlights } from "@/hooks/use-schematic-change-highlights"
-import { emptyCircuitChanges } from "@/lib/package-circuit-changes"
 import {
   SchematicViewer,
   type SchematicViewerController,
@@ -24,12 +22,6 @@ export default function SchematicView({
     // configuration changes need a revision even when no parts are added.
     return Object.assign([...circuitJson], { editCount: ++revision.current })
   }, [circuitJson, isConfigurationPreview])
-  const containerRef = useRef<HTMLDivElement>(null)
-  useSchematicChangeHighlights({
-    containerRef,
-    changes: changes ?? emptyCircuitChanges,
-    renderedCircuit: isLoading ? undefined : viewerCircuit,
-  })
   if (isLoading) {
     return (
       <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-8 mb-4 bg-white dark:bg-[#0d1117] flex items-center justify-center h-[620px]">
@@ -51,7 +43,7 @@ export default function SchematicView({
   }
 
   return (
-    <div ref={containerRef} className="h-[620px]">
+    <div className="h-[620px]">
       <SchematicViewer
         controller={controller}
         disableGroups
