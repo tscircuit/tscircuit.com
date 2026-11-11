@@ -6,25 +6,19 @@ type SchematicComponent = Extract<
   AnyCircuitElement,
   { type: "schematic_component" }
 >
-type PcbComponent = Extract<AnyCircuitElement, { type: "pcb_component" }>
 type SchematicText = Extract<AnyCircuitElement, { type: "schematic_text" }>
 type SchematicNoteKey = string
 type ComponentKey = string
 type SourceGroupId = string
 
-export type CircuitComponentChange = {
-  schematic?: SchematicComponent
-  pcb?: PcbComponent
-}
 export type PackageCircuitChanges = {
-  components: CircuitComponentChange[]
+  schematicComponentIds: string[]
   schematicTextIds: string[]
 }
 export const emptyCircuitChanges: PackageCircuitChanges = {
-  components: [],
+  schematicComponentIds: [],
   schematicTextIds: [],
 }
-export const circuitChangeOutlineColor = "#3b82f6"
 
 /** Generated IDs can shift when optional parts disappear. Compare authored content. */
 function semanticFields(record: unknown): unknown {
@@ -64,11 +58,7 @@ function indexComponents(circuitJson: readonly AnyCircuitElement[]) {
   )
   const components = new Map<
     ComponentKey,
-    {
-      schematic?: SchematicComponent
-      pcb?: PcbComponent
-      signature: string
-    }
+    { schematic?: SchematicComponent; signature: string }
   >()
   for (const source of circuitJson.filter(
     (element): element is SourceComponent =>
@@ -83,16 +73,6 @@ function indexComponents(circuitJson: readonly AnyCircuitElement[]) {
         element.type === "schematic_component" &&
         element.source_component_id === source.source_component_id,
     )
-    const pcb = circuitJson.find(
-      (element): element is PcbComponent =>
-        element.type === "pcb_component" &&
-        element.source_component_id === source.source_component_id,
-    )
-    const models = circuitJson.filter(
-      (element) =>
-        element.type === "cad_component" &&
-        element.source_component_id === source.source_component_id,
-    )
     const labels = schematic
       ? circuitJson.filter(
           (element) =>
@@ -102,10 +82,7 @@ function indexComponents(circuitJson: readonly AnyCircuitElement[]) {
       : []
     components.set(key, {
       schematic,
-      pcb,
-      signature: JSON.stringify(
-        semanticFields({ source, schematic, pcb, models, labels }),
-      ),
+      signature: JSON.stringify(semanticFields({ source, schematic, labels })),
     })
   }
   return components
@@ -129,7 +106,7 @@ function indexNotes(circuitJson: readonly AnyCircuitElement[]) {
   return notes
 }
 
-/** Highlight only additions and changes still visible in the current circuit. */
+/** Report only schematic additions and changes still visible in the current circuit. */
 export function getPackageCircuitChanges({
   previousCircuit,
   currentCircuit,
@@ -139,32 +116,19 @@ export function getPackageCircuitChanges({
 }): PackageCircuitChanges {
   const previous = indexComponents(previousCircuit)
   const current = indexComponents(currentCircuit)
-  const components: CircuitComponentChange[] = []
+  const schematicComponentIds: string[] = []
   for (const [key, currentComponent] of current) {
     const previousComponent = previous.get(key)
-    if (previousComponent?.signature === currentComponent?.signature) continue
-    components.push({
-      schematic: currentComponent.schematic,
-      pcb: currentComponent.pcb,
-    })
+    if (previousComponent?.signature === currentComponent.signature) continue
+    if (!currentComponent.schematic) continue
+    schematicComponentIds.push(
+      currentComponent.schematic.schematic_component_id,
+    )
   }
   const previousNotes = indexNotes(previousCircuit)
   const currentNotes = indexNotes(currentCircuit)
   const schematicTextIds = [...currentNotes]
     .filter(([key, note]) => previousNotes.get(key)?.text !== note.text)
     .map(([, note]) => note.schematic_text_id)
-  return { components, schematicTextIds }
-}
-
-export function getPcbChangeGraphics(changes: PackageCircuitChanges) {
-  const rects = changes.components
-    .filter((change) => change.pcb)
-    .map((change) => ({
-      center: change.pcb!.center,
-      width: change.pcb!.width + 0.8,
-      height: change.pcb!.height + 0.8,
-      ccwRotationDegrees: change.pcb!.rotation,
-      stroke: circuitChangeOutlineColor,
-    }))
-  return { rects }
+  return { schematicComponentIds, schematicTextIds }
 }
