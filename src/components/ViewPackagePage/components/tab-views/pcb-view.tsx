@@ -5,7 +5,11 @@ import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-ci
 
 export default function PCBView({
   onViewSchematicComponent,
+  className,
+  renderer,
 }: {
+  className?: string
+  renderer?: ComponentProps<typeof PcbViewerWithContainerHeight>["renderer"]
   onViewSchematicComponent?: ComponentProps<
     typeof PcbViewerWithContainerHeight
   >["onViewSchematicComponent"]
@@ -31,9 +35,14 @@ export default function PCBView({
   }
 
   return (
-    <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
+    <div
+      className={
+        className ??
+        "border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]"
+      }
+    >
       <PcbViewerWithContainerHeight
-        renderer={getPackagePcbRenderer(circuitJson)}
+        renderer={renderer ?? getPackagePcbRenderer(circuitJson)}
         disablePcbGroups
         clickToInteractEnabled
         circuitJson={circuitJson}

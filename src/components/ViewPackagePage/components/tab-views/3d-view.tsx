@@ -8,6 +8,8 @@ import { Suspense, useMemo, type ComponentProps } from "react"
 import type { AnyCircuitElement } from "circuit-json"
 import { useQuery } from "react-query"
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
+import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
+import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import {
   findPackagePreviewGlb,
   downloadPackagePreviewGlb,
@@ -67,10 +69,18 @@ export default function ThreeDView({
   onViewSchematicComponent,
 }: ThreeDViewProps) {
   const { preview } = usePackagePreviewIdentity()
-  const { componentPath, isLoading } = useCurrentPackageCircuitJson()
+  const { componentPath, previewFilePath, isLoading } =
+    useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
-  const glb = findPackagePreviewGlb(packageFiles, componentPath)
+  const { manifest } = usePackagePreviewParameters()
+  const glb = manifest
+    ? packageFiles?.find(
+        (file) =>
+          file.file_path ===
+          findParameterVariantByPath(manifest, previewFilePath).glbPath,
+      )
+    : findPackagePreviewGlb(packageFiles, componentPath)
   const download = useQuery(
     ["packagePreviewGlb", apiBaseUrl, glb?.package_file_id, token],
     ({ signal }) =>

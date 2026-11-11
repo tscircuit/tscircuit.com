@@ -74,6 +74,9 @@ const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const LoginPage = lazyImport(() => import("@/pages/login"))
 const CliLoginPage = lazyImport(() => import("@/pages/cli-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
+const CustomizePackagePage = lazyImport(
+  () => import("@/pages/customize-package"),
+)
 const ViewPackageDirectoryPage = lazyImport(
   () => import("@/pages/view-package-directory"),
 )
@@ -349,6 +352,10 @@ function App() {
             <Route
               path="/:author/:packageName/settings"
               component={PackageSettingsPage}
+            />
+            <Route
+              path="/:author/:packageName/customize"
+              component={CustomizePackagePage}
             />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
             {/* 404 fallback */}
