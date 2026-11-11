@@ -49,6 +49,8 @@ export default function SchematicView({
         disableGroups
         clickToInteractEnabled
         circuitJson={viewerCircuit}
+        highlightedSchematicComponentIds={changes?.schematicComponentIds}
+        highlightedSchematicTextIds={changes?.schematicTextIds}
         containerStyle={{
           height: 620,
         }}

@@ -103,7 +103,7 @@
     "@tscircuit/pcb-viewer": "^1.11.450",
     "@tscircuit/props": "^0.0.719",
     "@tscircuit/runframe": "^0.0.3207",
-    "@tscircuit/schematic-viewer": "^2.0.108",
+    "@tscircuit/schematic-viewer": "^2.0.110",
     "@tscircuit/system-block-viewer": "https://jscdn.tscircuit.com/@tscircuit/system-block-viewer/0.0.5.tgz",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
