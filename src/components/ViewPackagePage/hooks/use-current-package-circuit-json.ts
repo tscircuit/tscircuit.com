@@ -10,6 +10,9 @@ import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { useQuery } from "react-query"
 import { useParams } from "wouter"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { downloadPackageCircuitJson } from "@/lib/download-package-circuit-json"
 
 type PreviewCircuitJsonResponse = {
   preview_circuit_json_response: {
@@ -23,6 +26,8 @@ export function useCurrentPackageCircuitJson() {
   const { packageId } = useCurrentPackageId()
   const urlParams = useUrlParams()
   const { author, packageName } = useParams()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((state) => state.session?.token)
   const axios = useAxios()
 
   const version = urlParams.version
@@ -56,12 +61,27 @@ export function useCurrentPackageCircuitJson() {
     Error & { status: number }
   >(
     ["previewCircuitJson", query, selectedFile?.package_file_id],
-    async () => {
+    async (queryContext) => {
       if (!query) {
         throw new Error("Missing package release info")
       }
 
       if (selectedFile) {
+        if (selectedFile.file_path.endsWith(".gz")) {
+          const circuitJson = await downloadPackageCircuitJson({
+            apiBaseUrl,
+            packageFileId: selectedFile.package_file_id,
+            token,
+            signal: queryContext.signal,
+          })
+          return {
+            preview_circuit_json_response: {
+              circuit_json: circuitJson,
+              component_path: normalizePreviewPath(selectedFile.file_path),
+              circuit_json_found: true,
+            },
+          }
+        }
         const { data } = await axios.get("/package_files/get", {
           params: { package_file_id: selectedFile.package_file_id },
         })
@@ -109,6 +129,7 @@ export function useCurrentPackageCircuitJson() {
   return {
     circuitJson,
     circuitJsonFound,
+    packageFiles,
     previewFiles,
     hasPreviewFiles: previewFiles.length > 0,
     previewFilePath: selectedFile

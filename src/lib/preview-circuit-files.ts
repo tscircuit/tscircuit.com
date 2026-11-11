@@ -11,7 +11,7 @@ export function getPreviewCircuitFiles<T extends { file_path: string }>(
       const path = normalizePreviewPath(file.file_path)
       return (
         !path.startsWith("node_modules/") &&
-        /(?:^|\/)circuit\.json$|\.circuit\.json$/i.test(path)
+        /(?:^|\/)circuit\.json(?:\.gz)?$|\.circuit\.json(?:\.gz)?$/i.test(path)
       )
     })
     .sort((a, b) =>

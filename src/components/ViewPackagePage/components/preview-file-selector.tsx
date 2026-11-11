@@ -20,9 +20,14 @@ import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circu
 export default function PreviewFileSelector() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
-  const { previewFiles, previewFilePath } = useCurrentPackageCircuitJson()
+  const { previewFiles, previewFilePath, packageFiles } =
+    useCurrentPackageCircuitJson()
 
-  if (previewFiles.length < 2) return null
+  if (
+    previewFiles.length < 2 ||
+    packageFiles?.some((file) => file.file_path === "dist/preview.json")
+  )
+    return null
 
   const selectFile = (path: string) => {
     const url = new URL(window.location.href)
