@@ -1,8 +1,6 @@
-import { usePackagePreviewChanges } from "@/components/PackagePreviewChanges"
-import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
+import type { ComponentProps } from "react"
 import { getPackagePcbRenderer } from "@/lib/get-package-pcb-renderer"
-import { getPcbChangeGraphics } from "@/lib/package-circuit-changes"
-import { type ComponentProps, useMemo } from "react"
+import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function PCBView({
@@ -12,11 +10,6 @@ export default function PCBView({
     typeof PcbViewerWithContainerHeight
   >["onViewSchematicComponent"]
 }) {
-  const changes = usePackagePreviewChanges()
-  const debugGraphics = useMemo(
-    () => (changes ? getPcbChangeGraphics(changes) : undefined),
-    [changes],
-  )
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
 
   if (isLoading) {
@@ -41,7 +34,6 @@ export default function PCBView({
     <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
       <PcbViewerWithContainerHeight
         renderer={getPackagePcbRenderer(circuitJson)}
-        debugGraphics={debugGraphics}
         disablePcbGroups
         clickToInteractEnabled
         circuitJson={circuitJson}
