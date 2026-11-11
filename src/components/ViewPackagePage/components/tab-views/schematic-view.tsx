@@ -1,8 +1,10 @@
-import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import { usePackagePreviewChanges } from "@/components/PackagePreviewChanges"
 import {
   SchematicViewer,
   type SchematicViewerController,
 } from "@tscircuit/schematic-viewer"
+import { useMemo, useRef } from "react"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function SchematicView({
   controller,
@@ -10,6 +12,16 @@ export default function SchematicView({
   controller?: SchematicViewerController
 }) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
+  const changes = usePackagePreviewChanges()
+  const isConfigurationPreview = changes !== null
+  const revision = useRef(0)
+  const viewerCircuit = useMemo(() => {
+    if (!circuitJson) return []
+    if (!isConfigurationPreview) return circuitJson
+    // The viewer caches SVGs by array length and editCount. Value-only
+    // configuration changes need a revision even when no parts are added.
+    return Object.assign([...circuitJson], { editCount: ++revision.current })
+  }, [circuitJson, isConfigurationPreview])
   if (isLoading) {
     return (
       <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-8 mb-4 bg-white dark:bg-[#0d1117] flex items-center justify-center h-[620px]">
@@ -36,7 +48,7 @@ export default function SchematicView({
         controller={controller}
         disableGroups
         clickToInteractEnabled
-        circuitJson={circuitJson}
+        circuitJson={viewerCircuit}
         containerStyle={{
           height: 620,
         }}
