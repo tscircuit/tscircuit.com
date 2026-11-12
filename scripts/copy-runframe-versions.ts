@@ -3,11 +3,9 @@ import { join } from "node:path"
 import runframePackageJson from "@tscircuit/runframe/package.json"
 import currentPackageJson from "../package.json"
 
-const SYNC_PACKAGES = [
-  "@tscircuit/pcb-viewer",
-  "@tscircuit/3d-viewer",
-  "@tscircuit/schematic-viewer",
-]
+// The 3D viewer is updated independently by update-3d-viewer.yml.
+// Copying RunFrame's version would roll it back when RunFrame lags a release.
+const SYNC_PACKAGES = ["@tscircuit/pcb-viewer", "@tscircuit/schematic-viewer"]
 
 const runframePackageJsonAny = runframePackageJson as Record<string, unknown>
 const runframeDeps: Record<string, string> = {

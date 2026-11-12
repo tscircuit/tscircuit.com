@@ -13,6 +13,7 @@ import { findParameterVariantByPath } from "@/lib/package-preview-parameters"
 import {
   findPackagePreviewGlb,
   downloadPackagePreviewGlb,
+  hasAssemblyExplosion,
 } from "@/lib/package-preview-glb"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
@@ -69,7 +70,7 @@ export default function ThreeDView({
   onViewSchematicComponent,
 }: ThreeDViewProps) {
   const { preview } = usePackagePreviewIdentity()
-  const { componentPath, previewFilePath, isLoading } =
+  const { circuitJson, componentPath, previewFilePath, isLoading } =
     useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
@@ -81,6 +82,8 @@ export default function ThreeDView({
           findParameterVariantByPath(manifest, previewFilePath).glbPath,
       )
     : findPackagePreviewGlb(packageFiles, componentPath)
+  // The viewer only evaluates explosion programs in Circuit JSON mode.
+  const requiresCircuitJson = hasAssemblyExplosion(circuitJson)
   const download = useQuery(
     ["packagePreviewGlb", apiBaseUrl, glb?.package_file_id, token],
     ({ signal }) =>
@@ -91,7 +94,12 @@ export default function ThreeDView({
         signal,
       }),
     {
-      enabled: !preview && arePackageFilesFetched && !isLoading && Boolean(glb),
+      enabled:
+        !preview &&
+        arePackageFilesFetched &&
+        !isLoading &&
+        !requiresCircuitJson &&
+        Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 120_000,
@@ -103,7 +111,7 @@ export default function ThreeDView({
     !arePackageFilesFetched ||
     isLoading ||
     (!glb && isFetchingPackageFiles) ||
-    (!preview && glb && download.isLoading)
+    (!requiresCircuitJson && !preview && glb && download.isLoading)
   )
     return (
       <div className="h-[620px] flex items-center justify-center">
@@ -111,7 +119,7 @@ export default function ThreeDView({
       </div>
     )
 
-  if (glbBuffer && glb)
+  if (!requiresCircuitJson && glbBuffer && glb)
     return (
       <div
         className={
@@ -128,7 +136,7 @@ export default function ThreeDView({
       </div>
     )
 
-  // Mount the per-component renderer only when there is no usable assembly.
+  // Render individual components for explosions or when no usable GLB exists.
   return (
     <CircuitJsonThreeDView
       onViewSchematicComponent={onViewSchematicComponent}
