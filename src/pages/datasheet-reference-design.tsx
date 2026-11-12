@@ -6,9 +6,13 @@ import { updatePackagePreviewSelection } from "@/lib/package-preview-selection"
 
 export default function DatasheetReferenceDesignPage({
   name,
-}: { name: string }) {
+  releaseId,
+}: { name: string; releaseId: string }) {
   const selection = usePackagePreviewSelection()
-  const configuration = usePackageConfiguration({ name, selection })
+  const configuration = usePackageConfiguration({
+    name,
+    selection: { ...selection, release: selection.release || releaseId },
+  })
   return (
     <PackagePreviewProvider value={configuration.scope}>
       <PackageConfigurationPreview
