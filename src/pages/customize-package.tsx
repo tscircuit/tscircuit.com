@@ -2,6 +2,7 @@ import { ContentLoadingErrorPage } from "@/components/ContentLoadingErrorPage"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import PackageHeader from "@/components/ViewPackagePage/components/package-header"
+import { PackageUsage } from "@/components/PackageUsage"
 import { PackageConfigurationPreview } from "@/components/PackageConfigurationPreview"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,6 +83,17 @@ export default function CustomizePackagePage() {
                 configuration={configuration}
                 onSelectionChange={updatePackagePreviewSelection}
               />
+              {configuration.manifest && configuration.variant && (
+                <PackageUsage
+                  packageName={name}
+                  declarationFileId={
+                    configuration.files?.find(
+                      (file) => file.file_path === "dist/index.d.ts",
+                    )?.package_file_id
+                  }
+                  values={configuration.variant.values}
+                />
+              )}
             </CardContent>
           </Card>
         </main>
