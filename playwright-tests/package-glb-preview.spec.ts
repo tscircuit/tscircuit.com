@@ -148,11 +148,12 @@ for (const scenario of ["missing", "failed"] as const) {
   })
 }
 
-test("explosion designs bypass the GLB and expose working explosion controls", async ({
+test("explosion designs keep the GLB until requested and then open explosion controls", async ({
   page,
 }) => {
   const requests = await openPreview(page, { explosion: true })
-  expect(requests.glbRequests).toEqual([])
+  expect(requests.glbRequests).toHaveLength(1)
+  expect(requests.modelRequests).toEqual([])
   const canvas = page.locator("canvas:visible").last()
   const bounds = await canvas.boundingBox()
   if (!bounds) throw new Error("Missing canvas")
@@ -166,6 +167,7 @@ test("explosion designs bypass the GLB and expose working explosion controls", a
   await exploded.click()
   const slider = page.getByRole("slider", { name: "Assembly explosion" })
   await expect(slider).toBeVisible()
+  expect(requests.modelRequests.length).toBeGreaterThan(0)
   await slider.focus()
   await slider.press("End")
   await expect(slider).toHaveValue("1")

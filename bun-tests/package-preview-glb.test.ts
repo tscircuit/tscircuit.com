@@ -108,7 +108,7 @@ test("a selected circuit output never falls back to the main board assembly", ()
   ).toBe(selected)
 })
 
-test("authored explosions require Circuit JSON instead of the static GLB", () => {
+test("detects authored explosions for on-demand playback", () => {
   expect(hasAssemblyExplosion([{ type: "cad_explosion_stage" }])).toBe(true)
   expect(hasAssemblyExplosion([{ type: "cad_explosion_move" }])).toBe(true)
   expect(hasAssemblyExplosion([{ type: "cad_component" }])).toBe(false)

@@ -1,4 +1,4 @@
-/** Explosions require the Circuit JSON renderer, even when a GLB is available. */
+/** Whether the GLB menu can offer on-demand Circuit JSON explosion playback. */
 export function hasAssemblyExplosion(
   circuitJson: readonly { type: string }[] | null | undefined,
 ): boolean {
