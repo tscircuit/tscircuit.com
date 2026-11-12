@@ -1,5 +1,6 @@
 import { findParameterVariant } from "@/lib/package-preview-parameters"
 import { PackagePreviewToolbar } from "@/components/PackagePreviewToolbar"
+import { PackageUsage } from "@/components/PackageUsage"
 import { PackageParameterPanel } from "@/components/PackageParameterPanel"
 import { PackagePreviewChangesProvider } from "@/components/PackagePreviewChanges"
 import { PackageCircuitPreview } from "@/components/ViewPackagePage/components/package-circuit-preview"
@@ -132,6 +133,17 @@ export function PackageConfigurationPreview({
             )}
           </div>
         </div>
+        {manifest && variant && (
+          <PackageUsage
+            packageName={configuration.packageInfo?.name ?? name}
+            declarationFileId={
+              configuration.files?.find(
+                (file) => file.file_path === "dist/index.d.ts",
+              )?.package_file_id
+            }
+            values={variant.values}
+          />
+        )}
       </div>
     </PackagePreviewChangesProvider>
   )
