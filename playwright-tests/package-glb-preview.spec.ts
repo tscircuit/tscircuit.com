@@ -32,6 +32,9 @@ async function openPreview(
               element.type === "cad_component"
                 ? {
                     ...element,
+                    pcb_component_id: options.explosion
+                      ? undefined
+                      : element.pcb_component_id,
                     model_obj_url: "./imports/component.obj",
                     model_jscad: { type: "cuboid", size: [2, 2, 1] },
                   }
