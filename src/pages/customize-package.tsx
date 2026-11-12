@@ -85,7 +85,7 @@ export default function CustomizePackagePage() {
               />
               {configuration.manifest && configuration.variant && (
                 <PackageUsage
-                  packageName={name}
+                  packageName={packageInfo?.name ?? name}
                   declarationFileId={
                     configuration.files?.find(
                       (file) => file.file_path === "dist/index.d.ts",
