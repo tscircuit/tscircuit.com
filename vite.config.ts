@@ -10,7 +10,6 @@ import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
 import { parsePackagePageRoute } from "./server/package-page-ssr.js"
-import { datasheetReferenceDesignPackageNames } from "./src/lib/datasheet-reference-design-packages"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -158,25 +157,6 @@ function vercelSsrDevPlugin(): Plugin {
   }
 }
 
-function referenceDesignAllowlistPlugin(): Plugin {
-  const fileName = "reference-design-packages.json"
-  const source = JSON.stringify({
-    packages: datasheetReferenceDesignPackageNames,
-  })
-  return {
-    name: "reference-design-allowlist",
-    configureServer(server) {
-      server.middlewares.use(`/${fileName}`, (_req, res) => {
-        res.setHeader("Content-Type", "application/json; charset=utf-8")
-        res.end(source)
-      })
-    },
-    generateBundle() {
-      this.emitFile({ type: "asset", fileName, source })
-    },
-  }
-}
-
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
@@ -233,7 +213,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
 
   const plugins: PluginOption[] = [
     react(),
-    referenceDesignAllowlistPlugin(),
     fakeStripePlugin(),
     {
       name: "process-polyfill",
