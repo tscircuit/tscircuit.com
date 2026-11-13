@@ -37,14 +37,26 @@ export const downloadKicadFiles = async (
         pcbFilename: `${fileName}.kicad_pcb`,
       })
       proConverter.runUntilFinished()
-      const kicadProContent = proConverter.getOutputString()
 
       const zip = new JSZip()
       zip.file(`${fileName}.kicad_pcb`, kicadPcbContent)
       for (const { filename, content } of schematicFiles) {
         zip.file(filename, content)
       }
-      zip.file(`${fileName}.kicad_pro`, kicadProContent)
+      // Older CDN builds only return the project settings file.
+      const projectFiles =
+        "getOutputFiles" in proConverter &&
+        typeof proConverter.getOutputFiles === "function"
+          ? proConverter.getOutputFiles()
+          : [
+              {
+                filename: `${fileName}.kicad_pro`,
+                content: proConverter.getOutputString(),
+              },
+            ]
+      for (const { filename, content } of projectFiles) {
+        zip.file(filename, content)
+      }
 
       if (
         resolveAndLoadKicad3dModelFiles &&
