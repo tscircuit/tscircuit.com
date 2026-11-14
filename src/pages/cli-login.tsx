@@ -28,7 +28,7 @@ export default function CliLoginPage() {
   const login_page_id = searchParams.get("login_page_id")
   const login_page_auth_token = searchParams.get("login_page_auth_token")
   const autoclose = searchParams.get("autoclose") === "true"
-  const redirectPath = `/cli-login${search}`
+  const redirectPath = `/cli-login${search ? `?${search}` : ""}`
 
   useEffect(() => {
     if (complete && autoclose) {
