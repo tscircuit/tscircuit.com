@@ -8,6 +8,7 @@ export default withRouteSpec({
   commonParams: z.object({
     chip_name: z.string().optional(),
     is_popular: z.coerce.boolean().optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
   }),
   jsonResponse: z.object({
     datasheets: z.array(
@@ -18,7 +19,7 @@ export default withRouteSpec({
     ),
   }),
 })(async (req, ctx) => {
-  const { chip_name, is_popular } = req.commonParams
+  const { chip_name, is_popular, limit } = req.commonParams
   const datasheets = ctx.db
     .listDatasheets({ chip_name, is_popular })
     .filter(isDatasheetComplete)
@@ -35,6 +36,6 @@ export default withRouteSpec({
         : a.datasheet_id.localeCompare(b.datasheet_id),
   )
   return ctx.json({
-    datasheets,
+    datasheets: datasheets.slice(0, limit),
   })
 })

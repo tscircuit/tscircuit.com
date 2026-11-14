@@ -69,6 +69,7 @@ export default function ThreeDView({
   onViewSchematicComponent,
 }: ThreeDViewProps) {
   const { preview } = usePackagePreviewIdentity()
+  const hasConfiguredModel = preview && !preview.usePublishedArtifacts
   const { componentPath, previewFilePath, isLoading } =
     useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
@@ -91,19 +92,23 @@ export default function ThreeDView({
         signal,
       }),
     {
-      enabled: !preview && arePackageFilesFetched && !isLoading && Boolean(glb),
+      enabled:
+        !hasConfiguredModel &&
+        arePackageFilesFetched &&
+        !isLoading &&
+        Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 120_000,
     },
   )
 
-  const glbBuffer = preview ? preview.glb : download.data
+  const glbBuffer = hasConfiguredModel ? preview.glb : download.data
   if (
     !arePackageFilesFetched ||
     isLoading ||
     (!glb && isFetchingPackageFiles) ||
-    (!preview && glb && download.isLoading)
+    (!hasConfiguredModel && glb && download.isLoading)
   )
     return (
       <div className="h-[620px] flex items-center justify-center">

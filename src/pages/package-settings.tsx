@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useLocation, Redirect, Link } from "wouter"
 import { Helmet } from "react-helmet-async"
-import { useMutation, useQueryClient } from "react-query"
+import { useMutation, useQuery, useQueryClient } from "react-query"
 import { normalizeName } from "@/lib/utils/normalizeName"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -49,6 +49,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PackageDomainsList } from "@/components/package-settings/PackageDomainsList"
+import { ReferenceDesignChipPicker } from "@/components/package-settings/ReferenceDesignChipPicker"
 import { PackageRenderImages } from "@/components/package-settings/PackageRenderImages"
 import { useSettingsSection } from "@/hooks/use-settings-section"
 
@@ -194,6 +195,27 @@ export default function PackageSettingsPage() {
   })
 
   const canManagePackage = isOwner || Boolean(orgMember)
+  const referenceDesignChipsKey = [
+    "packageDatasheetReferences",
+    packageInfo?.package_id,
+    session?.account_id,
+  ]
+  const referenceDesignChips = useQuery(
+    referenceDesignChipsKey,
+    async () => {
+      const { data } = await axios.get<{
+        datasheet_references: { chip_name: string }[]
+      }>("/packages/list_datasheet_references", {
+        params: { package_id: packageInfo?.package_id },
+      })
+      return data.datasheet_references.map(({ chip_name }) => chip_name)
+    },
+    {
+      enabled: Boolean(canManagePackage && session && packageInfo?.package_id),
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  )
 
   const [formData, setFormData] = useState({
     unscopedPackageName: "",
@@ -205,6 +227,7 @@ export default function PackageSettingsPage() {
     githubRepoFullName: null as string | null,
     allowPrPreviews: false,
     publicDistEnabled: false,
+    referenceDesignChips: [] as string[],
   })
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -249,9 +272,16 @@ export default function PackageSettingsPage() {
 
   useEffect(() => {
     if (initialFormData) {
-      setFormData(initialFormData)
+      setFormData((prev) => ({ ...prev, ...initialFormData }))
     }
   }, [initialFormData])
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      referenceDesignChips: referenceDesignChips.data ?? [],
+    }))
+  }, [referenceDesignChips.data])
 
   useEffect(() => {
     if (formData.website && formData.website.trim()) {
@@ -309,7 +339,14 @@ export default function PackageSettingsPage() {
   })
 
   const saveField = async (fieldName: string) => {
-    if (!isFormValid || !packageInfo) return
+    if (
+      (fieldName === "referenceDesignChips"
+        ? !referenceDesignChips.isSuccess
+        : !isFormValid) ||
+      !packageInfo ||
+      savingField
+    )
+      return
     setSavingField(fieldName)
 
     try {
@@ -376,13 +413,21 @@ export default function PackageSettingsPage() {
             : formData.githubRepoFullName
       }
 
-      if (Object.keys(updatePayload).length > 1) {
+      if (fieldName === "referenceDesignChips") {
+        await axios.post("/packages/update_datasheet_references", {
+          package_id: packageInfo.package_id,
+          datasheet_references: formData.referenceDesignChips.map(
+            (chip_name) => ({ chip_name }),
+          ),
+        })
+      } else if (Object.keys(updatePayload).length > 1) {
         const response = await axios.post("/packages/update", updatePayload)
         if (response.status !== 200) throw new Error("Failed to update")
       }
 
       const invalidations: Promise<void>[] = [
         qc.invalidateQueries(["package", packageSlug]),
+        qc.invalidateQueries(["package", packageInfo.package_id]),
       ]
       if (fieldName === "license") {
         const releaseId = packageInfo.latest_package_release_id
@@ -397,6 +442,12 @@ export default function PackageSettingsPage() {
             ]),
           )
         }
+      }
+      if (fieldName === "referenceDesignChips" || fieldName === "visibility") {
+        invalidations.push(qc.invalidateQueries(["datasheetReferenceDesigns"]))
+      }
+      if (fieldName === "referenceDesignChips") {
+        invalidations.push(qc.invalidateQueries(referenceDesignChipsKey))
       }
       await Promise.all(invalidations)
       toast({ title: "Saved", description: "Setting updated successfully." })
@@ -474,6 +525,11 @@ export default function PackageSettingsPage() {
     formData.unscopedPackageName !== initialFormData.unscopedPackageName
   const hasDescriptionChanged =
     initialFormData && formData.description !== initialFormData.description
+  const canSaveReferenceDesignChips =
+    referenceDesignChips.isSuccess &&
+    !savingField &&
+    JSON.stringify(formData.referenceDesignChips) !==
+      JSON.stringify(referenceDesignChips.data)
   const hasWebsiteChanged =
     initialFormData && formData.website !== initialFormData.website
   const hasVisibilityChanged =
@@ -675,6 +731,56 @@ export default function PackageSettingsPage() {
                     <p className="text-xs text-red-500 mt-1.5">
                       {websiteError}
                     </p>
+                  )}
+                </SettingCard>
+
+                <SettingCard
+                  title="Reference design chips"
+                  description="Choose the chips this package is a reference design for. Public, listed packages appear on the selected datasheets after a successful build."
+                  onSave={() => saveField("referenceDesignChips")}
+                  saveDisabled={!canSaveReferenceDesignChips}
+                  footer={
+                    <Button
+                      size="sm"
+                      onClick={() => saveField("referenceDesignChips")}
+                      disabled={!canSaveReferenceDesignChips}
+                      aria-label="Save reference design chips"
+                    >
+                      {savingField === "referenceDesignChips" && (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      )}
+                      Save
+                    </Button>
+                  }
+                >
+                  {referenceDesignChips.isError ? (
+                    <div
+                      role="alert"
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <p>Unable to load reference design chips.</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => referenceDesignChips.refetch()}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  ) : (
+                    <ReferenceDesignChipPicker
+                      value={formData.referenceDesignChips}
+                      onChange={(chips) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          referenceDesignChips: chips,
+                        }))
+                      }
+                      disabled={
+                        !referenceDesignChips.isSuccess || Boolean(savingField)
+                      }
+                    />
                   )}
                 </SettingCard>
 

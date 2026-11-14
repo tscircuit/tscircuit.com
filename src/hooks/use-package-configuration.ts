@@ -143,6 +143,7 @@ export function usePackageConfiguration({
     circuitJson: variant ? circuits.data?.[variant.circuitJsonPath] : undefined,
     scope: {
       releaseId,
+      usePublishedArtifacts: metadataReady && !hasManifest,
       previewFilePath: variant?.circuitJsonPath ?? selection.file,
       circuitJson: variant
         ? (circuits.data?.[variant.circuitJsonPath] ?? null)

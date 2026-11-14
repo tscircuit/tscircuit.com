@@ -25,6 +25,7 @@ export function useCurrentPackageCircuitJson() {
   const { packageId } = useCurrentPackageId()
   const { author, packageName, version, releaseId, previewFilePath, preview } =
     usePackagePreviewIdentity()
+  const hasConfiguredCircuit = preview && !preview.usePublishedArtifacts
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((state) => state.session?.token)
   const axios = useAxios()
@@ -108,7 +109,9 @@ export function useCurrentPackageCircuitJson() {
     },
     {
       enabled:
-        !preview && Boolean(query) && (!previewFilePath || areFilesFetched),
+        !hasConfiguredCircuit &&
+        Boolean(query) &&
+        (!previewFilePath || areFilesFetched),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 60_000 * 2,
@@ -116,7 +119,7 @@ export function useCurrentPackageCircuitJson() {
     },
   )
 
-  if (preview)
+  if (hasConfiguredCircuit)
     return {
       circuitJson: preview.circuitJson,
       circuitJsonFound: Boolean(preview.circuitJson),

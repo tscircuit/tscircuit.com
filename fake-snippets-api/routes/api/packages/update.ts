@@ -31,7 +31,7 @@ export default withRouteSpec({
     })),
   jsonResponse: z.object({
     ok: z.boolean(),
-    package: packageSchema,
+    package: packageSchema.omit({ reference_design_chip_names: true }),
   }),
 })(async (req, ctx) => {
   const {
@@ -118,8 +118,10 @@ export default withRouteSpec({
     })
   }
 
+  const { reference_design_chip_names: _referenceDesignChipNames, ...pkg } =
+    updatedPackage
   return ctx.json({
     ok: true,
-    package: updatedPackage,
+    package: pkg,
   })
 })

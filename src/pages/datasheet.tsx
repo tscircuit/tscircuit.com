@@ -38,8 +38,7 @@ const SectionCard = ({
 export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
   const datasheetQuery = useDatasheet(chipName)
-  const { packages: referenceDesigns } =
-    useDatasheetReferenceDesignPackages(chipName)
+  const { referenceDesigns } = useDatasheetReferenceDesignPackages(chipName)
   const createDatasheet = useCreateDatasheet()
   const { copyToClipboard } = useCopyToClipboard()
   const componentTsx = datasheetQuery.data?.generated_tsx

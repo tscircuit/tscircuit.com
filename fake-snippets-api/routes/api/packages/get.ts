@@ -14,6 +14,7 @@ export default withRouteSpec({
   jsonResponse: z.object({
     ok: z.boolean(),
     package: packageSchema
+      .omit({ reference_design_chip_names: true })
       .extend({
         is_starred: z.boolean(),
         user_permissions: z
@@ -63,10 +64,12 @@ export default withRouteSpec({
           org_account.org_id === foundPackage.owner_org_id,
       )
 
+  const { reference_design_chip_names: _referenceDesignChipNames, ...pkg } =
+    foundPackage
   return ctx.json({
     ok: true,
     package: {
-      ...publicMapPackage(foundPackage),
+      ...publicMapPackage(pkg),
       is_starred: auth
         ? ctx.db.hasStarred(auth.account_id, foundPackage.package_id)
         : false,

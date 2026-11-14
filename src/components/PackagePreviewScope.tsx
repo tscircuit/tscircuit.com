@@ -7,6 +7,7 @@ type PackagePreviewScope = {
   releaseId?: string
   previewFilePath?: string
   circuitJson: AnyCircuitElement[] | null
+  usePublishedArtifacts?: boolean
   glb?: ArrayBuffer
 }
 

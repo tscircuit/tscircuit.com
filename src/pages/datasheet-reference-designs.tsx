@@ -34,8 +34,11 @@ export default function DatasheetReferenceDesignsPage() {
     packageName?: string
   }>()
   const name = author && packageName ? `${author}/${packageName}` : undefined
-  const { packages, failed, isLoading, refetch } =
+  const { referenceDesigns, isError, isLoading, refetch } =
     useDatasheetReferenceDesignPackages(chipName)
+  const referenceDesign = referenceDesigns.find(
+    (design) => design.name === name,
+  )
   return (
     <div className="flex min-h-screen flex-col" data-reference-design-page>
       <Helmet>
@@ -72,11 +75,15 @@ export default function DatasheetReferenceDesignsPage() {
                 </div>
                 {isLoading ? (
                   <ReferenceDesignLoading />
-                ) : packages.includes(name) ? (
+                ) : referenceDesign ? (
                   <Suspense fallback={<ReferenceDesignLoading />}>
-                    <DatasheetReferenceDesign key={name} name={name} />
+                    <DatasheetReferenceDesign
+                      key={name}
+                      name={name}
+                      releaseId={referenceDesign.package_release_id}
+                    />
                   </Suspense>
-                ) : failed.length ? (
+                ) : isError ? (
                   <div role="alert">
                     <p>Unable to load the reference design.</p>
                     <Button
@@ -93,7 +100,7 @@ export default function DatasheetReferenceDesignsPage() {
               </>
             ) : isLoading ? (
               <p role="status">Loading reference designs...</p>
-            ) : failed.length > 0 && !packages.length ? (
+            ) : isError && !referenceDesigns.length ? (
               <div role="alert">
                 <p>Unable to load reference designs.</p>
                 <Button
@@ -104,13 +111,13 @@ export default function DatasheetReferenceDesignsPage() {
                   Retry
                 </Button>
               </div>
-            ) : !packages.length ? (
+            ) : !referenceDesigns.length ? (
               <p className="text-sm text-gray-500">
                 No reference designs available.
               </p>
             ) : (
               <ul className="divide-y divide-slate-200">
-                {packages.map((name) => (
+                {referenceDesigns.map(({ name }) => (
                   <li key={name}>
                     <Link
                       href={getReferenceDesignUrl({ chipName, name })}
