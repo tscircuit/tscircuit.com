@@ -96,7 +96,7 @@ export default function DesktopPage() {
           </h2>
           <p className="mt-2 text-sm leading-6 text-gray-600">
             {hasBuildForVisitor
-              ? "For Macs with Apple silicon. Signed by tscircuit and notarized by Apple."
+              ? "For Macs with Apple silicon."
               : "tscircuit Desktop is built for Macs with Apple silicon so far. The macOS download is below if you have one."}
           </p>
           <div className="mt-4 flex flex-col flex-wrap gap-3 sm:flex-row">
