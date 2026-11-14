@@ -32,7 +32,7 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
@@ -66,6 +66,7 @@ export default function EditorNav({
   onTogglePreview,
   previewOpen,
   onSave,
+  localAutosave,
   onDiscard,
   packageType,
   isSaving,
@@ -86,6 +87,7 @@ export default function EditorNav({
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
+  localAutosave?: ReactNode
   onSave: () => void
   onDiscard?: () => void
   files?: { path: string; content: string }[]
@@ -444,6 +446,7 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
+          {localAutosave}
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
