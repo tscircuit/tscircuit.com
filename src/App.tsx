@@ -94,6 +94,7 @@ const ProfessionalSupportPage = lazyImport(
 )
 const VerifiedChipsPage = lazyImport(() => import("@/pages/verified-chips"))
 const EnterprisePage = lazyImport(() => import("@/pages/enterprise"))
+const DesktopPage = lazyImport(() => import("@/pages/desktop"))
 const PackageEditorPage = lazyImport(async () => {
   const [editorModule] = await Promise.all([
     import("@/pages/package-editor"),
@@ -299,6 +300,7 @@ function App() {
             />
             <Route path="/verified-chips" component={VerifiedChipsPage} />
             <Route path="/enterprise" component={EnterprisePage} />
+            <Route path="/desktop" component={DesktopPage} />
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/orders/success" component={OrderSuccessPage} />

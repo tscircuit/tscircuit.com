@@ -1,6 +1,12 @@
 import "./header.css"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { Building2, ChevronDown, FileText, SquarePen } from "lucide-react"
+import {
+  Building2,
+  ChevronDown,
+  FileText,
+  Monitor,
+  SquarePen,
+} from "lucide-react"
 import { Link } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
@@ -41,6 +47,7 @@ const productLinks = [
     Icon: GitHubLogoIcon,
   },
   { label: "Datasheets", href: "/datasheets", Icon: FileText },
+  { label: "tscircuit Desktop", href: "/desktop", Icon: Monitor },
   { label: "tscircuit Enterprise", href: "/enterprise", Icon: Building2 },
 ]
 

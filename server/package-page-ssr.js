@@ -10,6 +10,7 @@ const RESERVED_TOP_LEVEL_ROUTES = new Set([
   "cli-login",
   "dashboard",
   "datasheets",
+  "desktop",
   "dev-login",
   "editor",
   "enterprise",
