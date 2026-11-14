@@ -204,11 +204,11 @@ export default function PackageSettingsPage() {
     referenceDesignChipsKey,
     async () => {
       const { data } = await axios.get<{
-        reference_design_chip_names: string[]
+        datasheet_references: { chip_name: string }[]
       }>("/packages/list_datasheet_references", {
         params: { package_id: packageInfo?.package_id },
       })
-      return data.reference_design_chip_names
+      return data.datasheet_references.map(({ chip_name }) => chip_name)
     },
     {
       enabled: Boolean(canManagePackage && session && packageInfo?.package_id),
@@ -416,7 +416,9 @@ export default function PackageSettingsPage() {
       if (fieldName === "referenceDesignChips") {
         await axios.post("/packages/update_datasheet_references", {
           package_id: packageInfo.package_id,
-          reference_design_chip_names: formData.referenceDesignChips,
+          datasheet_references: formData.referenceDesignChips.map(
+            (chip_name) => ({ chip_name }),
+          ),
         })
       } else if (Object.keys(updatePayload).length > 1) {
         const response = await axios.post("/packages/update", updatePayload)

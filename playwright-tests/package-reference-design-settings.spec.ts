@@ -52,7 +52,11 @@ test("searches for multiple reference chips and saves additions and removals", a
       response.request().method() === "POST",
   )
   await save.click()
-  expect(await (await saved).json()).toEqual({ ok: true })
+  const saveResponse = await saved
+  expect(saveResponse.request().postDataJSON()).toMatchObject({
+    datasheet_references: chips.map((chip_name) => ({ chip_name })),
+  })
+  expect(await saveResponse.json()).toEqual({ ok: true })
   await expect(save).toBeDisabled()
   await expect(page.getByText("Setting updated successfully.")).toBeVisible()
 

@@ -6,7 +6,7 @@ export default withRouteSpec({
   auth: "session",
   queryParams: z.object({ package_id: z.string() }),
   jsonResponse: z.object({
-    reference_design_chip_names: z.array(z.string()),
+    datasheet_references: z.array(z.object({ chip_name: z.string() })),
   }),
 })(async (req, ctx) => {
   const pkg = ctx.db.getPackageById(req.query.package_id)
@@ -27,6 +27,8 @@ export default withRouteSpec({
     })
   }
   return ctx.json({
-    reference_design_chip_names: pkg.reference_design_chip_names ?? [],
+    datasheet_references: (pkg.reference_design_chip_names ?? []).map(
+      (chip_name) => ({ chip_name }),
+    ),
   })
 })

@@ -6,13 +6,13 @@ export default withRouteSpec({
   auth: "session",
   jsonBody: z.object({
     package_id: z.string(),
-    reference_design_chip_names: z
-      .array(z.string().trim().min(1).max(255))
+    datasheet_references: z
+      .array(z.object({ chip_name: z.string().trim().min(1).max(255) }))
       .max(50),
   }),
   jsonResponse: z.object({ ok: z.literal(true) }),
 })(async (req, ctx) => {
-  const { package_id, reference_design_chip_names } = req.jsonBody
+  const { package_id, datasheet_references } = req.jsonBody
   const pkg = ctx.db.getPackageById(package_id)
   if (
     !pkg ||
@@ -32,7 +32,7 @@ export default withRouteSpec({
   }
   ctx.db.updatePackage(package_id, {
     reference_design_chip_names: [
-      ...new Set(reference_design_chip_names),
+      ...new Set(datasheet_references.map(({ chip_name }) => chip_name)),
     ].sort(),
     updated_at: new Date().toISOString(),
   })
