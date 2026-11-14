@@ -85,7 +85,7 @@
     "@resvg/resvg-wasm": "^2.6.2",
     "@sentry/react": "^10.10.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@tscircuit/3d-viewer": "^0.0.649",
+    "@tscircuit/3d-viewer": "^0.0.650",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/checks": "^0.0.192",
     "@tscircuit/circuit-json-util": "^0.0.116",
@@ -209,5 +209,8 @@
   },
   "overrides": {
     "altiumts": "0.0.59"
+  },
+  "patchedDependencies": {
+    "@tscircuit/3d-viewer@0.0.650": "patches/@tscircuit%2F3d-viewer@0.0.650.patch"
   }
 }

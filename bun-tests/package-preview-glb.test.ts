@@ -2,6 +2,7 @@ import { afterEach, expect, spyOn, test } from "bun:test"
 import {
   downloadPackagePreviewGlb,
   findPackagePreviewGlb,
+  hasAssemblyExplosion,
 } from "@/lib/package-preview-glb"
 
 const file = (file_path: string, package_file_id = file_path) => ({
@@ -105,4 +106,13 @@ test("a selected circuit output never falls back to the main board assembly", ()
   expect(
     findPackagePreviewGlb([root, selected], "dist/examples/led/circuit.json"),
   ).toBe(selected)
+})
+
+test("detects authored explosions for on-demand playback", () => {
+  expect(hasAssemblyExplosion([{ type: "cad_explosion_stage" }])).toBe(true)
+  expect(hasAssemblyExplosion([{ type: "cad_explosion_move" }])).toBe(true)
+  expect(hasAssemblyExplosion([{ type: "cad_component" }])).toBe(false)
+  expect(hasAssemblyExplosion([])).toBe(false)
+  expect(hasAssemblyExplosion(null)).toBe(false)
+  expect(hasAssemblyExplosion(undefined)).toBe(false)
 })

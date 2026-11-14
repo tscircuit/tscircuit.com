@@ -1,0 +1,40 @@
+name: Update 3D Viewer
+
+on:
+  schedule:
+    - cron: '23 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: update-3d-viewer
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+      - uses: oven-sh/setup-bun@v2
+      # Reconcile with npm independently of the viewer -> RunFrame release chain.
+      # An immediate post-publish update can still resolve the previous version.
+      - run: bun update --latest @tscircuit/3d-viewer
+      - uses: peter-evans/create-pull-request@v5
+        id: create-pr
+        with:
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+          branch: update-3d-viewer
+          base: main
+          delete-branch: true
+          commit-message: 'fix(deps): update 3D viewer'
+          title: 'fix(deps): update 3D viewer'
+          body: 'Update the package-page 3D viewer and lockfile to the latest published version, independently of RunFrame.'
+          committer: tscircuitbot <githubbot@tscircuit.com>
+          author: tscircuitbot <githubbot@tscircuit.com>
+      - name: Enable auto-merge with CI checks
+        if: steps.create-pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
+        run: gh pr merge "$PR_NUMBER" --auto --squash --delete-branch

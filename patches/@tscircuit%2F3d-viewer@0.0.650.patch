@@ -1,0 +1,50 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 1c6e747b72bb144cb7f5a8d0cfc025d34a5e3025..bb9400622b80a7e55b9f8dfb1cb7e729cdb4ddcb 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -81,6 +81,8 @@ type CadViewerProps = Omit<React.ComponentProps<typeof CadViewerJscad>, "circuit
+     glbUrl?: string;
+     /** In-memory alternative to glbUrl. Supply only one GLB source. */
+     glbData?: ArrayBuffer;
++    onRequestExplosionView?: () => void;
++    defaultExplosionViewOpen?: boolean;
+     foldPcbs?: boolean;
+     /** Enable right-click navigation using the same identity as the PCB viewer. */
+     onViewSchematicComponent?: (event: ViewSchematicComponentEvent) => void;
+diff --git a/dist/index.js b/dist/index.js
+index 8241d21c4fcdca3603d4466dfa4db4a3a3e24b14..d2c909b2f5b03db8aa540cee3c7b3126df2965df 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -11594,7 +11594,7 @@ var CadViewerInner = (props) => {
+     glbSource === void 0 ? props.assemblyExplosionRotations : void 0
+   );
+   const circuitJson = props.circuitJson ?? explosion.assembled;
+-  const [explosionPanelSource, setExplosionPanelSource] = useState31(null);
++  const [explosionPanelSource, setExplosionPanelSource] = useState31(() => props.defaultExplosionViewOpen ? circuitJson : null);
+   const explosionPanelOpen = explosionPanelSource === circuitJson;
+   const hasAssembly = circuitJson.some(
+     (element) => element.type === "cad_component" && !element.pcb_component_id
+@@ -11625,6 +11625,7 @@ var CadViewerInner = (props) => {
+   const containerRef = useRef22(null);
+   const [isKeyboardShortcutsDialogOpen, setIsKeyboardShortcutsDialogOpen] = useState31(false);
+   const [autoRotate, setAutoRotate] = useState31(() => {
++    if (props.defaultExplosionViewOpen) return false;
+     const stored = window.localStorage.getItem("cadViewerAutoRotate");
+     return stored !== "false";
+   });
+@@ -11877,8 +11878,14 @@ var CadViewerInner = (props) => {
+               props.onViewSchematicComponent?.(selectedComponent);
+               closeMenu();
+             } : void 0,
+-            explosionAvailable: explosion.stages.length > 0 || !!explosion.error,
++            explosionAvailable: (glbSource !== void 0 && !!props.onRequestExplosionView) || explosion.stages.length > 0 || !!explosion.error,
+             onExplosionView: () => {
++              if (glbSource !== void 0 && props.onRequestExplosionView) {
++                setAutoRotate(false);
++                closeMenu();
++                props.onRequestExplosionView();
++                return;
++              }
+               setExplosionPanelSource(circuitJson);
+               setAutoRotate(false);
+               closeMenu();

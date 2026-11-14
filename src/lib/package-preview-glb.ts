@@ -1,3 +1,16 @@
+/** Whether the GLB menu can offer on-demand Circuit JSON explosion playback. */
+export function hasAssemblyExplosion(
+  circuitJson: readonly { type: string }[] | null | undefined,
+): boolean {
+  return Boolean(
+    circuitJson?.some(
+      (element) =>
+        element.type === "cad_explosion_stage" ||
+        element.type === "cad_explosion_move",
+    ),
+  )
+}
+
 type PreviewFile = { file_path: string; package_file_id: string }
 
 const normalizePath = (path: string) =>

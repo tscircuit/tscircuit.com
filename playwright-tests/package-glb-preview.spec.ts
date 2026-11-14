@@ -8,7 +8,12 @@ const glb = readFileSync(
 
 async function openPreview(
   page: Page,
-  options: { status?: number; version?: string; hasGlb?: boolean } = {},
+  options: {
+    status?: number
+    version?: string
+    hasGlb?: boolean
+    explosion?: boolean
+  } = {},
 ) {
   const modelRequests: string[] = []
   const glbRequests: string[] = []
@@ -22,15 +27,51 @@ async function openPreview(
         preview_circuit_json_response: {
           circuit_json_found: true,
           component_path: "index.tsx",
-          circuit_json: exampleCircuitJson.map((element) =>
-            element.type === "cad_component"
-              ? {
-                  ...element,
-                  model_obj_url: "./imports/component.obj",
-                  model_jscad: { type: "cuboid", size: [2, 2, 1] },
-                }
-              : element,
-          ),
+          circuit_json: [
+            ...exampleCircuitJson.map((element) =>
+              element.type === "cad_component"
+                ? {
+                    ...element,
+                    pcb_component_id: options.explosion
+                      ? undefined
+                      : element.pcb_component_id,
+                    model_obj_url: "./imports/component.obj",
+                    model_jscad: { type: "cuboid", size: [2, 2, 1] },
+                  }
+                : element,
+            ),
+            ...(options.explosion
+              ? [
+                  {
+                    type: "cad_explosion_stage",
+                    cad_explosion_stage_id: "lift",
+                    name: "assembly.lift",
+                    order: 0,
+                    cad_component_ids: [
+                      exampleCircuitJson.find(
+                        (e) => e.type === "cad_component",
+                      )!.cad_component_id,
+                    ],
+                    cad_reference_surface_ids: [],
+                  },
+                  {
+                    type: "cad_explosion_move",
+                    cad_explosion_move_id: "move",
+                    cad_explosion_stage_id: "lift",
+                    order: 0,
+                    targets: [
+                      {
+                        type: "cad_component",
+                        cad_component_id: exampleCircuitJson.find(
+                          (e) => e.type === "cad_component",
+                        )!.cad_component_id,
+                      },
+                    ],
+                    translation: { x: 0, y: 0, z: 10 },
+                  },
+                ]
+              : []),
+          ],
         },
       },
     }),
@@ -106,3 +147,29 @@ for (const scenario of ["missing", "failed"] as const) {
     expect(requests.modelRequests.length).toBeGreaterThan(0)
   })
 }
+
+test("explosion designs keep the GLB until requested and then open explosion controls", async ({
+  page,
+}) => {
+  const requests = await openPreview(page, { explosion: true })
+  expect(requests.glbRequests).toHaveLength(1)
+  expect(requests.modelRequests).toEqual([])
+  const canvas = page.locator("canvas:visible").last()
+  const bounds = await canvas.boundingBox()
+  if (!bounds) throw new Error("Missing canvas")
+  await canvas.click({
+    button: "right",
+    position: { x: bounds.width / 2, y: bounds.height / 2 },
+  })
+  await page.getByRole("menuitem", { name: "Advanced" }).hover()
+  const exploded = page.getByRole("menuitem", { name: "Exploded view" })
+  await expect(exploded).toBeEnabled()
+  await exploded.click()
+  const slider = page.getByRole("slider", { name: "Assembly explosion" })
+  await expect(slider).toBeVisible()
+  expect(requests.modelRequests.length).toBeGreaterThan(0)
+  await slider.focus()
+  await slider.press("End")
+  await expect(slider).toHaveValue("1")
+  await expect(page.getByRole("alert")).toHaveCount(0)
+})
