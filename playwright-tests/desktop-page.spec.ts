@@ -54,7 +54,7 @@ test.describe("on a Mac", () => {
     await expect(
       page.getByRole("link", { name: "macOS Apple silicon (.dmg)" }),
     ).toHaveAttribute("href", downloadUrl("0.1.7", "dmg"))
-    await expect(page.getByText(/Open Anyway/)).toBeVisible()
+    await expect(page.getByText(/notarized by Apple/)).toBeVisible()
     await page.getByText("Other download formats").click()
     await expect(
       page.getByRole("link", { name: "macOS Apple silicon (.zip)" }),
