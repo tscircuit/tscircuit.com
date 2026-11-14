@@ -17,6 +17,10 @@ export default withRouteSpec({
         .transform((name) => name.replace(/^@/, ""))
         .optional(),
       description: z.string().optional(),
+      reference_design_chip_names: z
+        .array(z.string().trim().min(1).max(255))
+        .max(50)
+        .optional(),
       website: z.string().optional(),
       github_repo_full_name: z.string().nullable().optional(),
       is_private: z.boolean().optional(),
@@ -38,6 +42,7 @@ export default withRouteSpec({
     package_id,
     name,
     description,
+    reference_design_chip_names,
     website,
     is_private,
     is_unlisted,
@@ -94,6 +99,9 @@ export default withRouteSpec({
   const updatedPackage = ctx.db.updatePackage(package_id, {
     name: name ? `${ctx.auth.github_username}/${name}` : existingPackage.name,
     description: description ?? existingPackage.description,
+    reference_design_chip_names:
+      reference_design_chip_names ??
+      existingPackage.reference_design_chip_names,
     unscoped_name: name ?? existingPackage.unscoped_name,
     website: website ?? existingPackage.website,
     github_repo_full_name:

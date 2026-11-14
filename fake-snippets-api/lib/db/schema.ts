@@ -448,6 +448,7 @@ export const packageSchema = z.object({
   name: z.string(),
   unscoped_name: z.string(),
   description: z.string().nullable(),
+  reference_design_chip_names: z.array(z.string()).optional(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   is_snippet: z.boolean().default(false),

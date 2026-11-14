@@ -49,6 +49,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PackageDomainsList } from "@/components/package-settings/PackageDomainsList"
+import { ReferenceDesignChipPicker } from "@/components/package-settings/ReferenceDesignChipPicker"
 import { PackageRenderImages } from "@/components/package-settings/PackageRenderImages"
 import { useSettingsSection } from "@/hooks/use-settings-section"
 
@@ -205,6 +206,7 @@ export default function PackageSettingsPage() {
     githubRepoFullName: null as string | null,
     allowPrPreviews: false,
     publicDistEnabled: false,
+    referenceDesignChips: [] as string[],
   })
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -244,6 +246,9 @@ export default function PackageSettingsPage() {
       githubRepoFullName: packageInfo.github_repo_full_name || null,
       allowPrPreviews: packageInfo.allow_pr_previews ?? false,
       publicDistEnabled: packageInfo.public_dist_enabled ?? false,
+      referenceDesignChips: [
+        ...(packageInfo.reference_design_chip_names ?? []),
+      ].sort(),
     }
   }, [packageInfo, packageRelease, currentLicense])
 
@@ -309,7 +314,12 @@ export default function PackageSettingsPage() {
   })
 
   const saveField = async (fieldName: string) => {
-    if (!isFormValid || !packageInfo) return
+    if (
+      (!isFormValid && fieldName !== "referenceDesignChips") ||
+      !packageInfo ||
+      savingField
+    )
+      return
     setSavingField(fieldName)
 
     try {
@@ -369,6 +379,9 @@ export default function PackageSettingsPage() {
         updatePayload.default_view = formData.defaultView
       if (fieldName === "publicDistEnabled")
         updatePayload.public_dist_enabled = formData.publicDistEnabled
+      if (fieldName === "referenceDesignChips")
+        updatePayload.reference_design_chip_names =
+          formData.referenceDesignChips
       if (fieldName === "github") {
         updatePayload.github_repo_full_name =
           formData.githubRepoFullName === "unlink//repo"
@@ -379,10 +392,19 @@ export default function PackageSettingsPage() {
       if (Object.keys(updatePayload).length > 1) {
         const response = await axios.post("/packages/update", updatePayload)
         if (response.status !== 200) throw new Error("Failed to update")
+        if (
+          fieldName === "referenceDesignChips" &&
+          !Array.isArray(response.data?.package?.reference_design_chip_names)
+        ) {
+          throw new Error(
+            "The registry does not support saving reference design chips yet.",
+          )
+        }
       }
 
       const invalidations: Promise<void>[] = [
         qc.invalidateQueries(["package", packageSlug]),
+        qc.invalidateQueries(["package", packageInfo.package_id]),
       ]
       if (fieldName === "license") {
         const releaseId = packageInfo.latest_package_release_id
@@ -397,6 +419,9 @@ export default function PackageSettingsPage() {
             ]),
           )
         }
+      }
+      if (fieldName === "referenceDesignChips" || fieldName === "visibility") {
+        invalidations.push(qc.invalidateQueries(["datasheetReferenceDesigns"]))
       }
       await Promise.all(invalidations)
       toast({ title: "Saved", description: "Setting updated successfully." })
@@ -474,6 +499,11 @@ export default function PackageSettingsPage() {
     formData.unscopedPackageName !== initialFormData.unscopedPackageName
   const hasDescriptionChanged =
     initialFormData && formData.description !== initialFormData.description
+  const canSaveReferenceDesignChips =
+    initialFormData &&
+    !savingField &&
+    JSON.stringify(formData.referenceDesignChips) !==
+      JSON.stringify(initialFormData.referenceDesignChips)
   const hasWebsiteChanged =
     initialFormData && formData.website !== initialFormData.website
   const hasVisibilityChanged =
@@ -676,6 +706,37 @@ export default function PackageSettingsPage() {
                       {websiteError}
                     </p>
                   )}
+                </SettingCard>
+
+                <SettingCard
+                  title="Reference design chips"
+                  description="Choose the chips this package is a reference design for. Public, listed packages appear on the selected datasheets after a successful build."
+                  onSave={() => saveField("referenceDesignChips")}
+                  saveDisabled={!canSaveReferenceDesignChips}
+                  footer={
+                    <Button
+                      size="sm"
+                      onClick={() => saveField("referenceDesignChips")}
+                      disabled={!canSaveReferenceDesignChips}
+                      aria-label="Save reference design chips"
+                    >
+                      {savingField === "referenceDesignChips" && (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      )}
+                      Save
+                    </Button>
+                  }
+                >
+                  <ReferenceDesignChipPicker
+                    value={formData.referenceDesignChips}
+                    onChange={(chips) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        referenceDesignChips: chips,
+                      }))
+                    }
+                    disabled={!initialFormData || Boolean(savingField)}
+                  />
                 </SettingCard>
 
                 <SettingCard
