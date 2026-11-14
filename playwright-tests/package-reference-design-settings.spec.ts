@@ -45,7 +45,14 @@ test("searches for multiple reference chips and saves additions and removals", a
   await search.fill("rp2040")
   await page.getByRole("option", { name: chips[1] }).click()
   await search.press("Escape")
+  const saved = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname ===
+        "/api/packages/update_datasheet_references" &&
+      response.request().method() === "POST",
+  )
   await save.click()
+  expect(await (await saved).json()).toEqual({ ok: true })
   await expect(save).toBeDisabled()
   await expect(page.getByText("Setting updated successfully.")).toBeVisible()
 

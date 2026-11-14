@@ -406,9 +406,6 @@ export default function PackageSettingsPage() {
         updatePayload.default_view = formData.defaultView
       if (fieldName === "publicDistEnabled")
         updatePayload.public_dist_enabled = formData.publicDistEnabled
-      if (fieldName === "referenceDesignChips")
-        updatePayload.reference_design_chip_names =
-          formData.referenceDesignChips
       if (fieldName === "github") {
         updatePayload.github_repo_full_name =
           formData.githubRepoFullName === "unlink//repo"
@@ -416,18 +413,14 @@ export default function PackageSettingsPage() {
             : formData.githubRepoFullName
       }
 
-      if (Object.keys(updatePayload).length > 1) {
+      if (fieldName === "referenceDesignChips") {
+        await axios.post("/packages/update_datasheet_references", {
+          package_id: packageInfo.package_id,
+          reference_design_chip_names: formData.referenceDesignChips,
+        })
+      } else if (Object.keys(updatePayload).length > 1) {
         const response = await axios.post("/packages/update", updatePayload)
         if (response.status !== 200) throw new Error("Failed to update")
-        if (fieldName === "referenceDesignChips") {
-          const savedChips = response.data?.reference_design_chip_names
-          if (!Array.isArray(savedChips)) {
-            throw new Error(
-              "The registry does not support saving reference design chips yet.",
-            )
-          }
-          qc.setQueryData(referenceDesignChipsKey, savedChips)
-        }
       }
 
       const invalidations: Promise<void>[] = [
@@ -450,6 +443,9 @@ export default function PackageSettingsPage() {
       }
       if (fieldName === "referenceDesignChips" || fieldName === "visibility") {
         invalidations.push(qc.invalidateQueries(["datasheetReferenceDesigns"]))
+      }
+      if (fieldName === "referenceDesignChips") {
+        invalidations.push(qc.invalidateQueries(referenceDesignChipsKey))
       }
       await Promise.all(invalidations)
       toast({ title: "Saved", description: "Setting updated successfully." })
