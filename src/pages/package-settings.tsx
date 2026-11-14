@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useLocation, Redirect, Link } from "wouter"
 import { Helmet } from "react-helmet-async"
-import { useMutation, useQueryClient } from "react-query"
+import { useMutation, useQuery, useQueryClient } from "react-query"
 import { normalizeName } from "@/lib/utils/normalizeName"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -195,6 +195,27 @@ export default function PackageSettingsPage() {
   })
 
   const canManagePackage = isOwner || Boolean(orgMember)
+  const referenceDesignChipsKey = [
+    "packageDatasheetReferences",
+    packageInfo?.package_id,
+    session?.account_id,
+  ]
+  const referenceDesignChips = useQuery(
+    referenceDesignChipsKey,
+    async () => {
+      const { data } = await axios.get<{
+        reference_design_chip_names: string[]
+      }>("/packages/list_datasheet_references", {
+        params: { package_id: packageInfo?.package_id },
+      })
+      return data.reference_design_chip_names
+    },
+    {
+      enabled: Boolean(canManagePackage && session && packageInfo?.package_id),
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  )
 
   const [formData, setFormData] = useState({
     unscopedPackageName: "",
@@ -246,17 +267,21 @@ export default function PackageSettingsPage() {
       githubRepoFullName: packageInfo.github_repo_full_name || null,
       allowPrPreviews: packageInfo.allow_pr_previews ?? false,
       publicDistEnabled: packageInfo.public_dist_enabled ?? false,
-      referenceDesignChips: [
-        ...(packageInfo.reference_design_chip_names ?? []),
-      ].sort(),
     }
   }, [packageInfo, packageRelease, currentLicense])
 
   useEffect(() => {
     if (initialFormData) {
-      setFormData(initialFormData)
+      setFormData((prev) => ({ ...prev, ...initialFormData }))
     }
   }, [initialFormData])
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      referenceDesignChips: referenceDesignChips.data ?? [],
+    }))
+  }, [referenceDesignChips.data])
 
   useEffect(() => {
     if (formData.website && formData.website.trim()) {
@@ -315,7 +340,9 @@ export default function PackageSettingsPage() {
 
   const saveField = async (fieldName: string) => {
     if (
-      (!isFormValid && fieldName !== "referenceDesignChips") ||
+      (fieldName === "referenceDesignChips"
+        ? !referenceDesignChips.isSuccess
+        : !isFormValid) ||
       !packageInfo ||
       savingField
     )
@@ -392,13 +419,14 @@ export default function PackageSettingsPage() {
       if (Object.keys(updatePayload).length > 1) {
         const response = await axios.post("/packages/update", updatePayload)
         if (response.status !== 200) throw new Error("Failed to update")
-        if (
-          fieldName === "referenceDesignChips" &&
-          !Array.isArray(response.data?.package?.reference_design_chip_names)
-        ) {
-          throw new Error(
-            "The registry does not support saving reference design chips yet.",
-          )
+        if (fieldName === "referenceDesignChips") {
+          const savedChips = response.data?.reference_design_chip_names
+          if (!Array.isArray(savedChips)) {
+            throw new Error(
+              "The registry does not support saving reference design chips yet.",
+            )
+          }
+          qc.setQueryData(referenceDesignChipsKey, savedChips)
         }
       }
 
@@ -500,10 +528,10 @@ export default function PackageSettingsPage() {
   const hasDescriptionChanged =
     initialFormData && formData.description !== initialFormData.description
   const canSaveReferenceDesignChips =
-    initialFormData &&
+    referenceDesignChips.isSuccess &&
     !savingField &&
     JSON.stringify(formData.referenceDesignChips) !==
-      JSON.stringify(initialFormData.referenceDesignChips)
+      JSON.stringify(referenceDesignChips.data)
   const hasWebsiteChanged =
     initialFormData && formData.website !== initialFormData.website
   const hasVisibilityChanged =
@@ -727,16 +755,35 @@ export default function PackageSettingsPage() {
                     </Button>
                   }
                 >
-                  <ReferenceDesignChipPicker
-                    value={formData.referenceDesignChips}
-                    onChange={(chips) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        referenceDesignChips: chips,
-                      }))
-                    }
-                    disabled={!initialFormData || Boolean(savingField)}
-                  />
+                  {referenceDesignChips.isError ? (
+                    <div
+                      role="alert"
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <p>Unable to load reference design chips.</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => referenceDesignChips.refetch()}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  ) : (
+                    <ReferenceDesignChipPicker
+                      value={formData.referenceDesignChips}
+                      onChange={(chips) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          referenceDesignChips: chips,
+                        }))
+                      }
+                      disabled={
+                        !referenceDesignChips.isSuccess || Boolean(savingField)
+                      }
+                    />
+                  )}
                 </SettingCard>
 
                 <SettingCard
