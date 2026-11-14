@@ -55,10 +55,39 @@ export default function DesktopPage() {
     )
     return asset ? [{ ...download, url: asset.browser_download_url }] : []
   })
-  const [primaryDownload, ...otherDownloads] = downloads
-  // Only a macOS build exists so far. Say so to everyone else instead of
-  // offering them an installer they cannot run.
-  const hasBuildForVisitor = !operatingSystem || operatingSystem === "macOS"
+  // One installer per operating system, the visitor's own first.
+  const installers = downloads
+    .filter(
+      (download, index) =>
+        downloads.findIndex((other) => other.os === download.os) === index,
+    )
+    .sort(
+      (a, b) =>
+        Number(b.os === operatingSystem) - Number(a.os === operatingSystem),
+    )
+  const otherFormats = downloads.filter(
+    (download) => !installers.includes(download),
+  )
+  const visitorInstaller = installers.find(
+    (download) => download.os === operatingSystem,
+  )
+
+  // Until the latest release has loaded (or if GitHub refuses the lookup)
+  // there is nothing to say about which systems have a build.
+  let heading = "Download tscircuit Desktop"
+  let note = "Installers for each release are on GitHub."
+  if (visitorInstaller) {
+    heading = `Download for ${operatingSystem}`
+    note = visitorInstaller.requirement
+  } else if (installers.length > 0 && operatingSystem) {
+    heading = `Not available for ${operatingSystem} yet`
+    note = `tscircuit Desktop is built for ${installers
+      .map((download) => download.os)
+      .join(" and ")} so far. Those downloads are below.`
+  } else if (installers.length > 0) {
+    heading = "Choose your download"
+    note = "Pick the installer for your computer."
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -90,34 +119,38 @@ export default function DesktopPage() {
             your own project folders.
           </p>
           <h2 className="mt-8 text-lg font-semibold text-gray-900">
-            {hasBuildForVisitor
-              ? "Download for macOS"
-              : `Not available for ${operatingSystem} yet`}
+            {heading}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
-            {hasBuildForVisitor
-              ? "For Macs with Apple silicon."
-              : "tscircuit Desktop is built for Macs with Apple silicon so far. The macOS download is below if you have one."}
-          </p>
+          <p className="mt-2 text-sm leading-6 text-gray-600">{note}</p>
           <div className="mt-4 flex flex-col flex-wrap gap-3 sm:flex-row">
-            <Button
-              asChild
-              className={
-                hasBuildForVisitor ? "bg-blue-600 hover:bg-blue-700" : undefined
-              }
-              variant={hasBuildForVisitor ? "default" : "outline"}
-            >
-              <a
-                href={
-                  primaryDownload?.url ??
-                  latestRelease?.html_url ??
-                  desktopAppReleasesUrl
-                }
-              >
-                <Download className="mr-2 h-4 w-4" aria-hidden="true" />
-                {primaryDownload?.label ?? "Browse downloads on GitHub"}
-              </a>
-            </Button>
+            {installers.map((download) => {
+              const recommended = visitorInstaller
+                ? download === visitorInstaller
+                : !operatingSystem
+              return (
+                <Button
+                  key={download.assetNameEnding}
+                  asChild
+                  className={
+                    recommended ? "bg-blue-600 hover:bg-blue-700" : undefined
+                  }
+                  variant={recommended ? "default" : "outline"}
+                >
+                  <a href={download.url}>
+                    <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                    {download.label}
+                  </a>
+                </Button>
+              )
+            })}
+            {installers.length === 0 && (
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <a href={latestRelease?.html_url ?? desktopAppReleasesUrl}>
+                  <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Browse downloads on GitHub
+                </a>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <a href={desktopAppReleasesUrl}>
                 <GitHubLogoIcon className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -125,13 +158,13 @@ export default function DesktopPage() {
               </a>
             </Button>
           </div>
-          {otherDownloads.length > 0 && (
+          {otherFormats.length > 0 && (
             <details className="mt-4">
               <summary className="cursor-pointer text-sm font-medium text-blue-600">
                 Other download formats
               </summary>
               <ul className="mt-3 space-y-2 text-sm">
-                {otherDownloads.map((download) => (
+                {otherFormats.map((download) => (
                   <li key={download.assetNameEnding}>
                     <a className="text-blue-600 underline" href={download.url}>
                       {download.label}
