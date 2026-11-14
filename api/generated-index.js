@@ -205,6 +205,21 @@ export async function handleUserProfile(req, res) {
   res.status(200).send(html)
 }
 
+function handleDesktopPage(req, res) {
+  const html = getHtmlWithModifiedSeoTags({
+    title: "tscircuit Desktop — Design electronics with AI agents",
+    description:
+      "A desktop app for designing electronics with AI agents. Your agent writes the board in tscircuit while the PCB, schematic and 3D views update beside the conversation.",
+    canonicalUrl: `${BASE_URL}/desktop`,
+    imageUrl: `${BASE_URL}/tscircuit-logo.png`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 function handleEnterprisePage(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title: "tscircuit Enterprise — Offline circuit design",
@@ -1165,6 +1180,10 @@ export default async function handler(req, res) {
   }
   if (urlPath === "/enterprise" || urlPath === "/enterprise/") {
     handleEnterprisePage(req, res)
+    return
+  }
+  if (urlPath === "/desktop" || urlPath === "/desktop/") {
+    handleDesktopPage(req, res)
     return
   }
   if (urlPath === "/datasheets" || urlPath === "/datasheets/") {

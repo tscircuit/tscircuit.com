@@ -11,6 +11,7 @@ const staticRoutes = [
   { url: "/professional-support", changefreq: "monthly", priority: 0.8 },
   { url: "/verified-chips", changefreq: "monthly", priority: 0.8 },
   { url: "/enterprise", changefreq: "daily", priority: 0.8 },
+  { url: "/desktop", changefreq: "weekly", priority: 0.8 },
   { url: "/dashboard", changefreq: "weekly", priority: 0.7 },
   { url: "/latest", changefreq: "daily", priority: 0.8 },
   { url: "/search", changefreq: "weekly", priority: 0.7 },
