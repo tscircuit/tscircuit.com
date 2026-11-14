@@ -146,7 +146,7 @@ export default function DesktopPage() {
         <figure className="mt-12">
           <OptimizedImage
             src="/assets/desktop_app_pcb_view.webp"
-            alt="tscircuit Desktop with the rp2040-motor-controller project open: a new thread with the agent beside the PCB view of the board"
+            alt="tscircuit Desktop in dark mode: a conversation asking the agent to add current sensing, beside the PCB view of the rp2040-motor-controller board"
             width={2400}
             height={1508}
             className="w-full rounded-lg border border-gray-200 shadow-sm"
