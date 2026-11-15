@@ -4,9 +4,24 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
+import { useUpdatePackageReleaseMutation } from "@/hooks/use-update-package-release-mutation"
 import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
 import { useAxios } from "@/hooks/use-axios"
 import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
+
+// Build the import specifier a user types for a package. The package name is
+// "owner/name"; the specifier replaces the first slash with a dot.
+const getImportSpecifier = (packageName: string) =>
+  `@tsci/${packageName.replace("/", ".")}`
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch {
+    // Clipboard access can fail outside a user gesture. The specifier still
+    // shows in the toast, so the user can copy it by hand.
+  }
+}
 
 export const useJlcpcbComponentImport = () => {
   const { toastLibrary } = useToast()
@@ -15,12 +30,20 @@ export const useJlcpcbComponentImport = () => {
   const axios = useAxios()
   const createPackageMutation = useCreatePackageMutation()
   const createReleaseMutation = useCreatePackageReleaseMutation()
+  const updateReleaseMutation = useUpdatePackageReleaseMutation()
   const createFilesMutation = useCreatePackageFilesMutation()
 
   const runImport = useCallback(
     async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
       if (!session) {
         throw new Error("You must be signed in to import from JLCPCB")
+      }
+
+      const owner = session.github_username || session.tscircuit_handle
+      if (!owner) {
+        throw new Error(
+          "Set a tscircuit handle in your settings before you import from JLCPCB.",
+        )
       }
 
       const partNumber = result.component.partNumber || "component"
@@ -36,7 +59,8 @@ export const useJlcpcbComponentImport = () => {
           .replace(/^-+/g, "") || "component"
 
       const componentSlug = normalizePartNumber(partNumber)
-      const packageName = `${session.github_username}/${componentSlug}`
+      const packageName = `${owner}/${componentSlug}`
+      const importSpecifier = getImportSpecifier(packageName)
 
       const fetchExistingPackage = async () => {
         try {
@@ -53,9 +77,11 @@ export const useJlcpcbComponentImport = () => {
 
       const existingPackage = await fetchExistingPackage()
       if (existingPackage) {
+        await copyToClipboard(importSpecifier)
         navigate(`/editor?package_id=${existingPackage.package_id}`)
         return {
           partNumber,
+          importSpecifier,
           packageId: existingPackage.package_id,
           existing: true,
         }
@@ -74,9 +100,11 @@ export const useJlcpcbComponentImport = () => {
       } catch (error) {
         const fallbackPackage = await fetchExistingPackage()
         if (fallbackPackage) {
+          await copyToClipboard(importSpecifier)
           navigate(`/editor?package_id=${fallbackPackage.package_id}`)
           return {
             partNumber,
+            importSpecifier,
             packageId: fallbackPackage.package_id,
             existing: true,
           }
@@ -96,9 +124,18 @@ export const useJlcpcbComponentImport = () => {
         package_release_id: release.package_release_id,
       })
 
+      // Mark the release ready to build. Without this the editor opens on a
+      // release with no build and surfaces a raw "no files in dist" error.
+      await updateReleaseMutation.mutateAsync({
+        package_release_id: release.package_release_id,
+        ready_to_build: true,
+      })
+
+      await copyToClipboard(importSpecifier)
       navigate(`/editor?package_id=${newPackage.package_id}`)
       return {
         partNumber,
+        importSpecifier,
         packageId: newPackage.package_id,
         existing: false,
       }
@@ -107,6 +144,7 @@ export const useJlcpcbComponentImport = () => {
       createFilesMutation,
       createPackageMutation,
       createReleaseMutation,
+      updateReleaseMutation,
       axios,
       navigate,
       session,
@@ -119,12 +157,21 @@ export const useJlcpcbComponentImport = () => {
 
       toastLibrary.promise(importPromise, {
         loading: "Importing component...",
-        success: ({ partNumber, existing }) => (
-          <p>
-            {existing
-              ? `Component ${partNumber} already exists. Opening package in the editor.`
-              : `Component ${partNumber} imported successfully. Opening package in the editor.`}
-          </p>
+        success: ({ partNumber, importSpecifier, existing }) => (
+          <div>
+            <p>
+              {existing
+                ? `Component ${partNumber} already exists. Opening package in the editor.`
+                : `Component ${partNumber} imported. The release is building.`}
+            </p>
+            <p>
+              Import it with{" "}
+              <code className="font-mono">
+                import {"{ ... }"} from "{importSpecifier}"
+              </code>{" "}
+              (copied to your clipboard).
+            </p>
+          </div>
         ),
         error: (error) => (
           <p>
