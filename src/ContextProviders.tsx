@@ -5,7 +5,7 @@ import {
   QueryClientProvider,
 } from "react-query"
 import { HelmetProvider } from "react-helmet-async"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
 import { Toaster } from "react-hot-toast"
@@ -21,6 +21,7 @@ type CrispCommand =
   | ["set", "user:nickname", [string]]
   | ["set", "user:avatar", [string]]
   | ["set", "session:data", [Array<[string, CrispSessionDataValue]>]]
+  | ["do", "session:reset"]
 
 declare global {
   interface Window {
@@ -37,25 +38,7 @@ const staffGithubUsernames = [
   ...(import.meta.env.VITE_STAFF_GITHUB_USERNAMES?.split(",") || []),
 ]
 
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error, query) => {
-      trackReactQueryApiFailure(error, {
-        operationType: "query",
-        queryKey: query.queryKey,
-      })
-    },
-  }),
-  mutationCache: new MutationCache({
-    onError: (error, _variables, _context, mutation) => {
-      trackReactQueryApiFailure(error, {
-        operationType: "mutation",
-        mutationKey: mutation.options?.mutationKey,
-      })
-    },
-  }),
-})
-populateQueryCacheWithSSRData(queryClient)
+// Instantiated inside ContextProviders to prevent SSR memory leaks and request pollution
 
 const isInternalGithubUser = (githubUsername?: string | null) => {
   if (!githubUsername) return false
@@ -81,6 +64,15 @@ function PostHogIdentifier() {
       } catch (error) {
         // Error handling silently fails
       }
+    }
+
+    if (!session) {
+      try {
+        posthog.reset()
+      } catch (error) {
+        // Silent catch to prevent analytics blocking from crashing the app
+      }
+      return
     }
 
     if (!posthog.__loaded) {
@@ -163,11 +155,21 @@ function CrispIdentifier() {
   const session = useGlobalStore((s) => s.session)
 
   useEffect(() => {
-    if (!session || typeof window === "undefined") return
+    if (typeof window === "undefined") return
 
     const crisp = (window.$crisp ??= [] as unknown as NonNullable<
       Window["$crisp"]
     >)
+
+    if (!session) {
+      try {
+        crisp.push(["do", "session:reset"])
+      } catch {
+        // Crisp should not affect app behavior.
+      }
+      return
+    }
+
     const { displayName, email, githubUsername, sessionData } =
       getCrispSessionData(session)
 
@@ -209,7 +211,32 @@ const GlobalTscircuitHandleDialog = () => {
   )
 }
 
-export const ContextProviders = ({ children }: any) => {
+export const ContextProviders = ({
+  children,
+}: { children: React.ReactNode }) => {
+  const queryClient = useMemo(() => {
+    const client = new QueryClient({
+      queryCache: new QueryCache({
+        onError: (error, query) => {
+          trackReactQueryApiFailure(error, {
+            operationType: "query",
+            queryKey: query.queryKey,
+          })
+        },
+      }),
+      mutationCache: new MutationCache({
+        onError: (error, _variables, _context, mutation) => {
+          trackReactQueryApiFailure(error, {
+            operationType: "mutation",
+            mutationKey: mutation.options?.mutationKey,
+          })
+        },
+      }),
+    })
+    populateQueryCacheWithSSRData(client)
+    return client
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
