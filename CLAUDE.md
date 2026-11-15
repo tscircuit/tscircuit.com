@@ -27,7 +27,7 @@ tscircuit.com is a React-based web application for creating, sharing, and managi
 - **React SPA** with Vite bundler, using Wouter for routing and lazy-loaded pages
 - **State Management**: Zustand for global state, React Query for server state
 - **UI Framework**: Tailwind CSS with Radix UI components and custom shadcn/ui components
-- **Code Editor**: CodeMirror 6 with TypeScript support and AI completion
+- **Code Editor**: Monaco-based multi-file workspace editor from `@tscircuit/monaco-code-editor`
 
 ### API Architecture
 - **Fake API**: Development API built with Winterspec, providing full backend simulation
