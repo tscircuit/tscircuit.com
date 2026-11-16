@@ -74,7 +74,7 @@ beforeAll(async () => {
   labelSvg = label!
 })
 
-test.failing("clears the wire behind the centered Classic F1 I²C label", () => {
+test("clears the wire behind the centered Classic F1 I²C label", () => {
   expect(labelSvg).toContain('y="18"')
   expect(labelSvg).toContain('paint-order="stroke fill"')
 })
