@@ -1,0 +1,1059 @@
+[
+  {
+    "type": "pcb_board",
+    "pcb_board_id": "pcb_board_0",
+    "source_board_id": "source_board_0",
+    "subcircuit_id": "subcircuit_source_group_0",
+    "center": {
+      "x": 0,
+      "y": -0.3500000000000014
+    },
+    "thickness": 1.6,
+    "num_layers": 2,
+    "width": 68,
+    "height": 83.5,
+    "outline": [
+      {
+        "x": 34,
+        "y": 0
+      },
+      {
+        "x": 34,
+        "y": 1.570297945152096
+      },
+      {
+        "x": 34,
+        "y": 3.137606738915694
+      },
+      {
+        "x": 34,
+        "y": 4.698942919921857
+      },
+      {
+        "x": 34,
+        "y": 6.251334396009492
+      },
+      {
+        "x": 34,
+        "y": 7.791826101771704
+      },
+      {
+        "x": 34,
+        "y": 9.317485623690747
+      },
+      {
+        "x": 34,
+        "y": 10.825408782153833
+      },
+      {
+        "x": 33.828934348292705,
+        "y": 12.312725159724074
+      },
+      {
+        "x": 33.25966317040632,
+        "y": 13.776603565143231
+      },
+      {
+        "x": 32.6270803333194,
+        "y": 15.21425742266518
+      },
+      {
+        "x": 31.93238999441598,
+        "y": 16.62295007646122
+      },
+      {
+        "x": 31.176914536239792,
+        "y": 17.999999999999996
+      },
+      {
+        "x": 30.362092049263886,
+        "y": 19.34278590048566
+      },
+      {
+        "x": 29.489473594403705,
+        "y": 20.648751708637658
+      },
+      {
+        "x": 28.56072025048447,
+        "y": 21.91541144431394
+      },
+      {
+        "x": 27.577599952283208,
+        "y": 23.140353948715415
+      },
+      {
+        "x": 26.54198412516446,
+        "y": 24.32124747416377
+      },
+      {
+        "x": 25.455844122715714,
+        "y": 25.45584412271571
+      },
+      {
+        "x": 24.321247474163773,
+        "y": 26.54198412516446
+      },
+      {
+        "x": 23.14035394871542,
+        "y": 27.577599952283208
+      },
+      {
+        "x": 21.915411444313943,
+        "y": 28.560720250484465
+      },
+      {
+        "x": 20.64875170863766,
+        "y": 29.4894735944037
+      },
+      {
+        "x": 19.34278590048566,
+        "y": 30.362092049263886
+      },
+      {
+        "x": 18.000000000000004,
+        "y": 31.17691453623979
+      },
+      {
+        "x": 16.62295007646122,
+        "y": 31.932389994415978
+      },
+      {
+        "x": 15.21425742266518,
+        "y": 32.6270803333194
+      },
+      {
+        "x": 14.5,
+        "y": 33
+      },
+      {
+        "x": 14.5,
+        "y": 35.5
+      },
+      {
+        "x": 7,
+        "y": 41.4
+      },
+      {
+        "x": -7,
+        "y": 41.4
+      },
+      {
+        "x": -14.5,
+        "y": 35.5
+      },
+      {
+        "x": -14.5,
+        "y": 33
+      },
+      {
+        "x": -15.214257422665176,
+        "y": 32.6270803333194
+      },
+      {
+        "x": -16.62295007646123,
+        "y": 31.932389994415978
+      },
+      {
+        "x": -17.999999999999993,
+        "y": 31.176914536239792
+      },
+      {
+        "x": -19.342785900485648,
+        "y": 30.36209204926389
+      },
+      {
+        "x": -20.64875170863766,
+        "y": 29.4894735944037
+      },
+      {
+        "x": -21.915411444313943,
+        "y": 28.560720250484465
+      },
+      {
+        "x": -23.14035394871542,
+        "y": 27.577599952283208
+      },
+      {
+        "x": -24.32124747416377,
+        "y": 26.54198412516447
+      },
+      {
+        "x": -25.45584412271571,
+        "y": 25.455844122715714
+      },
+      {
+        "x": -26.54198412516446,
+        "y": 24.321247474163773
+      },
+      {
+        "x": -27.577599952283204,
+        "y": 23.140353948715422
+      },
+      {
+        "x": -28.56072025048446,
+        "y": 21.915411444313953
+      },
+      {
+        "x": -29.48947359440371,
+        "y": 20.648751708637654
+      },
+      {
+        "x": -30.36209204926388,
+        "y": 19.34278590048567
+      },
+      {
+        "x": -31.176914536239785,
+        "y": 18.00000000000001
+      },
+      {
+        "x": -31.93238999441598,
+        "y": 16.622950076461223
+      },
+      {
+        "x": -32.6270803333194,
+        "y": 15.214257422665181
+      },
+      {
+        "x": -33.25966317040632,
+        "y": 13.776603565143237
+      },
+      {
+        "x": -33.8289343482927,
+        "y": 12.31272515972408
+      },
+      {
+        "x": -34,
+        "y": 10.82540878215384
+      },
+      {
+        "x": -34,
+        "y": 9.317485623690741
+      },
+      {
+        "x": -34,
+        "y": 7.791826101771715
+      },
+      {
+        "x": -34,
+        "y": 6.25133439600949
+      },
+      {
+        "x": -34,
+        "y": 4.698942919921857
+      },
+      {
+        "x": -34,
+        "y": 3.1376067389156947
+      },
+      {
+        "x": -34,
+        "y": 1.5702979451520984
+      },
+      {
+        "x": -34,
+        "y": 4.385380947269368e-15
+      },
+      {
+        "x": -34,
+        "y": -1.5702979451520898
+      },
+      {
+        "x": -34,
+        "y": -3.137606738915686
+      },
+      {
+        "x": -34,
+        "y": -4.698942919921848
+      },
+      {
+        "x": -34,
+        "y": -6.251334396009481
+      },
+      {
+        "x": -34,
+        "y": -7.791826101771705
+      },
+      {
+        "x": -34,
+        "y": -9.317485623690732
+      },
+      {
+        "x": -34,
+        "y": -10.825408782153831
+      },
+      {
+        "x": -33.828934348292705,
+        "y": -12.31272515972407
+      },
+      {
+        "x": -33.25966317040633,
+        "y": -13.776603565143228
+      },
+      {
+        "x": -32.62708033331941,
+        "y": -15.21425742266516
+      },
+      {
+        "x": -31.932389994415978,
+        "y": -16.62295007646123
+      },
+      {
+        "x": -31.17691453623979,
+        "y": -18.000000000000004
+      },
+      {
+        "x": -30.362092049263882,
+        "y": -19.34278590048566
+      },
+      {
+        "x": -29.489473594403712,
+        "y": -20.64875170863765
+      },
+      {
+        "x": -28.560720250484472,
+        "y": -21.915411444313932
+      },
+      {
+        "x": -27.577599952283222,
+        "y": -23.1403539487154
+      },
+      {
+        "x": -26.54198412516447,
+        "y": -24.321247474163766
+      },
+      {
+        "x": -25.455844122715718,
+        "y": -25.45584412271571
+      },
+      {
+        "x": -24.321247474163773,
+        "y": -26.541984125164458
+      },
+      {
+        "x": -23.140353948715422,
+        "y": -27.577599952283204
+      },
+      {
+        "x": -21.915411444313953,
+        "y": -28.560720250484458
+      },
+      {
+        "x": -20.648751708637647,
+        "y": -29.489473594403716
+      },
+      {
+        "x": -19.342785900485673,
+        "y": -30.36209204926388
+      },
+      {
+        "x": -18.000000000000014,
+        "y": -31.17691453623978
+      },
+      {
+        "x": -16.622950076461237,
+        "y": -31.932389994415974
+      },
+      {
+        "x": -15.214257422665199,
+        "y": -32.62708033331939
+      },
+      {
+        "x": -14,
+        "y": -33
+      },
+      {
+        "x": -14,
+        "y": -35.5
+      },
+      {
+        "x": -5,
+        "y": -41.2
+      },
+      {
+        "x": -3.5,
+        "y": -42.1
+      },
+      {
+        "x": 3.5,
+        "y": -42.1
+      },
+      {
+        "x": 5,
+        "y": -41.2
+      },
+      {
+        "x": 14,
+        "y": -35.5
+      },
+      {
+        "x": 14,
+        "y": -33
+      },
+      {
+        "x": 15.214257422665158,
+        "y": -32.62708033331941
+      },
+      {
+        "x": 16.622950076461198,
+        "y": -31.932389994415992
+      },
+      {
+        "x": 17.999999999999975,
+        "y": -31.176914536239806
+      },
+      {
+        "x": 19.34278590048566,
+        "y": -30.362092049263886
+      },
+      {
+        "x": 20.648751708637658,
+        "y": -29.489473594403705
+      },
+      {
+        "x": 21.91541144431394,
+        "y": -28.560720250484465
+      },
+      {
+        "x": 23.140353948715415,
+        "y": -27.57759995228321
+      },
+      {
+        "x": 24.321247474163766,
+        "y": -26.541984125164472
+      },
+      {
+        "x": 25.455844122715703,
+        "y": -25.455844122715718
+      },
+      {
+        "x": 26.541984125164458,
+        "y": -24.321247474163776
+      },
+      {
+        "x": 27.5775999522832,
+        "y": -23.140353948715426
+      },
+      {
+        "x": 28.560720250484458,
+        "y": -21.915411444313953
+      },
+      {
+        "x": 29.489473594403698,
+        "y": -20.648751708637676
+      },
+      {
+        "x": 30.362092049263893,
+        "y": -19.342785900485644
+      },
+      {
+        "x": 31.1769145362398,
+        "y": -17.99999999999999
+      },
+      {
+        "x": 31.932389994415974,
+        "y": -16.62295007646124
+      },
+      {
+        "x": 32.62708033331939,
+        "y": -15.2142574226652
+      },
+      {
+        "x": 33.25966317040631,
+        "y": -13.776603565143255
+      },
+      {
+        "x": 33.828934348292705,
+        "y": -12.312725159724069
+      },
+      {
+        "x": 34,
+        "y": -10.82540878215383
+      },
+      {
+        "x": 34,
+        "y": -9.317485623690745
+      },
+      {
+        "x": 34,
+        "y": -7.791826101771703
+      },
+      {
+        "x": 34,
+        "y": -6.251334396009494
+      },
+      {
+        "x": 34,
+        "y": -4.698942919921892
+      },
+      {
+        "x": 34,
+        "y": -3.1376067389156996
+      },
+      {
+        "x": 34,
+        "y": -1.570297945152103
+      }
+    ],
+    "material": "fr4",
+    "min_trace_width": 0.1,
+    "min_via_hole_diameter": 0.2,
+    "min_via_pad_diameter": 0.5,
+    "min_via_hole_edge_to_via_hole_edge_clearance": 0.2,
+    "min_via_edge_to_pad_edge_clearance": 0.1,
+    "min_trace_to_hole_edge_clearance": 0.2,
+    "min_trace_to_pad_edge_clearance": 0.1,
+    "min_pad_edge_to_pad_edge_clearance": 0.1,
+    "min_plated_hole_drill_edge_to_drill_edge_clearance": 0.45,
+    "min_board_edge_clearance": 0.3
+  },
+  {
+    "type": "pcb_cutout",
+    "pcb_cutout_id": "pcb_cutout_0",
+    "shape": "polygon",
+    "points": [
+      {
+        "x": 16.8,
+        "y": 16.8
+      },
+      {
+        "x": 16.76157056080646,
+        "y": 17.190180644032257
+      },
+      {
+        "x": 16.647759065022573,
+        "y": 17.56536686473018
+      },
+      {
+        "x": 16.46293922460509,
+        "y": 17.911140466039207
+      },
+      {
+        "x": 16.214213562373097,
+        "y": 18.214213562373097
+      },
+      {
+        "x": 15.911140466039205,
+        "y": 18.46293922460509
+      },
+      {
+        "x": 15.56536686473018,
+        "y": 18.647759065022573
+      },
+      {
+        "x": 15.190180644032257,
+        "y": 18.76157056080646
+      },
+      {
+        "x": 14.8,
+        "y": 18.8
+      },
+      {
+        "x": -15.8,
+        "y": 18.8
+      },
+      {
+        "x": -16.190180644032257,
+        "y": 18.76157056080646
+      },
+      {
+        "x": -16.56536686473018,
+        "y": 18.647759065022573
+      },
+      {
+        "x": -16.911140466039207,
+        "y": 18.46293922460509
+      },
+      {
+        "x": -17.214213562373097,
+        "y": 18.214213562373097
+      },
+      {
+        "x": -17.46293922460509,
+        "y": 17.911140466039207
+      },
+      {
+        "x": -17.647759065022573,
+        "y": 17.56536686473018
+      },
+      {
+        "x": -17.76157056080646,
+        "y": 17.190180644032257
+      },
+      {
+        "x": -17.8,
+        "y": 16.8
+      },
+      {
+        "x": -17.8,
+        "y": -19.8
+      },
+      {
+        "x": -17.76157056080646,
+        "y": -20.190180644032257
+      },
+      {
+        "x": -17.647759065022576,
+        "y": -20.56536686473018
+      },
+      {
+        "x": -17.46293922460509,
+        "y": -20.911140466039207
+      },
+      {
+        "x": -17.214213562373097,
+        "y": -21.214213562373097
+      },
+      {
+        "x": -16.911140466039207,
+        "y": -21.46293922460509
+      },
+      {
+        "x": -16.56536686473018,
+        "y": -21.647759065022573
+      },
+      {
+        "x": -16.190180644032257,
+        "y": -21.76157056080646
+      },
+      {
+        "x": -15.8,
+        "y": -21.8
+      },
+      {
+        "x": 14.8,
+        "y": -21.8
+      },
+      {
+        "x": 15.190180644032257,
+        "y": -21.76157056080646
+      },
+      {
+        "x": 15.56536686473018,
+        "y": -21.647759065022573
+      },
+      {
+        "x": 15.911140466039205,
+        "y": -21.46293922460509
+      },
+      {
+        "x": 16.214213562373097,
+        "y": -21.214213562373097
+      },
+      {
+        "x": 16.46293922460509,
+        "y": -20.911140466039207
+      },
+      {
+        "x": 16.647759065022573,
+        "y": -20.56536686473018
+      },
+      {
+        "x": 16.76157056080646,
+        "y": -20.190180644032257
+      },
+      {
+        "x": 16.8,
+        "y": -19.8
+      }
+    ],
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_0",
+    "hole_shape": "circle",
+    "hole_diameter": 2.7,
+    "x": -30,
+    "y": 15,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_1",
+    "hole_shape": "circle",
+    "hole_diameter": 2.7,
+    "x": 30,
+    "y": 15,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_2",
+    "hole_shape": "circle",
+    "hole_diameter": 2.7,
+    "x": -30,
+    "y": -15,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_3",
+    "hole_shape": "circle",
+    "hole_diameter": 2.7,
+    "x": 30,
+    "y": -15,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_4",
+    "pcb_component_id": "pcb_component_1",
+    "hole_shape": "circle",
+    "hole_diameter": 0.649986,
+    "x": 2.999994,
+    "y": 36.7944706,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "pcb_hole",
+    "pcb_hole_id": "pcb_hole_5",
+    "pcb_component_id": "pcb_component_1",
+    "hole_shape": "circle",
+    "hole_diameter": 0.649986,
+    "x": -2.999994,
+    "y": 36.7944706,
+    "is_covered_with_solder_mask": false,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "source_component",
+    "source_component_id": "source_component_52",
+    "ftype": "printedpart",
+    "name": "base",
+    "color": "#344752",
+    "material": "pla"
+  },
+  {
+    "type": "source_component",
+    "source_component_id": "source_component_54",
+    "ftype": "printedpart",
+    "name": "knob",
+    "color": "#e9bd65",
+    "material": "pla"
+  },
+  {
+    "type": "source_component",
+    "source_component_id": "source_component_55",
+    "ftype": "printedpart",
+    "name": "display-mount",
+    "color": "#95a5ad",
+    "material": "pla"
+  },
+  {
+    "type": "source_component",
+    "source_component_id": "source_component_58",
+    "ftype": "subassembly",
+    "name": "lcd-module",
+    "display_name": "1.28-inch LCD"
+  },
+  {
+    "type": "cad_component",
+    "cad_component_id": "cad_component_52",
+    "model_obj_url": "data:application/octet-stream;base64,diA0NC43MDAgMC4wMDAgMAp2IDQzLjE3NyAxMS41NjkgMAp2IDM4LjcxMSAyMi4zNTAgMAp2IDMxLjYwOCAzMS42MDggMAp2IDIyLjM1MCAzOC43MTEgMAp2IDExLjU2OSA0My4xNzcgMAp2IDAuMDAwIDQ0LjcwMCAwCnYgLTExLjU2OSA0My4xNzcgMAp2IC0yMi4zNTAgMzguNzExIDAKdiAtMzEuNjA4IDMxLjYwOCAwCnYgLTM4LjcxMSAyMi4zNTAgMAp2IC00My4xNzcgMTEuNTY5IDAKdiAtNDQuNzAwIDAuMDAwIDAKdiAtNDMuMTc3IC0xMS41NjkgMAp2IC0zOC43MTEgLTIyLjM1MCAwCnYgLTMxLjYwOCAtMzEuNjA4IDAKdiAtMjIuMzUwIC0zOC43MTEgMAp2IC0xMS41NjkgLTQzLjE3NyAwCnYgLTAuMDAwIC00NC43MDAgMAp2IDExLjU2OSAtNDMuMTc3IDAKdiAyMi4zNTAgLTM4LjcxMSAwCnYgMzEuNjA4IC0zMS42MDggMAp2IDM4LjcxMSAtMjIuMzUwIDAKdiA0My4xNzcgLTExLjU2OSAwCnYgNDQuNzAwIDAuMDAwIDQuMgp2IDQzLjE3NyAxMS41NjkgNC4yCnYgMzguNzExIDIyLjM1MCA0LjIKdiAzMS42MDggMzEuNjA4IDQuMgp2IDIyLjM1MCAzOC43MTEgNC4yCnYgMTEuNTY5IDQzLjE3NyA0LjIKdiAwLjAwMCA0NC43MDAgNC4yCnYgLTExLjU2OSA0My4xNzcgNC4yCnYgLTIyLjM1MCAzOC43MTEgNC4yCnYgLTMxLjYwOCAzMS42MDggNC4yCnYgLTM4LjcxMSAyMi4zNTAgNC4yCnYgLTQzLjE3NyAxMS41NjkgNC4yCnYgLTQ0LjcwMCAwLjAwMCA0LjIKdiAtNDMuMTc3IC0xMS41NjkgNC4yCnYgLTM4LjcxMSAtMjIuMzUwIDQuMgp2IC0zMS42MDggLTMxLjYwOCA0LjIKdiAtMjIuMzUwIC0zOC43MTEgNC4yCnYgLTExLjU2OSAtNDMuMTc3IDQuMgp2IC0wLjAwMCAtNDQuNzAwIDQuMgp2IDExLjU2OSAtNDMuMTc3IDQuMgp2IDIyLjM1MCAtMzguNzExIDQuMgp2IDMxLjYwOCAtMzEuNjA4IDQuMgp2IDM4LjcxMSAtMjIuMzUwIDQuMgp2IDQzLjE3NyAtMTEuNTY5IDQuMgpmIDEgMiAyNiAyNQpmIDIgMyAyNyAyNgpmIDMgNCAyOCAyNwpmIDQgNSAyOSAyOApmIDUgNiAzMCAyOQpmIDYgNyAzMSAzMApmIDcgOCAzMiAzMQpmIDggOSAzMyAzMgpmIDkgMTAgMzQgMzMKZiAxMCAxMSAzNSAzNApmIDExIDEyIDM2IDM1CmYgMTIgMTMgMzcgMzYKZiAxMyAxNCAzOCAzNwpmIDE0IDE1IDM5IDM4CmYgMTUgMTYgNDAgMzkKZiAxNiAxNyA0MSA0MApmIDE3IDE4IDQyIDQxCmYgMTggMTkgNDMgNDIKZiAxOSAyMCA0NCA0MwpmIDIwIDIxIDQ1IDQ0CmYgMjEgMjIgNDYgNDUKZiAyMiAyMyA0NyA0NgpmIDIzIDI0IDQ4IDQ3CmYgMjQgMSAyNSA0OApmIDI0IDIzIDIyIDIxIDIwIDE5IDE4IDE3IDE2IDE1IDE0IDEzIDEyIDExIDEwIDkgOCA3IDYgNSA0IDMgMiAxCmYgMjUgMjYgMjcgMjggMjkgMzAgMzEgMzIgMzMgMzQgMzUgMzYgMzcgMzggMzkgNDAgNDEgNDIgNDMgNDQgNDUgNDYgNDcgNDgK",
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": -3.4000000000000004
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "layer": "top",
+    "source_component_id": "source_component_52",
+    "color": "#344752",
+    "model_origin_position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "model_unit_to_mm_scale_factor": 1,
+    "model_object_fit": "contain_within_bounds",
+    "anchor_alignment": "center",
+    "show_as_translucent_model": false
+  },
+  {
+    "type": "cad_component",
+    "cad_component_id": "cad_component_54",
+    "model_obj_url": "data:application/octet-stream;base64,diA0NC43MDAgMC4wMDAgNi41CnYgNDMuMTc3IDExLjU2OSA2LjUKdiAzOC43MTEgMjIuMzUwIDYuNQp2IDMxLjYwOCAzMS42MDggNi41CnYgMjIuMzUwIDM4LjcxMSA2LjUKdiAxMS41NjkgNDMuMTc3IDYuNQp2IDAuMDAwIDQ0LjcwMCA2LjUKdiAtMTEuNTY5IDQzLjE3NyA2LjUKdiAtMjIuMzUwIDM4LjcxMSA2LjUKdiAtMzEuNjA4IDMxLjYwOCA2LjUKdiAtMzguNzExIDIyLjM1MCA2LjUKdiAtNDMuMTc3IDExLjU2OSA2LjUKdiAtNDQuNzAwIDAuMDAwIDYuNQp2IC00My4xNzcgLTExLjU2OSA2LjUKdiAtMzguNzExIC0yMi4zNTAgNi41CnYgLTMxLjYwOCAtMzEuNjA4IDYuNQp2IC0yMi4zNTAgLTM4LjcxMSA2LjUKdiAtMTEuNTY5IC00My4xNzcgNi41CnYgLTAuMDAwIC00NC43MDAgNi41CnYgMTEuNTY5IC00My4xNzcgNi41CnYgMjIuMzUwIC0zOC43MTEgNi41CnYgMzEuNjA4IC0zMS42MDggNi41CnYgMzguNzExIC0yMi4zNTAgNi41CnYgNDMuMTc3IC0xMS41NjkgNi41CnYgNDQuNzAwIDAuMDAwIDE3CnYgNDMuMTc3IDExLjU2OSAxNwp2IDM4LjcxMSAyMi4zNTAgMTcKdiAzMS42MDggMzEuNjA4IDE3CnYgMjIuMzUwIDM4LjcxMSAxNwp2IDExLjU2OSA0My4xNzcgMTcKdiAwLjAwMCA0NC43MDAgMTcKdiAtMTEuNTY5IDQzLjE3NyAxNwp2IC0yMi4zNTAgMzguNzExIDE3CnYgLTMxLjYwOCAzMS42MDggMTcKdiAtMzguNzExIDIyLjM1MCAxNwp2IC00My4xNzcgMTEuNTY5IDE3CnYgLTQ0LjcwMCAwLjAwMCAxNwp2IC00My4xNzcgLTExLjU2OSAxNwp2IC0zOC43MTEgLTIyLjM1MCAxNwp2IC0zMS42MDggLTMxLjYwOCAxNwp2IC0yMi4zNTAgLTM4LjcxMSAxNwp2IC0xMS41NjkgLTQzLjE3NyAxNwp2IC0wLjAwMCAtNDQuNzAwIDE3CnYgMTEuNTY5IC00My4xNzcgMTcKdiAyMi4zNTAgLTM4LjcxMSAxNwp2IDMxLjYwOCAtMzEuNjA4IDE3CnYgMzguNzExIC0yMi4zNTAgMTcKdiA0My4xNzcgLTExLjU2OSAxNwp2IDIwLjAwMCAwLjAwMCA2LjUKdiAxOS4zMTkgNS4xNzYgNi41CnYgMTcuMzIxIDEwLjAwMCA2LjUKdiAxNC4xNDIgMTQuMTQyIDYuNQp2IDEwLjAwMCAxNy4zMjEgNi41CnYgNS4xNzYgMTkuMzE5IDYuNQp2IDAuMDAwIDIwLjAwMCA2LjUKdiAtNS4xNzYgMTkuMzE5IDYuNQp2IC0xMC4wMDAgMTcuMzIxIDYuNQp2IC0xNC4xNDIgMTQuMTQyIDYuNQp2IC0xNy4zMjEgMTAuMDAwIDYuNQp2IC0xOS4zMTkgNS4xNzYgNi41CnYgLTIwLjAwMCAwLjAwMCA2LjUKdiAtMTkuMzE5IC01LjE3NiA2LjUKdiAtMTcuMzIxIC0xMC4wMDAgNi41CnYgLTE0LjE0MiAtMTQuMTQyIDYuNQp2IC0xMC4wMDAgLTE3LjMyMSA2LjUKdiAtNS4xNzYgLTE5LjMxOSA2LjUKdiAtMC4wMDAgLTIwLjAwMCA2LjUKdiA1LjE3NiAtMTkuMzE5IDYuNQp2IDEwLjAwMCAtMTcuMzIxIDYuNQp2IDE0LjE0MiAtMTQuMTQyIDYuNQp2IDE3LjMyMSAtMTAuMDAwIDYuNQp2IDE5LjMxOSAtNS4xNzYgNi41CnYgMjAuMDAwIDAuMDAwIDE3CnYgMTkuMzE5IDUuMTc2IDE3CnYgMTcuMzIxIDEwLjAwMCAxNwp2IDE0LjE0MiAxNC4xNDIgMTcKdiAxMC4wMDAgMTcuMzIxIDE3CnYgNS4xNzYgMTkuMzE5IDE3CnYgMC4wMDAgMjAuMDAwIDE3CnYgLTUuMTc2IDE5LjMxOSAxNwp2IC0xMC4wMDAgMTcuMzIxIDE3CnYgLTE0LjE0MiAxNC4xNDIgMTcKdiAtMTcuMzIxIDEwLjAwMCAxNwp2IC0xOS4zMTkgNS4xNzYgMTcKdiAtMjAuMDAwIDAuMDAwIDE3CnYgLTE5LjMxOSAtNS4xNzYgMTcKdiAtMTcuMzIxIC0xMC4wMDAgMTcKdiAtMTQuMTQyIC0xNC4xNDIgMTcKdiAtMTAuMDAwIC0xNy4zMjEgMTcKdiAtNS4xNzYgLTE5LjMxOSAxNwp2IC0wLjAwMCAtMjAuMDAwIDE3CnYgNS4xNzYgLTE5LjMxOSAxNwp2IDEwLjAwMCAtMTcuMzIxIDE3CnYgMTQuMTQyIC0xNC4xNDIgMTcKdiAxNy4zMjEgLTEwLjAwMCAxNwp2IDE5LjMxOSAtNS4xNzYgMTcKZiAxIDIgMjYgMjUKZiA0OSA3MyA3NCA1MApmIDI1IDI2IDc0IDczCmYgMiAxIDQ5IDUwCmYgMiAzIDI3IDI2CmYgNTAgNzQgNzUgNTEKZiAyNiAyNyA3NSA3NApmIDMgMiA1MCA1MQpmIDMgNCAyOCAyNwpmIDUxIDc1IDc2IDUyCmYgMjcgMjggNzYgNzUKZiA0IDMgNTEgNTIKZiA0IDUgMjkgMjgKZiA1MiA3NiA3NyA1MwpmIDI4IDI5IDc3IDc2CmYgNSA0IDUyIDUzCmYgNSA2IDMwIDI5CmYgNTMgNzcgNzggNTQKZiAyOSAzMCA3OCA3NwpmIDYgNSA1MyA1NApmIDYgNyAzMSAzMApmIDU0IDc4IDc5IDU1CmYgMzAgMzEgNzkgNzgKZiA3IDYgNTQgNTUKZiA3IDggMzIgMzEKZiA1NSA3OSA4MCA1NgpmIDMxIDMyIDgwIDc5CmYgOCA3IDU1IDU2CmYgOCA5IDMzIDMyCmYgNTYgODAgODEgNTcKZiAzMiAzMyA4MSA4MApmIDkgOCA1NiA1NwpmIDkgMTAgMzQgMzMKZiA1NyA4MSA4MiA1OApmIDMzIDM0IDgyIDgxCmYgMTAgOSA1NyA1OApmIDEwIDExIDM1IDM0CmYgNTggODIgODMgNTkKZiAzNCAzNSA4MyA4MgpmIDExIDEwIDU4IDU5CmYgMTEgMTIgMzYgMzUKZiA1OSA4MyA4NCA2MApmIDM1IDM2IDg0IDgzCmYgMTIgMTEgNTkgNjAKZiAxMiAxMyAzNyAzNgpmIDYwIDg0IDg1IDYxCmYgMzYgMzcgODUgODQKZiAxMyAxMiA2MCA2MQpmIDEzIDE0IDM4IDM3CmYgNjEgODUgODYgNjIKZiAzNyAzOCA4NiA4NQpmIDE0IDEzIDYxIDYyCmYgMTQgMTUgMzkgMzgKZiA2MiA4NiA4NyA2MwpmIDM4IDM5IDg3IDg2CmYgMTUgMTQgNjIgNjMKZiAxNSAxNiA0MCAzOQpmIDYzIDg3IDg4IDY0CmYgMzkgNDAgODggODcKZiAxNiAxNSA2MyA2NApmIDE2IDE3IDQxIDQwCmYgNjQgODggODkgNjUKZiA0MCA0MSA4OSA4OApmIDE3IDE2IDY0IDY1CmYgMTcgMTggNDIgNDEKZiA2NSA4OSA5MCA2NgpmIDQxIDQyIDkwIDg5CmYgMTggMTcgNjUgNjYKZiAxOCAxOSA0MyA0MgpmIDY2IDkwIDkxIDY3CmYgNDIgNDMgOTEgOTAKZiAxOSAxOCA2NiA2NwpmIDE5IDIwIDQ0IDQzCmYgNjcgOTEgOTIgNjgKZiA0MyA0NCA5MiA5MQpmIDIwIDE5IDY3IDY4CmYgMjAgMjEgNDUgNDQKZiA2OCA5MiA5MyA2OQpmIDQ0IDQ1IDkzIDkyCmYgMjEgMjAgNjggNjkKZiAyMSAyMiA0NiA0NQpmIDY5IDkzIDk0IDcwCmYgNDUgNDYgOTQgOTMKZiAyMiAyMSA2OSA3MApmIDIyIDIzIDQ3IDQ2CmYgNzAgOTQgOTUgNzEKZiA0NiA0NyA5NSA5NApmIDIzIDIyIDcwIDcxCmYgMjMgMjQgNDggNDcKZiA3MSA5NSA5NiA3MgpmIDQ3IDQ4IDk2IDk1CmYgMjQgMjMgNzEgNzIKZiAyNCAxIDI1IDQ4CmYgNzIgOTYgNzMgNDkKZiA0OCAyNSA3MyA5NgpmIDEgMjQgNzIgNDkK",
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": -3.4000000000000004
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "layer": "top",
+    "source_component_id": "source_component_54",
+    "color": "#e9bd65",
+    "model_origin_position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "model_unit_to_mm_scale_factor": 1,
+    "model_object_fit": "contain_within_bounds",
+    "anchor_alignment": "center",
+    "show_as_translucent_model": false
+  },
+  {
+    "type": "cad_component",
+    "cad_component_id": "cad_component_55",
+    "model_obj_url": "data:application/octet-stream;base64,diAxOS41MDAgMC4wMDAgMTYuOAp2IDE4LjgzNiA1LjA0NyAxNi44CnYgMTYuODg3IDkuNzUwIDE2LjgKdiAxMy43ODkgMTMuNzg5IDE2LjgKdiA5Ljc1MCAxNi44ODcgMTYuOAp2IDUuMDQ3IDE4LjgzNiAxNi44CnYgMC4wMDAgMTkuNTAwIDE2LjgKdiAtNS4wNDcgMTguODM2IDE2LjgKdiAtOS43NTAgMTYuODg3IDE2LjgKdiAtMTMuNzg5IDEzLjc4OSAxNi44CnYgLTE2Ljg4NyA5Ljc1MCAxNi44CnYgLTE4LjgzNiA1LjA0NyAxNi44CnYgLTE5LjUwMCAwLjAwMCAxNi44CnYgLTE4LjgzNiAtNS4wNDcgMTYuOAp2IC0xNi44ODcgLTkuNzUwIDE2LjgKdiAtMTMuNzg5IC0xMy43ODkgMTYuOAp2IC05Ljc1MCAtMTYuODg3IDE2LjgKdiAtNS4wNDcgLTE4LjgzNiAxNi44CnYgLTAuMDAwIC0xOS41MDAgMTYuOAp2IDUuMDQ3IC0xOC44MzYgMTYuOAp2IDkuNzUwIC0xNi44ODcgMTYuOAp2IDEzLjc4OSAtMTMuNzg5IDE2LjgKdiAxNi44ODcgLTkuNzUwIDE2LjgKdiAxOC44MzYgLTUuMDQ3IDE2LjgKdiAxOS41MDAgMC4wMDAgMTkuNQp2IDE4LjgzNiA1LjA0NyAxOS41CnYgMTYuODg3IDkuNzUwIDE5LjUKdiAxMy43ODkgMTMuNzg5IDE5LjUKdiA5Ljc1MCAxNi44ODcgMTkuNQp2IDUuMDQ3IDE4LjgzNiAxOS41CnYgMC4wMDAgMTkuNTAwIDE5LjUKdiAtNS4wNDcgMTguODM2IDE5LjUKdiAtOS43NTAgMTYuODg3IDE5LjUKdiAtMTMuNzg5IDEzLjc4OSAxOS41CnYgLTE2Ljg4NyA5Ljc1MCAxOS41CnYgLTE4LjgzNiA1LjA0NyAxOS41CnYgLTE5LjUwMCAwLjAwMCAxOS41CnYgLTE4LjgzNiAtNS4wNDcgMTkuNQp2IC0xNi44ODcgLTkuNzUwIDE5LjUKdiAtMTMuNzg5IC0xMy43ODkgMTkuNQp2IC05Ljc1MCAtMTYuODg3IDE5LjUKdiAtNS4wNDcgLTE4LjgzNiAxOS41CnYgLTAuMDAwIC0xOS41MDAgMTkuNQp2IDUuMDQ3IC0xOC44MzYgMTkuNQp2IDkuNzUwIC0xNi44ODcgMTkuNQp2IDEzLjc4OSAtMTMuNzg5IDE5LjUKdiAxNi44ODcgLTkuNzUwIDE5LjUKdiAxOC44MzYgLTUuMDQ3IDE5LjUKdiAxNS44MDAgMC4wMDAgMTYuOAp2IDE1LjI2MiA0LjA4OSAxNi44CnYgMTMuNjgzIDcuOTAwIDE2LjgKdiAxMS4xNzIgMTEuMTcyIDE2LjgKdiA3LjkwMCAxMy42ODMgMTYuOAp2IDQuMDg5IDE1LjI2MiAxNi44CnYgMC4wMDAgMTUuODAwIDE2LjgKdiAtNC4wODkgMTUuMjYyIDE2LjgKdiAtNy45MDAgMTMuNjgzIDE2LjgKdiAtMTEuMTcyIDExLjE3MiAxNi44CnYgLTEzLjY4MyA3LjkwMCAxNi44CnYgLTE1LjI2MiA0LjA4OSAxNi44CnYgLTE1LjgwMCAwLjAwMCAxNi44CnYgLTE1LjI2MiAtNC4wODkgMTYuOAp2IC0xMy42ODMgLTcuOTAwIDE2LjgKdiAtMTEuMTcyIC0xMS4xNzIgMTYuOAp2IC03LjkwMCAtMTMuNjgzIDE2LjgKdiAtNC4wODkgLTE1LjI2MiAxNi44CnYgLTAuMDAwIC0xNS44MDAgMTYuOAp2IDQuMDg5IC0xNS4yNjIgMTYuOAp2IDcuOTAwIC0xMy42ODMgMTYuOAp2IDExLjE3MiAtMTEuMTcyIDE2LjgKdiAxMy42ODMgLTcuOTAwIDE2LjgKdiAxNS4yNjIgLTQuMDg5IDE2LjgKdiAxNS44MDAgMC4wMDAgMTkuNQp2IDE1LjI2MiA0LjA4OSAxOS41CnYgMTMuNjgzIDcuOTAwIDE5LjUKdiAxMS4xNzIgMTEuMTcyIDE5LjUKdiA3LjkwMCAxMy42ODMgMTkuNQp2IDQuMDg5IDE1LjI2MiAxOS41CnYgMC4wMDAgMTUuODAwIDE5LjUKdiAtNC4wODkgMTUuMjYyIDE5LjUKdiAtNy45MDAgMTMuNjgzIDE5LjUKdiAtMTEuMTcyIDExLjE3MiAxOS41CnYgLTEzLjY4MyA3LjkwMCAxOS41CnYgLTE1LjI2MiA0LjA4OSAxOS41CnYgLTE1LjgwMCAwLjAwMCAxOS41CnYgLTE1LjI2MiAtNC4wODkgMTkuNQp2IC0xMy42ODMgLTcuOTAwIDE5LjUKdiAtMTEuMTcyIC0xMS4xNzIgMTkuNQp2IC03LjkwMCAtMTMuNjgzIDE5LjUKdiAtNC4wODkgLTE1LjI2MiAxOS41CnYgLTAuMDAwIC0xNS44MDAgMTkuNQp2IDQuMDg5IC0xNS4yNjIgMTkuNQp2IDcuOTAwIC0xMy42ODMgMTkuNQp2IDExLjE3MiAtMTEuMTcyIDE5LjUKdiAxMy42ODMgLTcuOTAwIDE5LjUKdiAxNS4yNjIgLTQuMDg5IDE5LjUKZiAxIDIgMjYgMjUKZiA0OSA3MyA3NCA1MApmIDI1IDI2IDc0IDczCmYgMiAxIDQ5IDUwCmYgMiAzIDI3IDI2CmYgNTAgNzQgNzUgNTEKZiAyNiAyNyA3NSA3NApmIDMgMiA1MCA1MQpmIDMgNCAyOCAyNwpmIDUxIDc1IDc2IDUyCmYgMjcgMjggNzYgNzUKZiA0IDMgNTEgNTIKZiA0IDUgMjkgMjgKZiA1MiA3NiA3NyA1MwpmIDI4IDI5IDc3IDc2CmYgNSA0IDUyIDUzCmYgNSA2IDMwIDI5CmYgNTMgNzcgNzggNTQKZiAyOSAzMCA3OCA3NwpmIDYgNSA1MyA1NApmIDYgNyAzMSAzMApmIDU0IDc4IDc5IDU1CmYgMzAgMzEgNzkgNzgKZiA3IDYgNTQgNTUKZiA3IDggMzIgMzEKZiA1NSA3OSA4MCA1NgpmIDMxIDMyIDgwIDc5CmYgOCA3IDU1IDU2CmYgOCA5IDMzIDMyCmYgNTYgODAgODEgNTcKZiAzMiAzMyA4MSA4MApmIDkgOCA1NiA1NwpmIDkgMTAgMzQgMzMKZiA1NyA4MSA4MiA1OApmIDMzIDM0IDgyIDgxCmYgMTAgOSA1NyA1OApmIDEwIDExIDM1IDM0CmYgNTggODIgODMgNTkKZiAzNCAzNSA4MyA4MgpmIDExIDEwIDU4IDU5CmYgMTEgMTIgMzYgMzUKZiA1OSA4MyA4NCA2MApmIDM1IDM2IDg0IDgzCmYgMTIgMTEgNTkgNjAKZiAxMiAxMyAzNyAzNgpmIDYwIDg0IDg1IDYxCmYgMzYgMzcgODUgODQKZiAxMyAxMiA2MCA2MQpmIDEzIDE0IDM4IDM3CmYgNjEgODUgODYgNjIKZiAzNyAzOCA4NiA4NQpmIDE0IDEzIDYxIDYyCmYgMTQgMTUgMzkgMzgKZiA2MiA4NiA4NyA2MwpmIDM4IDM5IDg3IDg2CmYgMTUgMTQgNjIgNjMKZiAxNSAxNiA0MCAzOQpmIDYzIDg3IDg4IDY0CmYgMzkgNDAgODggODcKZiAxNiAxNSA2MyA2NApmIDE2IDE3IDQxIDQwCmYgNjQgODggODkgNjUKZiA0MCA0MSA4OSA4OApmIDE3IDE2IDY0IDY1CmYgMTcgMTggNDIgNDEKZiA2NSA4OSA5MCA2NgpmIDQxIDQyIDkwIDg5CmYgMTggMTcgNjUgNjYKZiAxOCAxOSA0MyA0MgpmIDY2IDkwIDkxIDY3CmYgNDIgNDMgOTEgOTAKZiAxOSAxOCA2NiA2NwpmIDE5IDIwIDQ0IDQzCmYgNjcgOTEgOTIgNjgKZiA0MyA0NCA5MiA5MQpmIDIwIDE5IDY3IDY4CmYgMjAgMjEgNDUgNDQKZiA2OCA5MiA5MyA2OQpmIDQ0IDQ1IDkzIDkyCmYgMjEgMjAgNjggNjkKZiAyMSAyMiA0NiA0NQpmIDY5IDkzIDk0IDcwCmYgNDUgNDYgOTQgOTMKZiAyMiAyMSA2OSA3MApmIDIyIDIzIDQ3IDQ2CmYgNzAgOTQgOTUgNzEKZiA0NiA0NyA5NSA5NApmIDIzIDIyIDcwIDcxCmYgMjMgMjQgNDggNDcKZiA3MSA5NSA5NiA3MgpmIDQ3IDQ4IDk2IDk1CmYgMjQgMjMgNzEgNzIKZiAyNCAxIDI1IDQ4CmYgNzIgOTYgNzMgNDkKZiA0OCAyNSA3MyA5NgpmIDEgMjQgNzIgNDkK",
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": -3.4000000000000004
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "layer": "top",
+    "source_component_id": "source_component_55",
+    "color": "#95a5ad",
+    "model_origin_position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "model_unit_to_mm_scale_factor": 1,
+    "model_object_fit": "contain_within_bounds",
+    "anchor_alignment": "center",
+    "show_as_translucent_model": false
+  },
+  {
+    "type": "cad_component",
+    "cad_component_id": "cad_component_58",
+    "model_obj_url": "data:application/octet-stream;base64,diAxNi4wMDAgMC4wMDAgMTUKdiAxNS40NTUgNC4xNDEgMTUKdiAxMy44NTYgOC4wMDAgMTUKdiAxMS4zMTQgMTEuMzE0IDE1CnYgOC4wMDAgMTMuODU2IDE1CnYgNC4xNDEgMTUuNDU1IDE1CnYgMC4wMDAgMTYuMDAwIDE1CnYgLTQuMTQxIDE1LjQ1NSAxNQp2IC04LjAwMCAxMy44NTYgMTUKdiAtMTEuMzE0IDExLjMxNCAxNQp2IC0xMy44NTYgOC4wMDAgMTUKdiAtMTUuNDU1IDQuMTQxIDE1CnYgLTE2LjAwMCAwLjAwMCAxNQp2IC0xNS40NTUgLTQuMTQxIDE1CnYgLTEzLjg1NiAtOC4wMDAgMTUKdiAtMTEuMzE0IC0xMS4zMTQgMTUKdiAtOC4wMDAgLTEzLjg1NiAxNQp2IC00LjE0MSAtMTUuNDU1IDE1CnYgLTAuMDAwIC0xNi4wMDAgMTUKdiA0LjE0MSAtMTUuNDU1IDE1CnYgOC4wMDAgLTEzLjg1NiAxNQp2IDExLjMxNCAtMTEuMzE0IDE1CnYgMTMuODU2IC04LjAwMCAxNQp2IDE1LjQ1NSAtNC4xNDEgMTUKdiAxNi4wMDAgMC4wMDAgMTcuMwp2IDE1LjQ1NSA0LjE0MSAxNy4zCnYgMTMuODU2IDguMDAwIDE3LjMKdiAxMS4zMTQgMTEuMzE0IDE3LjMKdiA4LjAwMCAxMy44NTYgMTcuMwp2IDQuMTQxIDE1LjQ1NSAxNy4zCnYgMC4wMDAgMTYuMDAwIDE3LjMKdiAtNC4xNDEgMTUuNDU1IDE3LjMKdiAtOC4wMDAgMTMuODU2IDE3LjMKdiAtMTEuMzE0IDExLjMxNCAxNy4zCnYgLTEzLjg1NiA4LjAwMCAxNy4zCnYgLTE1LjQ1NSA0LjE0MSAxNy4zCnYgLTE2LjAwMCAwLjAwMCAxNy4zCnYgLTE1LjQ1NSAtNC4xNDEgMTcuMwp2IC0xMy44NTYgLTguMDAwIDE3LjMKdiAtMTEuMzE0IC0xMS4zMTQgMTcuMwp2IC04LjAwMCAtMTMuODU2IDE3LjMKdiAtNC4xNDEgLTE1LjQ1NSAxNy4zCnYgLTAuMDAwIC0xNi4wMDAgMTcuMwp2IDQuMTQxIC0xNS40NTUgMTcuMwp2IDguMDAwIC0xMy44NTYgMTcuMwp2IDExLjMxNCAtMTEuMzE0IDE3LjMKdiAxMy44NTYgLTguMDAwIDE3LjMKdiAxNS40NTUgLTQuMTQxIDE3LjMKZiAxIDIgMjYgMjUKZiAyIDMgMjcgMjYKZiAzIDQgMjggMjcKZiA0IDUgMjkgMjgKZiA1IDYgMzAgMjkKZiA2IDcgMzEgMzAKZiA3IDggMzIgMzEKZiA4IDkgMzMgMzIKZiA5IDEwIDM0IDMzCmYgMTAgMTEgMzUgMzQKZiAxMSAxMiAzNiAzNQpmIDEyIDEzIDM3IDM2CmYgMTMgMTQgMzggMzcKZiAxNCAxNSAzOSAzOApmIDE1IDE2IDQwIDM5CmYgMTYgMTcgNDEgNDAKZiAxNyAxOCA0MiA0MQpmIDE4IDE5IDQzIDQyCmYgMTkgMjAgNDQgNDMKZiAyMCAyMSA0NSA0NApmIDIxIDIyIDQ2IDQ1CmYgMjIgMjMgNDcgNDYKZiAyMyAyNCA0OCA0NwpmIDI0IDEgMjUgNDgKZiAyNCAyMyAyMiAyMSAyMCAxOSAxOCAxNyAxNiAxNSAxNCAxMyAxMiAxMSAxMCA5IDggNyA2IDUgNCAzIDIgMQpmIDI1IDI2IDI3IDI4IDI5IDMwIDMxIDMyIDMzIDM0IDM1IDM2IDM3IDM4IDM5IDQwIDQxIDQyIDQzIDQ0IDQ1IDQ2IDQ3IDQ4Cg==",
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": -3.4000000000000004
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "layer": "top",
+    "source_component_id": "source_component_58",
+    "model_origin_position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "model_unit_to_mm_scale_factor": 1,
+    "model_object_fit": "contain_within_bounds",
+    "anchor_alignment": "center",
+    "show_as_translucent_model": false
+  },
+  {
+    "type": "drawing_page",
+    "drawing_page_id": "drawing_page_0",
+    "name": "classic-f1-service",
+    "width": 420,
+    "height": 297,
+    "page_size": "iso_a3",
+    "orientation": "landscape"
+  },
+  {
+    "type": "drawing_assembly_stage",
+    "drawing_assembly_stage_id": "drawing_assembly_stage_0",
+    "name": "assembled",
+    "source_component_ids": [
+      "source_component_52",
+      "source_component_54",
+      "source_component_55",
+      "source_component_58"
+    ],
+    "pcb_board_ids": ["pcb_board_0"]
+  },
+  {
+    "type": "drawing_part_view",
+    "drawing_part_view_id": "drawing_part_view_0",
+    "name": "top",
+    "display_name": "ASSEMBLED TOP",
+    "direction": "z_positive",
+    "center": {
+      "x": -115,
+      "y": 65
+    },
+    "width": 140,
+    "height": 122,
+    "show_hidden_edges": false,
+    "drawing_page_id": "drawing_page_0",
+    "drawing_assembly_stage_id": "drawing_assembly_stage_0"
+  },
+  {
+    "type": "drawing_part_view",
+    "drawing_part_view_id": "drawing_part_view_1",
+    "name": "front",
+    "display_name": "ASSEMBLED FRONT",
+    "direction": "y_negative",
+    "center": {
+      "x": -115,
+      "y": -44
+    },
+    "width": 122,
+    "height": 64,
+    "show_hidden_edges": false,
+    "drawing_page_id": "drawing_page_0",
+    "drawing_assembly_stage_id": "drawing_assembly_stage_0"
+  },
+  {
+    "type": "drawing_assembly_stage",
+    "drawing_assembly_stage_id": "drawing_assembly_stage_1",
+    "name": "service-membership",
+    "source_component_ids": [
+      "source_component_52",
+      "source_component_54",
+      "source_component_55",
+      "source_component_58"
+    ],
+    "pcb_board_ids": ["pcb_board_0"]
+  },
+  {
+    "type": "drawing_explosion_view",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "name": "service",
+    "display_name": "EXPLODED FOR SERVICE",
+    "direction": "isometric",
+    "center": {
+      "x": 80,
+      "y": 17
+    },
+    "width": 218,
+    "height": 224,
+    "show_hidden_edges": false,
+    "drawing_page_id": "drawing_page_0",
+    "drawing_assembly_stage_id": "drawing_assembly_stage_1",
+    "moves": [
+      {
+        "source_component_ids": ["source_component_52"],
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": -21
+        }
+      },
+      {
+        "source_component_ids": ["source_component_54"],
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": 25
+        }
+      },
+      {
+        "source_component_ids": ["source_component_55"],
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": 70
+        }
+      },
+      {
+        "source_component_ids": ["source_component_58"],
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": 45
+        }
+      }
+    ],
+    "factor": 1,
+    "show_trails": true
+  },
+  {
+    "type": "drawing_part_label",
+    "drawing_part_label_id": "drawing_part_label_0",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "source_component_ids": ["source_component_55"],
+    "text": "Display mount",
+    "anchor": {
+      "x": -16,
+      "y": 16,
+      "z": 15.7
+    },
+    "x_offset_from_view_center": 47,
+    "y_offset_from_view_center": 56
+  },
+  {
+    "type": "drawing_part_label",
+    "drawing_part_label_id": "drawing_part_label_1",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "source_component_ids": ["source_component_58"],
+    "text": "LCD module",
+    "anchor": {
+      "x": 12,
+      "y": -12,
+      "z": 7.8
+    },
+    "x_offset_from_view_center": -43,
+    "y_offset_from_view_center": 23
+  },
+  {
+    "type": "drawing_part_label",
+    "drawing_part_label_id": "drawing_part_label_2",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "source_component_ids": ["source_component_54"],
+    "text": "Grip and rotor",
+    "anchor": {
+      "x": -31,
+      "y": 31,
+      "z": 12
+    },
+    "x_offset_from_view_center": 56,
+    "y_offset_from_view_center": 7
+  },
+  {
+    "type": "drawing_part_label",
+    "drawing_part_label_id": "drawing_part_label_3",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "pcb_board_ids": ["pcb_board_0"],
+    "text": "F1 PCB",
+    "anchor": {
+      "x": -25,
+      "y": 25,
+      "z": 0.8
+    },
+    "x_offset_from_view_center": 54,
+    "y_offset_from_view_center": -22
+  },
+  {
+    "type": "drawing_part_label",
+    "drawing_part_label_id": "drawing_part_label_4",
+    "drawing_explosion_view_id": "drawing_explosion_view_0",
+    "source_component_ids": ["source_component_52"],
+    "text": "Base",
+    "anchor": {
+      "x": -31,
+      "y": 31,
+      "z": 5
+    },
+    "x_offset_from_view_center": 54,
+    "y_offset_from_view_center": -45
+  },
+  {
+    "type": "drawing_page_title_block",
+    "drawing_page_title_block_id": "drawing_page_title_block_0",
+    "drawing_page_id": "drawing_page_0",
+    "title": "Desk fidget counter \u2014 Classic F1",
+    "legal_owner": "rushabhcodes",
+    "identification_number": "F1-ASM",
+    "revision_index": "F1",
+    "sheet_number": 1,
+    "number_of_sheets": 1
+  }
+]
