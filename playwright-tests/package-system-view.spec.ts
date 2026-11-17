@@ -91,6 +91,76 @@ test("System is absent without a page and an unavailable #system falls back to F
   ).toHaveCount(0)
 })
 
+test("System renders custom connection styles and legible labels", async ({
+  page,
+}) => {
+  const circuitJson = [
+    systemJson[0],
+    { ...systemJson[1], center: { x: -22, y: 0 }, width: 16 },
+    {
+      ...systemJson[1],
+      system_block_component_id: "sensor",
+      display_name: "Sensor",
+      center: { x: 22, y: 0 },
+      width: 16,
+    },
+    {
+      type: "system_block_connection",
+      system_block_connection_id: "sensor-bus",
+      system_block_page_id: "page",
+      from_system_block_component_id: "controller",
+      to_system_block_component_id: "sensor",
+      is_signal: true,
+      is_power: false,
+      direction: "forward",
+      route: [
+        { x: -14, y: 0 },
+        { x: 14, y: 0 },
+      ],
+      label: "I²C",
+      label_anchor_center: { x: 0, y: 0 },
+      color: "#16856b",
+      line_style: "dotted",
+    },
+  ]
+  await page.route("**/package_releases/get_preview_circuit_json?*", (route) =>
+    route.fulfill({
+      json: {
+        preview_circuit_json_response: {
+          circuit_json_found: true,
+          circuit_json: circuitJson,
+        },
+      },
+    }),
+  )
+  await page.goto("http://127.0.0.1:5177/testuser/my-test-board#system")
+  const viewport = page.getByRole("region", { name: "System diagram viewport" })
+  const diagram = viewport.getByRole("img", { name: "overview" })
+  await expect(diagram).toBeVisible()
+  const svgUrl = await diagram.evaluate((image: HTMLImageElement) => image.src)
+  const svg = await (await fetch(svgUrl)).text()
+  const styles = await page.evaluate((markup) => {
+    const document = new DOMParser().parseFromString(markup, "image/svg+xml")
+    const connection = '[data-system-block-connection-id="sensor-bus"]'
+    const route = document.querySelector(`g${connection} > polyline`)
+    const label = document.querySelector(`text${connection}`)
+    return {
+      routeColor: route?.getAttribute("stroke"),
+      routePattern: route?.getAttribute("stroke-dasharray"),
+      labelText: label?.textContent,
+      labelColor: label?.getAttribute("fill"),
+      labelPaintOrder: label?.getAttribute("paint-order"),
+    }
+  }, svg)
+  expect(styles).toEqual({
+    routeColor: "#16856b",
+    routePattern: "0.1 1.2",
+    labelText: "I²C",
+    labelColor: "#16856b",
+    labelPaintOrder: "stroke fill",
+  })
+})
+
 test("associated components show refdes and MPN and focus the schematic", async ({
   page,
 }) => {
