@@ -1,8 +1,5 @@
-import type {
-  DrawingPageOutput,
-  renderDrawingPages,
-} from "@tscircuit/drawing-viewer"
-import type { DrawingPage } from "circuit-json"
+import type { DrawingPageOutput } from "@tscircuit/drawing-viewer"
+import type { CircuitJson, DrawingPage } from "circuit-json"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
 import { convertSvgToPng } from "./convert-svg-to-png"
@@ -11,7 +8,7 @@ import { withDownloadToast } from "./download-toast"
 export type DrawingImageFormat = "svg" | "png"
 
 interface DrawingImageDownloadOptions {
-  circuitJson: Parameters<typeof renderDrawingPages>[0]
+  circuitJson: CircuitJson
   fileName: string
   format: DrawingImageFormat
 }
