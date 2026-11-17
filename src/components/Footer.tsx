@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <CircuitBoard className="h-6 w-6" />
-            <span className="text-lg font-bold">tscircuit</span>
+            <span className="tscircuit-wordmark text-lg">tscircuit</span>
           </div>
           <p className="text-sm text-muted-foreground">
             The New Foundation for Electronic Design
