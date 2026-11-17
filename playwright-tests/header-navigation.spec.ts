@@ -23,10 +23,11 @@ for (const path of [
       .filter({ hasText: "Professional Support" })
     await expect(nav).toHaveCSS("font-family", "Geist, system-ui, sans-serif")
     await expect(nav).toHaveCSS("font-weight", "500")
-    await expect(page.getByRole("link", { name: "tscircuit home" })).toHaveCSS(
-      "font-weight",
-      "600",
-    )
+    const wordmark = page
+      .getByRole("link", { name: "tscircuit home" })
+      .locator(".tscircuit-wordmark")
+    await expect(wordmark).toHaveCSS("font-family", "Roboto, sans-serif")
+    await expect(wordmark).toHaveCSS("font-weight", "800")
     await product.locator("summary").hover()
     await expect(
       product.getByRole("link", { name: "Datasheets", exact: true }),

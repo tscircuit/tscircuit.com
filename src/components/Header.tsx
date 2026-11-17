@@ -23,7 +23,7 @@ export default function Header() {
       <div className="flex min-h-[70px] items-center gap-6">
         <a href="/" className="site-header-brand" aria-label="tscircuit home">
           <img src="/tscircuit-logo.png" alt="" width="32" height="32" />
-          <span>tscircuit</span>
+          <span className="tscircuit-wordmark">tscircuit</span>
         </a>
         <div className="hidden lg:block">
           <HeaderNavigation />

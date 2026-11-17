@@ -62,7 +62,7 @@ export const Header2 = () => {
         <div className="container mx-auto flex h-[70px] items-center justify-between px-2 md:px-6">
           <a href="/" className="site-header-brand" aria-label="tscircuit home">
             <img src="/tscircuit-logo.png" alt="" width="32" height="32" />
-            <span>tscircuit</span>
+            <span className="tscircuit-wordmark">tscircuit</span>
           </a>
 
           {/* Desktop Navigation */}
