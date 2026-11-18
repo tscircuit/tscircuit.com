@@ -140,9 +140,9 @@ export default function MainContentHeader({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {["3d", "pcb", "schematic", "system"].includes(activeView) && (
-            <PreviewFileSelector />
-          )}
+          {["3d", "pcb", "schematic", "system", "drawing"].includes(
+            activeView,
+          ) && <PreviewFileSelector />}
           <DownloadButtonAndMenu
             offerMultipleImageFormats
             unscopedName={packageInfo?.unscoped_name}

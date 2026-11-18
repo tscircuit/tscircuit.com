@@ -13,6 +13,7 @@ import PCBView from "./tab-views/pcb-view"
 import { KeepMountedView } from "./keep-mounted-view"
 import SchematicView from "./tab-views/schematic-view"
 import SystemView from "./tab-views/system-view"
+import DrawingView from "./tab-views/drawing-view"
 import BOMView from "./tab-views/bom-view"
 import PackageFileView from "./tab-views/package-file-view"
 import {
@@ -68,7 +69,9 @@ const normalizeView = (view: string | null | undefined): string | null => {
   if (normalized === "bill of materials") return "bom"
 
   if (
-    ["files", "3d", "pcb", "schematic", "system", "bom"].includes(normalized)
+    ["files", "3d", "pcb", "schematic", "system", "drawing", "bom"].includes(
+      normalized,
+    )
   ) {
     return normalized
   }
@@ -116,6 +119,10 @@ export default function RepoPageContent({
       false) ||
     (activeView === "system" &&
       (isCircuitJsonLoading || Boolean(circuitJsonError)))
+  const hasDrawingPage =
+    circuitJson?.some((element) => element.type === "drawing_page") ||
+    (activeView === "drawing" &&
+      (isCircuitJsonLoading || Boolean(circuitJsonError)))
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
   const { controller: schematicController, focusSchematicComponent } =
     useSchematicViewerController()
@@ -144,6 +151,7 @@ export default function RepoPageContent({
       "pcb",
       "schematic",
       "system",
+      "drawing",
       "bom",
     ])
     const validViews = [
@@ -153,6 +161,7 @@ export default function RepoPageContent({
       "schematic",
       "bom",
       ...(hasSystemPage ? ["system"] : []),
+      ...(hasDrawingPage ? ["drawing"] : []),
     ]
     const availableViews =
       circuitJsonExists || hasPreviewFiles
@@ -194,6 +203,7 @@ export default function RepoPageContent({
     circuitJsonExists,
     hasPreviewFiles,
     hasSystemPage,
+    hasDrawingPage,
     isCircuitJsonLoading,
     fileBrowserMode,
   ])
@@ -258,6 +268,8 @@ export default function RepoPageContent({
         return <SchematicView controller={schematicController} />
       case "system":
         return <SystemView onComponentClick={handleViewSchematicComponent} />
+      case "drawing":
+        return <DrawingView />
       case "bom":
         return <BOMView />
       default:
