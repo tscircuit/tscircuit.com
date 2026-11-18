@@ -263,13 +263,12 @@ export default function RepoPageContent({
       case "3d":
         return null
       case "pcb":
+      case "drawing":
         return null
       case "schematic":
         return <SchematicView controller={schematicController} />
       case "system":
         return <SystemView onComponentClick={handleViewSchematicComponent} />
-      case "drawing":
-        return <DrawingView />
       case "bom":
         return <BOMView />
       default:
@@ -366,6 +365,12 @@ export default function RepoPageContent({
                     : undefined
                 }
               />
+            </KeepMountedView>
+            <KeepMountedView
+              key={`drawing:${packageRelease?.package_release_id ?? packageInfo?.package_id}:${previewFilePath ?? "default"}`}
+              active={activeView === "drawing"}
+            >
+              <DrawingView />
             </KeepMountedView>
             {renderContent()}
             {fileBrowserMode !== "file" && (
