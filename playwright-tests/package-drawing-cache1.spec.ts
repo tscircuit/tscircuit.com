@@ -63,7 +63,6 @@ test("returning to Classic F1 keeps the rendered drawing and its model assets", 
     maxDiffPixelRatio: 0.01,
   })
 
-  test.fail(true, "The Drawing tab unmounts and downloads its models again")
   expect(await renderedImage!.evaluate((image) => image.isConnected)).toBe(true)
   await expect(drawing).toBeVisible({ timeout: 1000 })
   expect(repeatedDownloads).toBe(0)
