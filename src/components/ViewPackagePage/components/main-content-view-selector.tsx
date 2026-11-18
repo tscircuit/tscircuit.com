@@ -4,6 +4,7 @@ import {
   CuboidIcon as Cube,
   CircuitBoardIcon as Circuit,
   FileTerminal,
+  Ruler,
   Workflow,
 } from "lucide-react"
 import {
@@ -69,6 +70,17 @@ export default function MainContentViewSelector({
       icon: <FileTerminal className="h-4 w-4 mr-1" />,
       requiresCircuitJson: true,
     },
+    ...(circuitJson?.some((element) => element.type === "drawing_page") ||
+    (activeView === "drawing" && (isLoading || error))
+      ? [
+          {
+            id: "drawing",
+            label: "Drawing",
+            icon: <Ruler className="h-4 w-4 mr-1" />,
+            requiresCircuitJson: true,
+          },
+        ]
+      : []),
   ]
 
   return (

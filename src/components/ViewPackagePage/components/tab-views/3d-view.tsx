@@ -1,11 +1,8 @@
-import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
-import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Suspense, useMemo, type ComponentProps } from "react"
-import type { AnyCircuitElement } from "circuit-json"
+import { Suspense, type ComponentProps } from "react"
 import { useQuery } from "react-query"
 import { usePackagePreviewIdentity } from "@/components/PackagePreviewScope"
 import { usePackagePreviewParameters } from "@/hooks/use-package-preview-parameters"
@@ -14,44 +11,7 @@ import {
   findPackagePreviewGlb,
   downloadPackagePreviewGlb,
 } from "@/lib/package-preview-glb"
-
-function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
-  const { author, packageName, version, releaseId } =
-    usePackagePreviewIdentity()
-  const apiBaseUrl = useApiBaseUrl()
-  const token = useGlobalStore((s) => s.session?.token)
-  const request = useMemo(() => {
-    const urls = new Set<string>()
-    for (const element of circuitJson ?? []) {
-      if (element.type !== "cad_component") continue
-      for (const [key, value] of Object.entries(element)) {
-        if (
-          key.startsWith("model_") &&
-          key.endsWith("_url") &&
-          typeof value === "string" &&
-          getPackageFileLookupParams({
-            assetUrl: value,
-            releaseId,
-            author,
-            packageName,
-            version,
-          })
-        )
-          urls.add(value)
-      }
-    }
-    return {
-      assetUrls: Array.from(urls),
-      apiBaseUrl,
-      token,
-      releaseId,
-      author,
-      packageName,
-      version,
-    }
-  }, [circuitJson, apiBaseUrl, token, releaseId, author, packageName, version])
-  return usePackageModelAssets(request)
-}
+import { usePackageCircuitModelAssets } from "../../hooks/use-package-circuit-model-assets"
 
 type ThreeDViewProps = {
   packageFiles?: { file_path: string; package_file_id: string }[]
@@ -150,7 +110,7 @@ function CircuitJsonThreeDView({
 }) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
   const { resolveStaticAsset, isLoading: isLoadingModels } =
-    useModelBlobUrls(circuitJson)
+    usePackageCircuitModelAssets(circuitJson)
 
   if (isLoading || isLoadingModels) {
     return (
