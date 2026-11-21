@@ -113,7 +113,8 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                   const latestBuild = latestBuildsMap.get(
                     release.package_release_id,
                   )
-                  const { status, label } = getBuildStatus(latestBuild)
+                  const { status, label, isLocalBuild } =
+                    getBuildStatus(latestBuild)
                   const buildDuration = formatBuildDuration(
                     latestBuild?.user_code_job_started_at,
                     latestBuild?.user_code_job_completed_at,
@@ -127,7 +128,8 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                       }
                       status={status}
                       statusLabel={label}
-                      duration={buildDuration}
+                      isLocalBuild={isLocalBuild}
+                      duration={isLocalBuild ? null : buildDuration}
                       createdAt={release.created_at}
                       isLatest={release.is_latest}
                       onClick={() => {

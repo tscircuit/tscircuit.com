@@ -30,6 +30,11 @@ const commonRequestBaseSchema = z.object({
     .string()
     .regex(/^.+@.+/)
     .optional(),
+  /**
+   * The archive already contains the build output (dist/), so the upload
+   * shouldn't invalidate it or queue a cloud build
+   */
+  skip_cloud_build: z.boolean().optional().default(false),
 })
 
 const commonRequestSchema = commonRequestBaseSchema
@@ -58,6 +63,7 @@ const jsonRequestSchema = commonRequestBaseSchema
 type ParsedRequest = {
   package_release_id?: string
   package_name_with_version?: string
+  skip_cloud_build: boolean
   archiveBuffer: Buffer
 }
 
@@ -74,6 +80,7 @@ const parseJsonRequest = async (
   return {
     package_release_id: parsedJson.data.package_release_id,
     package_name_with_version: parsedJson.data.package_name_with_version,
+    skip_cloud_build: parsedJson.data.skip_cloud_build,
     archiveBuffer,
   }
 }
@@ -96,6 +103,7 @@ const parseMultipartRequest = async (
       typeof package_name_with_version === "string"
         ? package_name_with_version
         : undefined,
+    skip_cloud_build: formData.get("skip_cloud_build") === "true",
   })
 
   if (!parsedCommon.success) return null
@@ -251,35 +259,37 @@ export default withRouteSpec({
     }
   })
 
-  ctx.db.updatePackageRelease({
-    ...release,
-    pcb_trace_count: null,
-    circuit_json_build_error: null,
-    circuit_json_build_error_last_updated_at: null,
-    circuit_json_build_is_stale: true,
-    image_generation_is_stale: true,
-    image_generation_error: null,
-    image_generation_error_last_updated_at: null,
-    image_generation_in_progress: false,
-    image_generation_started_at: null,
-    image_generation_completed_at: null,
-    image_generation_logs: [],
-    transpilation_is_stale: true,
-    has_transpiled: false,
-    transpilation_error: null,
-    transpilation_in_progress: false,
-    transpilation_started_at: null,
-    transpilation_completed_at: null,
-    transpilation_logs: [],
-    ready_to_build: true,
-    active_package_build_id: null,
-  })
-  for (const file of ctx.db.packageFiles.filter(
-    (file) =>
-      file.package_release_id === release.package_release_id &&
-      normalizeProjectFilePath(file.file_path) === "dist/circuit.json",
-  )) {
-    ctx.db.deletePackageFile(file.package_file_id)
+  if (!parsedRequest.skip_cloud_build) {
+    ctx.db.updatePackageRelease({
+      ...release,
+      pcb_trace_count: null,
+      circuit_json_build_error: null,
+      circuit_json_build_error_last_updated_at: null,
+      circuit_json_build_is_stale: true,
+      image_generation_is_stale: true,
+      image_generation_error: null,
+      image_generation_error_last_updated_at: null,
+      image_generation_in_progress: false,
+      image_generation_started_at: null,
+      image_generation_completed_at: null,
+      image_generation_logs: [],
+      transpilation_is_stale: true,
+      has_transpiled: false,
+      transpilation_error: null,
+      transpilation_in_progress: false,
+      transpilation_started_at: null,
+      transpilation_completed_at: null,
+      transpilation_logs: [],
+      ready_to_build: true,
+      active_package_build_id: null,
+    })
+    for (const file of ctx.db.packageFiles.filter(
+      (file) =>
+        file.package_release_id === release.package_release_id &&
+        normalizeProjectFilePath(file.file_path) === "dist/circuit.json",
+    )) {
+      ctx.db.deletePackageFile(file.package_file_id)
+    }
   }
   ctx.db.updatePackageReleaseFsSha(release.package_release_id)
   ctx.db.updatePackage(pkg.package_id, { updated_at: new Date().toISOString() })
