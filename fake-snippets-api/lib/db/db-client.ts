@@ -1635,6 +1635,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           ? {
               ...release,
               latest_package_build_id: newPackageBuild.package_build_id,
+              build_source: newPackageBuild.build_source,
             }
           : release,
       ),

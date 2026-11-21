@@ -39,6 +39,7 @@ interface PackageReleaseOrBuildItemRowProps {
   subtitle?: string
   status: "pending" | "building" | "success" | "error" | "queued"
   statusLabel: string
+  isLocalBuild?: boolean
   duration: string | null
   createdAt: string
   onClick?: () => void
@@ -53,6 +54,7 @@ export const PackageReleaseOrBuildItemRow = ({
   subtitle,
   status,
   statusLabel,
+  isLocalBuild = false,
   duration,
   createdAt,
   onClick,
@@ -84,7 +86,7 @@ export const PackageReleaseOrBuildItemRow = ({
             )}
           </div>
           <div className="flex items-center gap-1.5 mb-1">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             <span
               className={`text-xs font-medium ${
                 status === "success"
@@ -158,7 +160,7 @@ export const PackageReleaseOrBuildItemRow = ({
       {/* Desktop Layout - Status Column */}
       <div className="hidden sm:block w-[100px] flex-shrink-0">
         <div className="flex items-center gap-1.5">
-          <StatusIcon status={status} />
+          <StatusIcon status={status} isLocalBuild={isLocalBuild} />
           <span
             className={`text-sm font-medium ${
               status === "success"

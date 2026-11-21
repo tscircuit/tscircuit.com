@@ -97,7 +97,7 @@ export const ConnectedPackageCard = ({
     return <ConnectedPackageCardSkeleton />
   }
 
-  const { status, label } = getBuildStatus(latestBuildInfo)
+  const { status, label, isLocalBuild } = getBuildStatus(latestBuildInfo)
 
   return (
     <Card
@@ -136,7 +136,7 @@ export const ConnectedPackageCard = ({
             {label}
           </Badge>
           <div className="flex items-center justify-center">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
           </div>
         </div>
       </div>

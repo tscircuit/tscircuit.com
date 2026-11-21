@@ -1,5 +1,6 @@
 export { ReleaseBuildLogs } from "./ReleaseBuildLogs"
 export { SingleBuildLogs } from "./SingleBuildLogs"
+export { LocalBuildNotice } from "./LocalBuildNotice"
 export { BuildDeploymentDetails } from "./BuildDeploymentDetails"
 export { BuildCircuitErrors } from "./BuildCircuitErrors"
 export { BuildsList } from "./BuildsList"
@@ -15,7 +16,13 @@ import {
   PackageBuild,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
-import { Clock, AlertCircle, Loader2, CircleCheck } from "lucide-react"
+import {
+  Clock,
+  AlertCircle,
+  Loader2,
+  CircleCheck,
+  LaptopMinimalCheck,
+} from "lucide-react"
 
 export interface DropdownAction {
   label: string
@@ -25,7 +32,26 @@ export interface DropdownAction {
 
 export type Status = "pending" | "building" | "success" | "error" | "queued"
 
+/**
+ * A local build was built by the user and uploaded with its dist output (e.g.
+ * `tsci push --include-dist`), no cloud build was run for it
+ */
+export const isLocalBuild = (
+  build?: PackageBuild | PublicPackageRelease | null,
+): boolean => build?.build_source === "local"
+
 export const getBuildStatus = (
+  build?: PackageBuild | PublicPackageRelease | null,
+): {
+  status: Status
+  label: string
+  isLocalBuild: boolean
+} => ({
+  ...getBuildStatusAndLabel(build),
+  isLocalBuild: isLocalBuild(build),
+})
+
+const getBuildStatusAndLabel = (
   build?: PackageBuild | PublicPackageRelease | null,
 ): {
   status: Status
@@ -55,7 +81,10 @@ export const getBuildStatus = (
   }
 
   if (build.user_code_job_completed_at && !build.user_code_job_error) {
-    return { status: "success", label: "Ready" }
+    return {
+      status: "success",
+      label: isLocalBuild(build) ? "Built locally" : "Ready",
+    }
   }
 
   if (
@@ -71,7 +100,8 @@ export const getBuildStatus = (
 export const StatusIcon = ({
   status,
   size = 4,
-}: { status: Status; size?: number }) => {
+  isLocalBuild = false,
+}: { status: Status; size?: number; isLocalBuild?: boolean }) => {
   const sizeClasses: Record<number, string> = {
     3: "w-3 h-3",
     4: "w-4 h-4",
@@ -84,6 +114,9 @@ export const StatusIcon = ({
 
   switch (status) {
     case "success":
+      if (isLocalBuild) {
+        return <LaptopMinimalCheck className={`${sizeClass} text-violet-500`} />
+      }
       return <CircleCheck className={`${sizeClass} text-green-500`} />
     case "error":
       return <AlertCircle className={`${sizeClass} text-red-500`} />

@@ -93,7 +93,9 @@ export function ReleaseDeploymentDetails({
     return () => clearInterval(interval)
   }, [isWaitingForBuild])
 
+  // Local builds are recorded as already complete, so they have no duration
   const buildDuration =
+    !buildStatus.isLocalBuild &&
     latestBuild?.user_code_job_started_at &&
     latestBuild?.user_code_job_completed_at
       ? Math.floor(
@@ -177,7 +179,9 @@ export function ReleaseDeploymentDetails({
                         ? "Triggering..."
                         : isWaitingForBuild
                           ? `Waiting (${waitingSeconds}s)`
-                          : "Rebuild"}
+                          : buildStatus.isLocalBuild
+                            ? "Build in cloud"
+                            : "Rebuild"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Click to force rebuild</TooltipContent>
@@ -279,7 +283,11 @@ export function ReleaseDeploymentDetails({
                 Status
               </p>
               <div className="flex items-center gap-2">
-                <StatusIcon size={4} status={buildStatus.status} />
+                <StatusIcon
+                  size={4}
+                  status={buildStatus.status}
+                  isLocalBuild={buildStatus.isLocalBuild}
+                />
                 <span className="text-sm -translate-y-[0.025rem] font-medium text-gray-900">
                   {buildStatus.label}
                 </span>

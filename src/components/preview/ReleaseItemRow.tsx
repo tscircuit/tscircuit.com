@@ -29,6 +29,7 @@ interface ReleaseItemRowProps {
   release: PublicPackageRelease
   status: Status
   statusLabel: string
+  isLocalBuild?: boolean
   onClick?: () => void
   dropdownActions?: DropdownAction[]
   isLatest?: boolean
@@ -39,6 +40,7 @@ export const ReleaseItemRow = ({
   release,
   status,
   statusLabel,
+  isLocalBuild = false,
   onClick,
   dropdownActions,
   isLatest,
@@ -108,7 +110,7 @@ export const ReleaseItemRow = ({
             <div className="text-sm text-gray-500 mt-0.5">Release</div>
           </div>
           <div className="flex items-center gap-1.5">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             <span
               className={`text-sm font-medium ${
                 status === "success"
@@ -211,7 +213,7 @@ export const ReleaseItemRow = ({
 
         <div className="col-span-2 flex flex-col justify-center min-w-0">
           <div className="flex items-center gap-2">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             <span className="text-sm font-medium text-gray-700">
               {statusLabel}
             </span>
