@@ -150,7 +150,7 @@ function UsbPort() {
         symbolName="resistor"
         name="R10"
         schSectionName="usb"
-        schX={-5.8}
+        schX={-4}
         schY={2.5}
         schRotation={270}
         resistance="5.1k"
@@ -163,7 +163,7 @@ function UsbPort() {
         symbolName="resistor"
         name="R11"
         schSectionName="usb"
-        schX={-4}
+        schX={-5.8}
         schY={2.5}
         schRotation={270}
         resistance="5.1k"
