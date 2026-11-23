@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
+import { getFilePathConflict } from "@/lib/utils/getFilePathConflict"
 import { PackageFile } from "@/types/package"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
@@ -380,9 +381,12 @@ export function useFileManagement({
       }
     }
 
-    const fileExists = localFiles?.some((file) => file.path === newFileName)
-    if (fileExists) {
-      onError(new Error(`File '${newFileName}' already exists`))
+    const filePathConflict = getFilePathConflict(
+      newFileName,
+      (localFiles || []).map((file) => file.path),
+    )
+    if (filePathConflict) {
+      onError(new Error(filePathConflict))
       return {
         newFileCreated: false,
       }
