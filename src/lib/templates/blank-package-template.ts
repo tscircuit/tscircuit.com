@@ -1,6 +1,7 @@
 export const blankPackageTemplate = {
   type: "package",
-  code: `
+  fsMap: {
+    "index.tsx": `
 import type { ChipProps } from "@tscircuit/props"
 
 const pinLabels = {
@@ -18,4 +19,5 @@ export const MyChip = (props: ChipProps<typeof pinLabels>) => (
   <chip footprint="soic8" pinLabels={pinLabels} {...props} />
 )
 `.trim(),
+  },
 }

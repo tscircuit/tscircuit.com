@@ -1,6 +1,7 @@
 export const blinkingLedBoardTemplate = {
   type: "board",
-  code: `
+  fsMap: {
+    "index.tsx": `
 import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
 import { RedLed } from "@tsci/seveibar.red-led"
 import { A555Timer } from "@tsci/seveibar.a555timer"
@@ -51,4 +52,5 @@ export const MyBlinkingLedCircuit = () => {
   )
 }
 `.trim(),
+  },
 }

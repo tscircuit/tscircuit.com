@@ -26,7 +26,9 @@ export const templateCatalogue = [
   },
 ] as const
 
-const templateMap: Record<string, { code: string; type: string }> = {
+type SnippetTemplate = { fsMap: Record<string, string>; type: string }
+
+const templateMap: Record<string, SnippetTemplate> = {
   "blank-circuit-board": esp32BoardTemplate,
   "blank-chip-component": blankPackageTemplate,
   "analog-simulation": analogSimulationTemplate,
@@ -34,7 +36,9 @@ const templateMap: Record<string, { code: string; type: string }> = {
   "usb-c-led-flashlight": usbCLedFlashlightTemplate,
 }
 
-export const getSnippetTemplate = (template: string | undefined) => {
+export const getSnippetTemplate = (
+  template: string | undefined,
+): SnippetTemplate => {
   if (template && templateMap[template]) {
     return templateMap[template]
   }

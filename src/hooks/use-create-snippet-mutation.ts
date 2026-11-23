@@ -1,3 +1,5 @@
+import { gzipSync, strToU8 } from "fflate"
+import { bytesToBase64 } from "@/lib/bytesToBase64"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
@@ -29,7 +31,7 @@ export const useCreateSnippetMutation = ({
       const template =
         typeof code === "string"
           ? {
-              code,
+              fsMap: { "index.tsx": code },
               type:
                 urlParams.type ||
                 (code.includes("<board") ? "board" : "package"),
@@ -38,13 +40,23 @@ export const useCreateSnippetMutation = ({
       const {
         data: { snippet },
       } = await axios.post("/snippets/create", {
-        code: template.code,
+        code: template.fsMap["index.tsx"],
         snippet_type: template.type ?? "board",
         manual_edits_json_content,
         owner_name: session?.github_username,
         circuit_json,
         is_private,
       })
+      const imports = Object.entries(template.fsMap)
+        .filter(([path]) => path !== "index.tsx")
+        .map(([file_path, content_text]) => ({ file_path, content_text }))
+      if (imports.length) {
+        const archive = gzipSync(strToU8(JSON.stringify({ files: imports })))
+        await axios.post("/package_files/upload_archive", {
+          package_release_id: snippet.package_release_id,
+          archive_base64: bytesToBase64(archive),
+        })
+      }
       return snippet
     },
     {

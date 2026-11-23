@@ -1,7 +1,33 @@
 import { expect, test } from "bun:test"
+import { gzipSync, strToU8 } from "fflate"
+import { bytesToBase64 } from "@/lib/bytesToBase64"
+import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
 import { runAllChecks } from "@tscircuit/checks"
 import { createCircuitWebWorker } from "@tscircuit/eval/worker"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
+
+test("the starter and legacy single-file boards survive shared editor links", () => {
+  const { fsMap } = getSnippetTemplate("blank-circuit-board")
+  const imports = Array.from(
+    fsMap["index.tsx"].matchAll(/from "\.\/(imports\/[^"]+)"/g),
+    ([, modulePath]) => modulePath + ".tsx",
+  )
+  expect(imports).toHaveLength(6)
+  expect(Object.keys(fsMap).sort()).toEqual(["index.tsx", ...imports].sort())
+
+  const hash = (text: string) =>
+    "#data:application/gzip;base64," + bytesToBase64(gzipSync(strToU8(text)))
+  const sharedProject = hash(JSON.stringify(fsMap))
+  // Anonymous editor sessions persist their workspace in this fragment.
+  expect(sharedProject.length).toBeLessThanOrEqual(8000)
+  expect(decodeUrlHashToFsMap(sharedProject)).toEqual(fsMap)
+
+  const legacy = "export default () => <board />"
+  expect(decodeUrlHashToFsMap(hash(legacy))).toEqual({ "index.tsx": legacy })
+  expect(
+    decodeUrlHashToFsMap("#data:application/gzip;base64,broken"),
+  ).toBeNull()
+})
 
 test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi sounder", async () => {
   const template = getSnippetTemplate(undefined)
@@ -15,7 +41,7 @@ test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi 
     platform: { partsEngineDisabled: true },
   })
   try {
-    await worker.executeWithFsMap({ fsMap: { "index.tsx": template.code } })
+    await worker.executeWithFsMap({ fsMap: template.fsMap })
     await worker.renderUntilSettled()
     const circuit = await worker.getCircuitJson()
     const parts = circuit.filter((el) => el.type === "source_component")
@@ -111,6 +137,27 @@ test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi 
       groups.length,
     )
 
+    const board = circuit.find((el) => el.type === "pcb_board")!
+    expect([board.width, board.height]).toEqual([42, 30])
+    const placedParts = circuit.filter(
+      (el) => el.type === "pcb_component" && names.has(el.source_component_id),
+    )
+    expect(placedParts).toHaveLength(parts.length)
+    expect(
+      placedParts.every(
+        (el) => el.type === "pcb_component" && el.layer === "top",
+      ),
+    ).toBe(true)
+    // The antenna can overhang the board. Every solder land must stay on it.
+    for (const pad of circuit) {
+      if (pad.type !== "pcb_smtpad" || pad.shape !== "rect") continue
+      expect(Math.abs(pad.x - board.center.x) + pad.width / 2).toBeLessThan(
+        board.width! / 2,
+      )
+      expect(Math.abs(pad.y - board.center.y) + pad.height / 2).toBeLessThan(
+        board.height! / 2,
+      )
+    }
     expect(circuit.some((el) => el.type === "pcb_trace")).toBe(true)
     expect(
       circuit.some(

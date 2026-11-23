@@ -5,7 +5,7 @@ import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "./use-package-files"
-import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
+import { useParams } from "wouter"
 import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
 import { useOptimizedPackageFilesLoader } from "./useOptimizedPackageFilesLoader"
 import { useGlobalStore } from "./use-global-store"
@@ -54,14 +54,14 @@ export interface ICreatePackageProps {
 }
 
 export function useFileManagement({
-  templateCode = getSnippetTemplate(undefined).code,
+  templateFsMap = getSnippetTemplate(undefined).fsMap,
   currentPackage,
   openNewPackageSaveDialog,
   updateLastUpdated,
   urlParams,
   releaseId,
 }: {
-  templateCode?: string
+  templateFsMap?: Record<string, string>
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
@@ -100,14 +100,6 @@ export function useFileManagement({
 
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(effectiveReleaseId)
-  const initialCodeContent = useMemo(() => {
-    return (
-      (!!decodeUrlHashToText(window.location.toString()) &&
-      decodeUrlHashToText(window.location.toString()) !== ""
-        ? decodeUrlHashToText(window.location.toString())
-        : templateCode) || DEFAULT_CODE
-    )
-  }, [templateCode, currentPackage])
   const manualEditsFileContent = useMemo(() => {
     return (
       localFiles?.find((file) => file.path === "manual-edits.json")?.content ||
@@ -176,40 +168,22 @@ export function useFileManagement({
     },
   })
 
+  const { author, packageName } = useParams()
+  const hasPackage = Boolean(
+    currentPackage || urlParams.package_id || (author && packageName),
+  )
   useEffect(() => {
-    if (!currentPackage || isPriorityLoading) {
-      const decodedFsMap = decodeUrlHashToFsMap(window.location.toString())
-
-      if (decodedFsMap && Object.keys(decodedFsMap).length > 0) {
-        const filesFromUrl = Object.entries(decodedFsMap).map(
-          ([path, content]) => ({
-            path,
-            content: String(content),
-          }),
-        )
-        const targetFile = findTargetFile({
-          files: filesFromUrl,
-          filePathFromUrl: fileChosen,
-        })
-        setLocalFiles(filesFromUrl)
-        setInitialFiles([])
-        setCurrentFile(targetFile?.path ?? null)
-        return
-      }
-
-      if (!urlParams.package_id) {
-        setLocalFiles([
-          {
-            path: "index.tsx",
-            content: initialCodeContent || "",
-          },
-        ])
-        setInitialFiles([])
-        setCurrentFile("index.tsx")
-      }
-      return
-    }
-  }, [currentPackage, isPriorityLoading])
+    if (hasPackage) return
+    const fsMap = decodeUrlHashToFsMap(window.location.href) ?? templateFsMap
+    const files = Object.entries(fsMap).map(([path, content]) => ({
+      path,
+      content,
+    }))
+    const target = findTargetFile({ files, filePathFromUrl: fileChosen })
+    setLocalFiles(files)
+    setInitialFiles([])
+    setCurrentFile(target?.path ?? null)
+  }, [hasPackage, templateFsMap])
 
   useEffect(() => {
     if (priorityFile && !isPriorityLoading && currentPackage) {
