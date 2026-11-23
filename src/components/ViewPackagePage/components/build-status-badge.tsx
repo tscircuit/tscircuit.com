@@ -22,7 +22,7 @@ export const BuildStatusBadge = ({ packageRelease }: BuildStatusBadgeProps) => {
   const { data: build } = usePackageBuild(
     packageRelease.latest_package_build_id ?? null,
   )
-  const { status, label } = getBuildStatus(build)
+  const { status, label, isLocalBuild } = getBuildStatus(build)
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
   const counts = useMemo(
     () => getCircuitDiagnosticCounts(circuitJson),
@@ -42,7 +42,7 @@ export const BuildStatusBadge = ({ packageRelease }: BuildStatusBadgeProps) => {
               href={`/${author}/${packageName}/releases/${packageRelease.package_release_id}`}
               className="inline-flex items-center py-0.5 px-1.5 rounded text-xs font-medium hover:opacity-80 transition-opacity"
             >
-              <StatusIcon status={status} />
+              <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             </Link>
           </TooltipTrigger>
           <TooltipContent>

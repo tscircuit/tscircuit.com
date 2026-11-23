@@ -59,7 +59,7 @@ export const ReleasesList = ({
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="divide-y divide-gray-100">
         {filteredReleases?.map((release) => {
-          const { status, label } = getBuildStatus(release)
+          const { status, label, isLocalBuild } = getBuildStatus(release)
           const errorMessage = getBuildErrorMessage(release)
 
           return (
@@ -68,6 +68,7 @@ export const ReleasesList = ({
               release={release}
               status={status}
               statusLabel={label}
+              isLocalBuild={isLocalBuild}
               isLatest={release.is_latest}
               errorMessage={errorMessage}
               onClick={() => {

@@ -62,10 +62,13 @@ export function BuildDeploymentDetails({
     return () => clearInterval(interval)
   }, [isWaitingForBuild])
 
-  const buildDuration = getStepDuration(
-    packageBuild?.user_code_job_started_at,
-    packageBuild?.user_code_job_completed_at,
-  )
+  // Local builds are recorded as already complete, so they have no duration
+  const buildDuration = buildStatus.isLocalBuild
+    ? null
+    : getStepDuration(
+        packageBuild?.user_code_job_started_at,
+        packageBuild?.user_code_job_completed_at,
+      )
 
   const isLatestBuild =
     packageRelease.latest_package_build_id === packageBuild.package_build_id
@@ -116,7 +119,9 @@ export function BuildDeploymentDetails({
                         ? "Triggering..."
                         : isWaitingForBuild
                           ? `Waiting (${waitingSeconds}s)`
-                          : "Rebuild Release"}
+                          : buildStatus.isLocalBuild
+                            ? "Build in cloud"
+                            : "Rebuild Release"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Click to trigger a new build</TooltipContent>
@@ -170,7 +175,11 @@ export function BuildDeploymentDetails({
             Status
           </p>
           <div className="flex items-center gap-1">
-            <StatusIcon size={4} status={buildStatus.status} />
+            <StatusIcon
+              size={4}
+              status={buildStatus.status}
+              isLocalBuild={buildStatus.isLocalBuild}
+            />
             <span className="text-sm font-medium text-gray-900">
               {buildStatus.label}
             </span>

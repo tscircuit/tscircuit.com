@@ -21,6 +21,7 @@ interface BuildItemRowProps {
   build_id: string
   status: Status
   statusLabel: string
+  isLocalBuild?: boolean
   duration: string | null
   createdAt: string
   onClick?: () => void
@@ -33,6 +34,7 @@ export const BuildItemRow = ({
   build_id,
   status,
   statusLabel,
+  isLocalBuild = false,
   duration,
   createdAt,
   onClick,
@@ -76,7 +78,7 @@ export const BuildItemRow = ({
             <div className="text-sm text-gray-500 mt-0.5">Build</div>
           </div>
           <div className="flex items-center gap-1.5">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             <span
               className={`text-sm font-medium ${
                 status === "success"
@@ -185,7 +187,7 @@ export const BuildItemRow = ({
 
         <div className="col-span-2 flex flex-col justify-center min-w-0">
           <div className="flex items-center gap-2">
-            <StatusIcon status={status} />
+            <StatusIcon status={status} isLocalBuild={isLocalBuild} />
             <span className="text-sm font-medium text-gray-700">
               {statusLabel}
             </span>

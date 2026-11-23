@@ -51,6 +51,7 @@ describe("getPackageDomainTargetInfo", () => {
       package_build_id: "12345678-1234-4123-8123-123456789abc",
       package_release_id: "release-xyz",
       created_at: new Date().toISOString(),
+      build_source: "cloud",
       transpilation_in_progress: false,
       transpilation_logs: null,
       circuit_json_build_in_progress: false,
