@@ -553,7 +553,7 @@ function BuzzerAmplifier() {
         connections={{ pin1: "net.OUT1" }}
         schSectionName="audio"
         schX={8.1}
-        schY={-4.2}
+        schY={-3.8}
         resistance="100"
         footprint="0603"
         pcbX={8.3}
@@ -765,7 +765,7 @@ function PiezoBuzzer() {
       name="Y1"
       schSectionName="audio"
       schX={10}
-      schY={-4.45}
+      schY={-4.1}
       frequency="4kHz"
       pinVariant="no_ground"
       manufacturerPartNumber="CPT-9019S-SMT-TR"
@@ -790,7 +790,7 @@ function PiezoBuzzer() {
             name="pin1"
             direction="left"
             schX={-0.55}
-            schY={0.12}
+            schY={0.3}
             schStemLength={0.35}
           />
           <port
@@ -798,18 +798,18 @@ function PiezoBuzzer() {
             name="pin2"
             direction="left"
             schX={-0.55}
-            schY={-0.12}
+            schY={-0.3}
             schStemLength={0.35}
           />
           <schematicpath
             points={[
-              { x: -0.2, y: -0.24 },
-              { x: -0.2, y: 0.24 },
-              { x: 0.1, y: 0.24 },
+              { x: -0.2, y: -0.35 },
+              { x: -0.2, y: 0.35 },
+              { x: 0.1, y: 0.35 },
               { x: 0.4, y: 0.45 },
               { x: 0.4, y: -0.45 },
-              { x: 0.1, y: -0.24 },
-              { x: -0.2, y: -0.24 },
+              { x: 0.1, y: -0.35 },
+              { x: -0.2, y: -0.35 },
             ]}
           />
           <schematictext
