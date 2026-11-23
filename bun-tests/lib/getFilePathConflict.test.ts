@@ -25,3 +25,18 @@ test("getFilePathConflict rejects a file inside an existing file", () => {
     "'index.tsx' is a file, so it can't contain 'index.tsx/pin.tsx'",
   )
 })
+
+test("getFilePathConflict treats a leading slash as the same path", () => {
+  expect(getFilePathConflict("/index.tsx", existingFilePaths)).toBe(
+    "File 'index.tsx' already exists",
+  )
+  expect(getFilePathConflict("/lib", existingFilePaths)).toBe(
+    "A folder named 'lib' already exists",
+  )
+  expect(getFilePathConflict("lib", ["/lib/resistor.tsx"])).toBe(
+    "A folder named 'lib' already exists",
+  )
+  expect(getFilePathConflict("/lib/capacitor.tsx", existingFilePaths)).toBe(
+    null,
+  )
+})
