@@ -124,7 +124,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
-    "circuit-json": "^0.0.550",
+    "circuit-json": "^0.0.556",
     "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#1a50d0dd2c0737cf940d92c0315852dc0111dd87",
     "circuit-json-to-pnp-csv": "0.0.18",
     "circuit-json-to-step": "^0.0.57",
@@ -208,6 +208,7 @@
     "zustand-hoist": "^2.0.1"
   },
   "overrides": {
-    "altiumts": "0.0.59"
+    "altiumts": "0.0.59",
+    "circuit-json": "$circuit-json"
   }
 }

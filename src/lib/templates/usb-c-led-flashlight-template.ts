@@ -1,6 +1,7 @@
 export const usbCLedFlashlightTemplate = {
   type: "board",
-  code: `
+  fsMap: {
+    "index.tsx": `
 import { RedLed } from "@tsci/seveibar.red-led"
 import { PushButton } from "@tsci/seveibar.push-button"
 import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
@@ -27,4 +28,5 @@ export default () => {
     </board>
   )
 }`.trim(),
+  },
 }

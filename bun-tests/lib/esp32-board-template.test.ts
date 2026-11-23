@@ -1,0 +1,154 @@
+import { expect, test } from "bun:test"
+import { runAllChecks } from "@tscircuit/checks"
+import { createCircuitWebWorker } from "@tscircuit/eval/worker"
+import { getSnippetTemplate } from "@/lib/get-snippet-template"
+
+test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi sounder", async () => {
+  const template = getSnippetTemplate(undefined)
+  expect(getSnippetTemplate("blank-circuit-board")).toEqual(template)
+
+  const worker = await createCircuitWebWorker({
+    webWorkerBlobUrl: new URL(
+      "../fixtures/esp32-board-template-worker.ts",
+      import.meta.url,
+    ).href,
+    platform: { partsEngineDisabled: true },
+  })
+  try {
+    await worker.executeWithFsMap({ fsMap: template.fsMap })
+    await worker.renderUntilSettled()
+    const circuit = await worker.getCircuitJson()
+    const parts = circuit.filter((el) => el.type === "source_component")
+    const models = circuit.filter((el) => el.type === "cad_component")
+    for (const mpn of ["TYPE-C-31-M-12", "LM4861MX/NOPB", "CPT-9019S-SMT-TR"]) {
+      const part = parts.find((el) => el.manufacturer_part_number === mpn)
+      expect(part).toBeDefined()
+      const model = models.find(
+        (el) => el.source_component_id === part!.source_component_id,
+      )
+      expect(model?.model_obj_url).toContain(
+        part!.supplier_part_numbers!.jlcpcb![0],
+      )
+    }
+
+    const radio = parts.find(
+      (p) => p.manufacturer_part_number === "ESP32-C6-WROOM-1-N8",
+    )
+    expect(radio).toBeDefined()
+    expect(
+      models.find((m) => m.source_component_id === radio!.source_component_id)
+        ?.model_step_url,
+    ).toContain("ESP32-C6-WROOM-1.STEP")
+    for (const ref of ["R10", "R11"]) {
+      expect(parts).toContainEqual(
+        expect.objectContaining({ name: ref, resistance: 5100 }),
+      )
+    }
+    const headings = circuit
+      .filter((el) => el.type === "schematic_text")
+      .map((el) => el.text)
+    expect(headings).toEqual(
+      expect.arrayContaining([
+        "USB-C interface",
+        "3.3 V supply",
+        "ESP32-C6 and boot control",
+        "Piezo driver",
+      ]),
+    )
+
+    // Check package pin numbers, independent of the labels in the template.
+    const names = new Map(parts.map((p) => [p.source_component_id, p.name]))
+    const nets = new Map<string, string>()
+    for (const port of circuit) {
+      if (
+        port.type !== "source_port" ||
+        !port.source_component_id ||
+        !port.subcircuit_connectivity_map_key
+      )
+        continue
+      const pin = names.get(port.source_component_id) + "." + port.pin_number
+      nets.set(pin, port.subcircuit_connectivity_map_key)
+    }
+    const groups = [
+      ["J1.12", "J1.13", "U2.1", "U2.3", "U3.6"], // both VBUS pads
+      ["U2.5", "U1.2", "C3.1", "C4.1", "R3.1", "R4.1", "R5.1"],
+      [
+        "J1.1",
+        "J1.10",
+        "J1.11",
+        "U1.1",
+        "U1.28",
+        "U1.29",
+        "U2.2",
+        "U3.7",
+        "U3.1",
+        "R10.2",
+        "R11.2",
+      ],
+      ["U1.3", "R3.2", "C5.1"], // enable timing
+      ["U1.15", "R4.2", "SW1.1"], // GPIO9 download strap
+      ["U1.10", "R5.2"], // GPIO8 high during download
+      ["J1.3", "R10.1"],
+      ["J1.9", "R11.1"], // independent CC pull-downs
+      ["J1.4", "J1.6", "R1.2"],
+      ["R1.1", "U1.13"], // D− to GPIO12
+      ["J1.5", "J1.7", "R2.2"],
+      ["R2.1", "U1.14"], // D+ to GPIO13
+      ["U1.11", "C6.1"],
+      ["C6.2", "R7.1"], // GPIO10 to amplifier input
+      ["R7.2", "R8.1", "U3.4"],
+      ["U3.2", "U3.3", "C7.1"],
+      ["U3.5", "R8.2", "R9.1"],
+      ["R9.2", "Y1.1"],
+      ["U3.8", "Y1.2"],
+    ]
+    for (const group of groups) {
+      const net = nets.get(group[0])
+      expect(net).toBeDefined()
+      for (const pin of group.slice(1)) expect(nets.get(pin)).toBe(net)
+    }
+    expect(new Set(groups.map(([pin]) => nets.get(pin))).size).toBe(
+      groups.length,
+    )
+
+    const board = circuit.find((el) => el.type === "pcb_board")!
+    expect([board.width, board.height]).toEqual([42, 30])
+    const placedParts = circuit.filter(
+      (el) => el.type === "pcb_component" && names.has(el.source_component_id),
+    )
+    expect(placedParts).toHaveLength(parts.length)
+    expect(
+      placedParts.every(
+        (el) => el.type === "pcb_component" && el.layer === "top",
+      ),
+    ).toBe(true)
+    // The antenna can overhang the board. Every solder land must stay on it.
+    for (const pad of circuit) {
+      if (pad.type !== "pcb_smtpad" || pad.shape !== "rect") continue
+      expect(Math.abs(pad.x - board.center.x) + pad.width / 2).toBeLessThan(
+        board.width! / 2,
+      )
+      expect(Math.abs(pad.y - board.center.y) + pad.height / 2).toBeLessThan(
+        board.height! / 2,
+      )
+    }
+    expect(circuit.some((el) => el.type === "pcb_trace")).toBe(true)
+    expect(
+      circuit.some(
+        (el) => el.type === "pcb_copper_pour" && el.layer === "bottom",
+      ),
+    ).toBe(true)
+    expect(circuit).toContainEqual(
+      expect.objectContaining({
+        type: "pcb_keepout",
+        layers: ["top", "bottom"],
+      }),
+    )
+    expect(circuit.filter((el) => /_(error|warning)$/.test(el.type))).toEqual(
+      [],
+    )
+    expect(await runAllChecks(circuit)).toEqual([])
+  } finally {
+    await worker.kill()
+  }
+}, 30_000)

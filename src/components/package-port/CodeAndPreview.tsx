@@ -118,7 +118,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     renameFile,
     packageFilesMeta,
   } = useFileManagement({
-    templateCode: templateFromUrl?.code,
+    templateFsMap: templateFromUrl?.fsMap,
     currentPackage: pkg,
     urlParams,
     openNewPackageSaveDialog,

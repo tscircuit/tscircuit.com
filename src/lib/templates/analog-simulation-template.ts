@@ -1,6 +1,7 @@
 export const analogSimulationTemplate = {
   type: "board",
-  code: `
+  fsMap: {
+    "index.tsx": `
 export default () => (
   <board schMaxTraceDistance={10} routingDisabled>
     <voltagesource name="V1" voltage="5V" />
@@ -30,4 +31,5 @@ export default () => (
   </board>
 )
 `.trim(),
+  },
 }
