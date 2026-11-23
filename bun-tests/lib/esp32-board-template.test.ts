@@ -20,12 +20,7 @@ test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi 
     const circuit = await worker.getCircuitJson()
     const parts = circuit.filter((el) => el.type === "source_component")
     const models = circuit.filter((el) => el.type === "cad_component")
-    for (const mpn of [
-      "ESP32-C3-WROOM-02-N4",
-      "10118194-0001LF",
-      "LM4861MX/NOPB",
-      "CPT-9019S-SMT-TR",
-    ]) {
+    for (const mpn of ["TYPE-C-31-M-12", "LM4861MX/NOPB", "CPT-9019S-SMT-TR"]) {
       const part = parts.find((el) => el.manufacturer_part_number === mpn)
       expect(part).toBeDefined()
       const model = models.find(
@@ -35,6 +30,31 @@ test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi 
         part!.supplier_part_numbers!.jlcpcb![0],
       )
     }
+
+    const radio = parts.find(
+      (p) => p.manufacturer_part_number === "ESP32-C6-WROOM-1-N8",
+    )
+    expect(radio).toBeDefined()
+    expect(
+      models.find((m) => m.source_component_id === radio!.source_component_id)
+        ?.model_step_url,
+    ).toContain("ESP32-C6-WROOM-1.STEP")
+    for (const ref of ["R10", "R11"]) {
+      expect(parts).toContainEqual(
+        expect.objectContaining({ name: ref, resistance: 5100 }),
+      )
+    }
+    const headings = circuit
+      .filter((el) => el.type === "schematic_text")
+      .map((el) => el.text)
+    expect(headings).toEqual(
+      expect.arrayContaining([
+        "USB-C interface",
+        "3.3 V supply",
+        "ESP32-C6 and boot control",
+        "Piezo driver",
+      ]),
+    )
 
     // Check package pin numbers, independent of the labels in the template.
     const names = new Map(parts.map((p) => [p.source_component_id, p.name]))
@@ -50,17 +70,32 @@ test("the default and New Board templates render a USB-programmable ESP32 Wi-Fi 
       nets.set(pin, port.subcircuit_connectivity_map_key)
     }
     const groups = [
-      ["J1.1", "U2.1", "U2.3", "U3.6"], // VBUS
-      ["U2.5", "U1.1", "C3.1", "C4.1"], // 3.3 V
-      ["J1.5", "J1.6", "U1.9", "U1.19", "U2.2", "U3.7", "U3.1"], // GND
-      ["U1.2", "R3.2", "C5.1"], // enable timing
-      ["U1.8", "R4.2", "SW1.1"], // download mode
-      ["J1.2", "R1.2"],
-      ["R1.1", "U1.13"], // USB D− to GPIO18
-      ["J1.3", "R2.2"],
-      ["R2.1", "U1.14"], // USB D+ to GPIO19
-      ["U1.3", "C6.1"],
-      ["C6.2", "R7.1"], // GPIO4 to amplifier input
+      ["J1.12", "J1.13", "U2.1", "U2.3", "U3.6"], // both VBUS pads
+      ["U2.5", "U1.2", "C3.1", "C4.1", "R3.1", "R4.1", "R5.1"],
+      [
+        "J1.1",
+        "J1.10",
+        "J1.11",
+        "U1.1",
+        "U1.28",
+        "U1.29",
+        "U2.2",
+        "U3.7",
+        "U3.1",
+        "R10.2",
+        "R11.2",
+      ],
+      ["U1.3", "R3.2", "C5.1"], // enable timing
+      ["U1.15", "R4.2", "SW1.1"], // GPIO9 download strap
+      ["U1.10", "R5.2"], // GPIO8 high during download
+      ["J1.3", "R10.1"],
+      ["J1.9", "R11.1"], // independent CC pull-downs
+      ["J1.4", "J1.6", "R1.2"],
+      ["R1.1", "U1.13"], // D− to GPIO12
+      ["J1.5", "J1.7", "R2.2"],
+      ["R2.1", "U1.14"], // D+ to GPIO13
+      ["U1.11", "C6.1"],
+      ["C6.2", "R7.1"], // GPIO10 to amplifier input
       ["R7.2", "R8.1", "U3.4"],
       ["U3.2", "U3.3", "C7.1"],
       ["U3.5", "R8.2", "R9.1"],

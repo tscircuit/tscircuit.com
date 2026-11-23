@@ -1,10 +1,11 @@
-// USB-powered Wi-Fi sounder. Program the ESP32-C3 through J1, then output
-// a 4 kHz square wave on GPIO4 to sound the passive piezo through U3.
+// USB-C Wi-Fi 6 sounder. Program the ESP32-C6 through J1, then output
+// a 4 kHz square wave on GPIO10 to sound the passive piezo through U3.
 export default () => (
   <board
+    schMaxTraceDistance={6.5}
     isViaInPadAllowed
     width="48mm"
-    height="40mm"
+    height="44mm"
     schLayout={{ layoutMode: "none" }}
   >
     <BoardLayout />
@@ -12,23 +13,44 @@ export default () => (
       <net name="VBUS" isPowerNet nominalTraceWidth="0.35mm" />
       <net name="V3V3" isPowerNet nominalTraceWidth="0.35mm" />
       <net name="GND" isGroundNet />
+      <schematicsection
+        sectionTitleFontSize={0.23}
+        name="usb"
+        displayName="USB-C interface"
+      />
+      <schematicsection
+        sectionTitleFontSize={0.23}
+        name="power"
+        displayName="3.3 V supply"
+      />
+      <schematicsection
+        sectionTitleFontSize={0.23}
+        name="radio"
+        displayName="ESP32-C6 and boot control"
+      />
+      <schematicsection
+        sectionTitleFontSize={0.23}
+        name="audio"
+        displayName="Piezo driver"
+      />
       <UsbPort />
       <PowerSupply />
       <WifiModule />
+      {/* Connect the far-side module ground pad to the via array under the shield. */}
+      <trace
+        name="GND"
+        from="U1.GND2"
+        to="U1.EP"
+        thickness="0.35mm"
+        pcbPathRelativeTo="U1"
+        pcbPath={["U1.GND2", { x: 4.21, y: 8.255 }, "U1.EP"]}
+      />
       <BootCircuit />
       <BuzzerAmplifier />
       <PiezoBuzzer />
-
-      <trace name="USB_DM" from="J1.DM" to="R1.pin2" />
-      <trace name="USB_DP" from="J1.DP" to="R2.pin2" />
-      <trace name="USB_DM_MCU" from="R1.pin1" to="U1.IO18" />
-      <trace name="USB_DP_MCU" from="R2.pin1" to="U1.IO19" />
-      <trace name="STRAP8" from="U1.IO8" to="R5.pin2" />
-      <trace name="STRAP2" from="U1.IO2" to="R6.pin2" />
-      <trace name="TONE" from="U1.IO4" to="C6.pin1" />
       <trace name="AUDIO_IN" from="C6.pin2" to="R7.pin1" />
-      <trace name="BUZZ_P" from="R9.pin2" to="Y1.pin1" />
-      <trace name="BUZZ_N" from="U3.OUT2" to="Y1.pin2" />
+      <trace name="PIEZO_P" from="R9.pin2" to="Y1.pin1" />
+      <trace name="PIEZO_N" from="U3.OUT2" to="Y1.pin2" />
     </schematicsheet>
   </board>
 )
@@ -36,63 +58,122 @@ export default () => (
 function UsbPort() {
   return (
     <>
-      {/* USB Micro-B: ID floats in device mode. The shell is grounded. */}
+      {/* USB 2.0 device. Connect both orientations and give each CC its own Rd. */}
       <connector
         name="J1"
-        manufacturerPartNumber="10118194-0001LF"
-        supplierPartNumbers={{ jlcpcb: ["C132563"] }}
+        schSectionName="usb"
+        schX={-8}
+        schY={4}
+        manufacturerPartNumber="TYPE-C-31-M-12"
+        supplierPartNumbers={{ jlcpcb: ["C165948"] }}
         footprint={usbFootprint}
-        pcbX={20.9}
-        pcbY={6}
-        pcbRotation={90}
-        schX={-7}
-        schY={3}
         cadModel={partModel(
-          "C132563",
-          "f4160fa25fe74ef4b93ccd5565bda7b1",
+          "C165948",
+          "617b05f9bba7410b96c001093d8189e4",
           0,
-          -0.36,
-          -1.225,
+          -2.75,
+          0,
+          180,
         )}
+        pcbX={-18.35}
+        pcbY={-6}
+        pcbRotation={270}
+        schWidth={1.8}
         pinLabels={{
-          pin1: "VBUS",
-          pin2: "DM",
-          pin3: "DP",
-          pin4: "ID",
-          pin5: "GND",
-          pin6: "SHIELD",
-        }}
-        pinAttributes={{
-          VBUS: { providesPower: true, providesVoltage: "5V" },
-          GND: { providesGround: true },
+          pin1: "SHIELD",
+          pin2: "SBU2",
+          pin3: "CC1",
+          pin4: "B7_DM",
+          pin5: "A6_DP",
+          pin6: "A7_DM",
+          pin7: "B6_DP",
+          pin8: "SBU1",
+          pin9: "CC2",
+          pin10: "GND_A",
+          pin11: "GND_B",
+          pin12: "VBUS_B",
+          pin13: "VBUS_A",
         }}
         schPinArrangement={{
-          leftSide: { pins: [1, 4, 5, 6], direction: "top-to-bottom" },
-          rightSide: { pins: [2, 3], direction: "top-to-bottom" },
+          leftSide: {
+            pins: [13, 12, 10, 11, 1, 2, 8],
+            direction: "top-to-bottom",
+          },
+          rightSide: { pins: [5, 7, 6, 4, 3, 9], direction: "top-to-bottom" },
         }}
-        noConnect={["ID"]}
-        connections={{ VBUS: "net.VBUS", GND: "net.GND", SHIELD: "net.GND" }}
+        pinAttributes={{
+          VBUS_A: { providesPower: true, providesVoltage: "5V" },
+          GND_A: { providesGround: true },
+        }}
+        noConnect={["SBU1", "SBU2"]}
+        connections={{
+          VBUS_B: "net.VBUS",
+          VBUS_A: "net.VBUS",
+          GND_A: "net.GND",
+          GND_B: "net.GND",
+          SHIELD: "net.GND",
+          B7_DM: "net.DM",
+          A7_DM: "net.DM",
+          B6_DP: "net.DP",
+          A6_DP: "net.DP",
+        }}
       />
       <resistor
+        symbolName="resistor"
         name="R1"
+        schSectionName="usb"
+        schX={-4.6}
+        schY={4.1}
+        schRotation={180}
         resistance="22"
         footprint="0603"
-        pcbX={8.5}
-        pcbY={4.6}
-        schX={-4.4}
-        schY={3.3}
-        schRotation={180}
+        pcbRotation={180}
+        pcbX={-13.55}
+        pcbY={-3.45}
+        connections={{ pin1: "net.USB_DM", pin2: "net.DM" }}
       />
       <resistor
+        symbolName="resistor"
         name="R2"
+        schSectionName="usb"
+        schX={-4.6}
+        schY={5.2}
+        schRotation={180}
         resistance="22"
         footprint="0603"
-        pcbX={8.5}
-        pcbY={6.1}
-        schX={-4.4}
-        schY={2.6}
-        schRotation={180}
+        pcbRotation={180}
+        pcbX={-13.55}
+        pcbY={-5.1}
+        connections={{ pin1: "net.USB_DP", pin2: "net.DP" }}
       />
+      <resistor
+        symbolName="resistor"
+        name="R10"
+        schSectionName="usb"
+        schX={-5.8}
+        schY={2.5}
+        schRotation={270}
+        resistance="5.1k"
+        footprint="0603"
+        pcbX={-16}
+        pcbY={-13}
+        connections={{ pin2: "net.GND" }}
+      />
+      <resistor
+        symbolName="resistor"
+        name="R11"
+        schSectionName="usb"
+        schX={-4}
+        schY={2.5}
+        schRotation={270}
+        resistance="5.1k"
+        footprint="0603"
+        pcbX={-18}
+        pcbY={0}
+        connections={{ pin2: "net.GND" }}
+      />
+      <trace name="CC1" from="J1.CC1" to="R10.pin1" />
+      <trace name="CC2" from="J1.CC2" to="R11.pin1" />
     </>
   )
 }
@@ -103,6 +184,15 @@ function PowerSupply() {
       {/* AP2112K: 600 mA regulator. C1/C2 stabilize the LDO; C3/C4 bypass U1. */}
       <chip
         name="U2"
+        schSectionName="power"
+        schX={5.5}
+        schY={4.7}
+        noConnect={["NC"]}
+        schPinArrangement={{
+          leftSide: { pins: [1, 3], direction: "top-to-bottom" },
+          rightSide: { pins: [5, 4], direction: "top-to-bottom" },
+          bottomSide: { pins: [2], direction: "left-to-right" },
+        }}
         manufacturerPartNumber="AP2112K-3.3TRG1"
         supplierPartNumbers={{ jlcpcb: ["C51118"] }}
         footprint="sot23_5"
@@ -128,8 +218,6 @@ function PowerSupply() {
         }}
         pcbX={-19}
         pcbY={4}
-        schX={-5.5}
-        schY={-0.3}
         connections={{
           VIN: "net.VBUS",
           EN: "net.VBUS",
@@ -139,44 +227,50 @@ function PowerSupply() {
       />
       <capacitor
         name="C1"
+        schSectionName="power"
+        schX={2.7}
+        schY={4}
+        schRotation={270}
         capacitance="1uF"
         footprint="0603"
         pcbX={-21.8}
         pcbY={1.1}
-        schX={-8}
-        schY={-1.7}
         connections={{ pin1: "net.VBUS", pin2: "net.GND" }}
       />
       <capacitor
         name="C2"
+        schSectionName="power"
+        schX={8.3}
+        schY={4}
+        schRotation={270}
         capacitance="1uF"
         footprint="0603"
         pcbX={-20}
         pcbY={6.6}
-        schX={-3.5}
-        schY={-1.7}
         connections={{ pin1: "net.V3V3", pin2: "net.GND" }}
       />
       <capacitor
         name="C3"
+        schSectionName="radio"
+        schX={-2.3}
+        schY={-1.8}
+        schRotation={270}
         capacitance="10uF"
         footprint="0805"
         pcbX={-18.1}
         pcbY={11.8}
-        schX={-1.8}
-        schY={5.2}
-        schRotation={270}
         connections={{ pin1: "net.V3V3", pin2: "net.GND" }}
       />
       <capacitor
         name="C4"
+        schSectionName="radio"
+        schX={-1.1}
+        schY={-1.8}
+        schRotation={270}
         capacitance="100nF"
         footprint="0603"
         pcbX={-14.7}
         pcbY={11.8}
-        schX={0}
-        schY={5.2}
-        schRotation={270}
         connections={{ pin1: "net.V3V3", pin2: "net.GND" }}
       />
     </>
@@ -187,53 +281,75 @@ function WifiModule() {
   return (
     <chip
       name="U1"
-      manufacturerPartNumber="ESP32-C3-WROOM-02-N4"
-      supplierPartNumbers={{ jlcpcb: ["C2934560"] }}
+      schSectionName="radio"
+      schX={-4.6}
+      schY={-4}
+      manufacturerPartNumber="ESP32-C6-WROOM-1-N8"
+      supplierPartNumbers={{ jlcpcb: ["C5366877"] }}
       footprint={wifiFootprint}
-      pcbX={-3}
-      pcbY={6}
-      schX={0}
-      schY={1.5}
-      cadModel={partModel(
-        "C2934560",
-        "3af5773cc1904a9197e0ebbdc043a5ad",
-        0,
-        -3.1,
-        -0.01,
-      )}
-      pinLabels={{
-        pin1: "VDD",
-        pin2: "EN",
-        pin3: "IO4",
-        pin4: "IO5",
-        pin5: "IO6",
-        pin6: "IO7",
-        pin7: "IO8",
-        pin8: "IO9",
-        pin9: "GND",
-        pin10: "IO10",
-        pin11: "RXD",
-        pin12: "TXD",
-        pin13: "IO18",
-        pin14: "IO19",
-        pin15: "IO3",
-        pin16: "IO2",
-        pin17: "IO1",
-        pin18: "IO0",
-        pin19: "EP",
+      pcbX={-2}
+      pcbY={5.5}
+      cadModel={{
+        stepUrl:
+          "https://raw.githubusercontent.com/espressif/kicad-libraries/d5b68fd9269c639b3a60681e00b91df33b4db4a3/3dmodels/espressif.3dshapes/ESP32-C6-WROOM-1.STEP",
+        modelOriginPosition: { x: 9, y: 9.75, z: 0 },
       }}
+      pinLabels={{
+        pin1: "GND1",
+        pin2: "VDD",
+        pin3: "EN",
+        pin4: "IO4",
+        pin5: "IO5",
+        pin6: "IO6",
+        pin7: "IO7",
+        pin8: "IO0",
+        pin9: "IO1",
+        pin10: "IO8",
+        pin11: "IO10",
+        pin12: "IO11",
+        pin13: "IO12",
+        pin14: "IO13",
+        pin15: "IO9",
+        pin16: "IO18",
+        pin17: "IO19",
+        pin18: "IO20",
+        pin19: "IO21",
+        pin20: "IO22",
+        pin21: "IO23",
+        pin22: "NC",
+        pin23: "IO15",
+        pin24: "RXD0",
+        pin25: "TXD0",
+        pin26: "IO3",
+        pin27: "IO2",
+        pin28: "GND2",
+        pin29: "EP",
+      }}
+      // The schematic shows the board connections. The footprint retains all 29 pins.
+      schPinArrangement={{
+        leftSide: { pins: [3, 15, 10, 13, 14], direction: "top-to-bottom" },
+        rightSide: { pins: [11, 1, 28, 29], direction: "top-to-bottom" },
+        topSide: { pins: [2], direction: "left-to-right" },
+      }}
+      internallyConnectedPins={[["GND1", "GND2", "EP"]]}
+      noConnect={["NC"]}
       pinAttributes={{
         VDD: { requiresPower: true, requiresVoltage: "3.3V" },
-        GND: { requiresGround: true },
+        GND1: { requiresGround: true },
+        GND2: { requiresGround: true },
         EP: { requiresGround: true },
-        IO4: { isGpio: true },
+        IO10: { isGpio: true },
       }}
       connections={{
         VDD: "net.V3V3",
-        GND: "net.GND",
+        GND1: "net.GND",
         EP: "net.GND",
         EN: "net.CHIP_EN",
         IO9: "net.BOOT",
+        IO8: "net.STRAP8",
+        IO12: "net.USB_DM",
+        IO13: "net.USB_DP",
+        IO10: "net.TONE",
       }}
     />
   )
@@ -244,57 +360,62 @@ function BootCircuit() {
     <>
       {/* Power-on reset and boot straps. Hold BOOT while plugging in USB for the ROM loader. */}
       <resistor
+        symbolName="resistor"
         name="R3"
+        schSectionName="radio"
+        schX={-10}
+        schY={-2.5}
+        schRotation={270}
         resistance="10k"
         footprint="0603"
         pcbX={-15.5}
         pcbY={8.5}
-        schX={-4}
-        schY={0.9}
         connections={{ pin1: "net.V3V3", pin2: "net.CHIP_EN" }}
       />
       <capacitor
         name="C5"
+        schSectionName="radio"
+        schX={-10}
+        schY={-5.5}
+        schRotation={270}
         capacitance="1uF"
         footprint="0603"
         pcbX={-15.5}
         pcbY={6.5}
-        schX={-2}
-        schY={-0.8}
         connections={{ pin1: "net.CHIP_EN", pin2: "net.GND" }}
       />
       <resistor
+        symbolName="resistor"
         name="R4"
+        schSectionName="radio"
+        schX={-8.2}
+        schY={-2.5}
+        schRotation={270}
         resistance="10k"
         footprint="0603"
-        pcbX={-16}
-        pcbY={1}
-        schX={2.6}
-        schY={4.7}
+        pcbX={9.7}
+        pcbY={-2.9}
         connections={{ pin1: "net.V3V3", pin2: "net.BOOT" }}
       />
       <resistor
+        symbolName="resistor"
         name="R5"
+        schSectionName="radio"
+        schX={-7.2}
+        schY={-2.5}
+        schRotation={270}
         resistance="10k"
         footprint="0603"
         pcbX={-14.8}
         pcbY={3.1}
-        schX={2.6}
-        schY={3.7}
-        connections={{ pin1: "net.V3V3" }}
-      />
-      <resistor
-        name="R6"
-        resistance="10k"
-        footprint="0603"
-        pcbX={8.4}
-        pcbY={9.2}
-        schX={2.6}
-        schY={2.7}
-        connections={{ pin1: "net.V3V3" }}
+        connections={{ pin1: "net.V3V3", pin2: "net.STRAP8" }}
       />
       <pushbutton
         name="SW1"
+        schSectionName="radio"
+        schX={-8.2}
+        schY={-5.5}
+        schRotation={270}
         manufacturerPartNumber="HX-3x4x2-2P-1.6N"
         supplierPartNumbers={{ jlcpcb: ["C49234124"] }}
         footprint={bootFootprint}
@@ -305,10 +426,8 @@ function BootCircuit() {
           0,
           -0.01,
         )}
-        pcbX={-19.6}
-        pcbY={-4}
-        schX={4.6}
-        schY={4.7}
+        pcbX={12}
+        pcbY={4}
         connections={{ pin1: "net.BOOT", pin2: "net.GND" }}
       />
     </>
@@ -322,6 +441,15 @@ function BuzzerAmplifier() {
           C6 blocks GPIO DC. R9 isolates the capacitive load from the output. */}
       <chip
         name="U3"
+        schSectionName="audio"
+        schX={5.3}
+        schY={-4.3}
+        schWidth={1.7}
+        schPinArrangement={{
+          leftSide: { pins: [4, 3, 2], direction: "top-to-bottom" },
+          rightSide: { pins: [5, 8], direction: "top-to-bottom" },
+          bottomSide: { pins: [1, 7, 6], direction: "left-to-right" },
+        }}
         manufacturerPartNumber="LM4861MX/NOPB"
         supplierPartNumbers={{ jlcpcb: ["C7958"] }}
         footprint="soic8_w7mm_pl1.8mm_pw0.59mm_p1.27mm_widthincludeslegs"
@@ -335,8 +463,6 @@ function BuzzerAmplifier() {
         )}
         pcbX={1}
         pcbY={-9.5}
-        schX={2.2}
-        schY={-3.3}
         pinLabels={{
           pin1: "SHDN",
           pin2: "BYP",
@@ -355,71 +481,83 @@ function BuzzerAmplifier() {
           VDD: "net.VBUS",
           GND: "net.GND",
           SHDN: "net.GND",
-          BYP: "net.BIAS",
-          IN_P: "net.BIAS",
           IN_N: "net.SUM",
           OUT1: "net.OUT1",
+          BYP: "net.BIAS",
+          IN_P: "net.BIAS",
         }}
       />
       <capacitor
         name="C6"
+        schSectionName="audio"
+        schX={1}
+        schY={-4.1}
+        connections={{ pin1: "net.TONE" }}
         capacitance="330nF"
         footprint="0603"
-        pcbX={-11.8}
-        pcbY={-3.6}
-        schX={-5.8}
-        schY={-3.1}
+        pcbX={-10.5}
+        pcbY={-7.8}
       />
       <resistor
+        symbolName="resistor"
         name="R7"
+        connections={{ pin2: "net.SUM" }}
+        schSectionName="audio"
+        schX={2.6}
+        schY={-4.1}
         resistance="20k"
         footprint="0603"
         pcbX={-3}
         pcbY={-14.8}
-        schX={-3.6}
-        schY={-3.1}
-        connections={{ pin2: "net.SUM" }}
       />
       <resistor
+        symbolName="resistor"
         name="R8"
+        connections={{ pin1: "net.SUM", pin2: "net.OUT1" }}
+        schSectionName="audio"
+        schX={5.3}
+        schY={-2.2}
         resistance="20k"
         footprint="0603"
         pcbX={6.8}
         pcbY={-10.5}
         pcbRotation={90}
-        schX={0.4}
-        schY={-5.8}
-        connections={{ pin1: "net.SUM", pin2: "net.OUT1" }}
       />
       <capacitor
         name="C7"
+        schSectionName="audio"
+        schX={3.3}
+        schY={-5.8}
+        schRotation={270}
         capacitance="1uF"
         footprint="0603"
         pcbX={0.6}
         pcbY={-14.7}
-        schX={-0.4}
-        schY={-4.6}
         connections={{ pin1: "net.BIAS", pin2: "net.GND" }}
       />
       <capacitor
         name="C8"
+        schSectionName="audio"
+        schX={7.8}
+        schY={-6.65}
+        schRotation={270}
         capacitance="100nF"
         footprint="0603"
-        pcbX={1.1}
-        pcbY={-5}
-        schX={4.2}
-        schY={-1.4}
+        pcbX={4.5}
+        pcbY={-6}
         connections={{ pin1: "net.VBUS", pin2: "net.GND" }}
       />
       <resistor
+        symbolName="resistor"
         name="R9"
+        connections={{ pin1: "net.OUT1" }}
+        schSectionName="audio"
+        schX={8.1}
+        schY={-4.2}
         resistance="100"
         footprint="0603"
         pcbX={8.3}
         pcbY={-6.4}
-        schX={5.3}
-        schY={-3}
-        connections={{ pin1: "net.OUT1" }}
       />
     </>
   )
@@ -431,9 +569,9 @@ function BoardLayout() {
       <keepout
         shape="rect"
         pcbX={0}
-        pcbY={16.6}
+        pcbY={18.625}
         width={48}
-        height={6.8}
+        height={6.75}
         excludeRefs={[".U1"]}
         layers={["top", "bottom"]}
       />
@@ -446,11 +584,11 @@ function BoardLayout() {
       <silkscreentext
         text="Wi-Fi Sounder"
         pcbX={-15}
-        pcbY={-13}
+        pcbY={-18.6}
         fontSize={1.5}
       />
-      <silkscreentext text="BOOT" pcbX={-19.6} pcbY={-6.6} fontSize={0.9} />
-      <silkscreentext text="USB" pcbX={19.6} pcbY={0} fontSize={0.9} />
+      <silkscreentext text="BOOT" pcbX={12} pcbY={1.2} fontSize={0.9} />
+      <silkscreentext text="USB-C" pcbX={-20} pcbY={-12.2} fontSize={0.9} />
       <silkscreentext text="PIEZO" pcbX={15} pcbY={-16} fontSize={0.9} />
     </>
   )
@@ -474,137 +612,112 @@ function partModel(
   }
 }
 function CastellatedPad({ pin }: { pin: number }) {
+  const left = pin <= 14
   return (
     <smtpad
       portHints={["pin" + pin]}
       shape="rect"
       width={1.5}
       height={0.9}
-      pcbX={pin <= 9 ? -8.75 : 8.75}
-      pcbY={pin <= 9 ? 6 - 1.5 * (pin - 1) : -6 + 1.5 * (pin - 10)}
+      pcbX={left ? -8.75 : 8.75}
+      pcbY={left ? 8.255 - (pin - 1) * 1.27 : -8.255 + (pin - 15) * 1.27}
     />
   )
 }
 
 const usbFootprint = (
-  <footprint>
-    {[1, 2, 3, 4, 5].map((pin) => (
-      <UsbContact key={pin} pin={pin} />
+  <footprint insertionDirection="from_bottom">
+    <hole pcbX={-2.9} pcbY={0.906} diameter={0.6} />
+    <hole pcbX={2.9} pcbY={0.906} diameter={0.6} />
+    {[-4.325, 4.325].map((x) => (
+      <UsbShellTabs key={x} x={x} />
     ))}
-    <platedhole
-      portHints={["pin6"]}
-      pcbX={-2.5}
-      pcbY={2.675}
-      shape="pill"
-      holeWidth={0.85}
-      holeHeight={0.55}
-      outerWidth={1.25}
-      outerHeight={0.95}
-    />
-    <platedhole
-      portHints={["pin6"]}
-      pcbX={2.5}
-      pcbY={2.675}
-      shape="pill"
-      holeWidth={0.85}
-      holeHeight={0.55}
-      outerWidth={1.25}
-      outerHeight={0.95}
-    />
-    <platedhole
-      portHints={["pin6"]}
-      pcbX={-3.5}
-      pcbY={-0.025}
-      shape="pill"
-      holeWidth={0.5}
-      holeHeight={1.15}
-      outerWidth={1}
-      outerHeight={1.55}
-    />
-    <platedhole
-      portHints={["pin6"]}
-      pcbX={3.5}
-      pcbY={-0.025}
-      shape="pill"
-      holeWidth={0.5}
-      holeHeight={1.15}
-      outerWidth={1}
-      outerHeight={1.55}
-    />
-    <courtyardrect width={8.7} height={6.7} pcbY={0.28} />
-    <silkscreenpath
-      route={[
-        { x: -4.1, y: -1 },
-        { x: -4.1, y: -2.77 },
-        { x: 4.1, y: -2.77 },
-        { x: 4.1, y: -1 },
-      ]}
-    />
+    {[
+      -1.75, -1.25, -0.75, -0.25, 0.25, 0.75, 1.25, 1.75, -3.2, 3.2, 2.4, -2.4,
+    ].map((x, i) => (
+      <UsbContact key={i} pin={i + 2} x={x} />
+    ))}
+    <courtyardrect width={10.35} height={8.674} pcbY={-1.263} />
   </footprint>
 )
-function UsbContact({ pin }: { pin: number }) {
+function UsbShellTabs({ x }: { x: number }) {
+  return (
+    <>
+      <platedhole
+        portHints={["pin1"]}
+        pcbX={x}
+        pcbY={1.406}
+        shape="pill"
+        holeWidth={0.8}
+        holeHeight={1.5}
+        outerWidth={1.2}
+        outerHeight={2}
+      />
+      <platedhole
+        portHints={["pin1"]}
+        pcbX={x}
+        pcbY={-2.774}
+        shape="pill"
+        holeWidth={0.8}
+        holeHeight={1.2}
+        outerWidth={1.2}
+        outerHeight={1.8}
+      />
+    </>
+  )
+}
+function UsbContact({ pin, x }: { pin: number; x: number }) {
   return (
     <smtpad
       portHints={["pin" + pin]}
-      pcbX={(pin - 3) * 0.65}
-      pcbY={2.675}
-      width={0.4}
-      height={1.35}
       shape="rect"
+      pcbX={x}
+      pcbY={2.174}
+      width={pin < 10 ? 0.3 : 0.6}
+      height={1.3}
     />
   )
 }
 
 const wifiFootprint = (
   <footprint>
-    {Array.from({ length: 18 }, (_, i) => (
+    {Array.from({ length: 28 }, (_, i) => (
       <CastellatedPad key={i} pin={i + 1} />
     ))}
-    <smtpad
-      portHints={["pin19"]}
-      pcbX={0.96}
-      pcbY={-0.2}
-      width={2.9}
-      height={2.9}
-      shape="rect"
-    />
-    {/* Ground vias under the module's exposed pad tie it to the return plane. */}
-    <via
-      connectsTo="net.GND"
-      pcbX={0.21}
-      pcbY={0.55}
-      holeDiameter={0.3}
-      outerDiameter={0.6}
-      tented="bottom_tented"
-    />
-    <via
-      connectsTo="net.GND"
-      pcbX={1.71}
-      pcbY={0.55}
-      holeDiameter={0.3}
-      outerDiameter={0.6}
-      tented="bottom_tented"
-    />
-    <via
-      connectsTo="net.GND"
-      pcbX={0.21}
-      pcbY={-0.95}
-      holeDiameter={0.3}
-      outerDiameter={0.6}
-      tented="bottom_tented"
-    />
-    <via
-      connectsTo="net.GND"
-      pcbX={1.71}
-      pcbY={-0.95}
-      holeDiameter={0.3}
-      outerDiameter={0.6}
-      tented="bottom_tented"
-    />
-    <silkscreenrect pcbY={3.1} width={18} height={20} />
-    <courtyardrect pcbY={3.1} width={19.6} height={20.5} />
+    {/* Espressif splits exposed pad 29 into nine grounded lands. */}
+    {Array.from({ length: 9 }, (_, i) => (
+      <ExposedGroundPad
+        key={i}
+        x={-2.755 + 1.25 * (i % 3)}
+        y={1.29 + 1.25 * Math.floor(i / 3)}
+      />
+    ))}
+    <silkscreenrect pcbY={3} width={18} height={25.5} />
+    <courtyardrect pcbY={3} width={19.5} height={26.1} />
   </footprint>
 )
+function ExposedGroundPad({ x, y }: { x: number; y: number }) {
+  return (
+    <>
+      <smtpad
+        portHints={["pin29"]}
+        shape="rect"
+        pcbX={x}
+        pcbY={y}
+        width={0.8}
+        height={0.8}
+      />
+      <via
+        connectsTo="net.GND"
+        pcbX={x}
+        pcbY={y}
+        holeDiameter={0.3}
+        outerDiameter={0.6}
+        tented="bottom_tented"
+      />
+    </>
+  )
+}
 const buzzerFootprint = (
   <footprint>
     <smtpad
@@ -650,6 +763,9 @@ function PiezoBuzzer() {
   return (
     <resonator
       name="Y1"
+      schSectionName="audio"
+      schX={10}
+      schY={-4.45}
       frequency="4kHz"
       pinVariant="no_ground"
       manufacturerPartNumber="CPT-9019S-SMT-TR"
@@ -667,8 +783,6 @@ function PiezoBuzzer() {
       )}
       pcbX={15}
       pcbY={-10}
-      schX={7}
-      schY={-3.6}
       symbol={
         <symbol>
           <port
