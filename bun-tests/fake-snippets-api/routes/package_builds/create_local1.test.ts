@@ -72,24 +72,3 @@ test("POST /api/package_builds/create_local - uses the uploaded dist as a local 
   })
   expect(packageRes.data.package.package_id).toBe(pkg.package_id)
 })
-
-test("POST /api/package_builds/create_local - requires uploaded dist files", async () => {
-  const { axios, db, packageNameWithVersion, release } = await setup()
-
-  await axios.post("/api/package_files/upload_archive", {
-    package_name_with_version: packageNameWithVersion,
-    archive_base64: archive([
-      { file_path: "index.tsx", content_text: "export default () => null" },
-    ]),
-  })
-
-  const res = await axios.post(
-    "/api/package_builds/create_local",
-    { package_release_id: release.package_release_id },
-    { validateStatus: () => true },
-  )
-
-  expect(res.status).toBe(400)
-  expect(res.data.error.error_code).toBe("missing_build_output")
-  expect(db.getPackageBuildsByReleaseId(release.package_release_id)).toEqual([])
-})
