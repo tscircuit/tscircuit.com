@@ -5,8 +5,8 @@ import { HX_3x4x2_2P_1_6N_TACTILE_SWITCH as BootSwitch } from "./imports/HX_3x4x
 import { LM4861MX_NOPB as LM4861 } from "./imports/LM4861MX_NOPB"
 import { CPT_9019S_SMT_TR as Piezo } from "./imports/CPT_9019S_SMT_TR"
 
-// USB-C Wi-Fi 6 sounder. Program the ESP32-C6 through J1, then output
-// a 4 kHz square wave on GPIO10 to sound the passive piezo through U3.
+// Program the ESP32-C6 using the USB-C port (J1) on the left edge of the board.
+// Drive GPIO10 with a 4 kHz square wave to sound the passive piezo through U3.
 export default () => (
   <board
     schMaxTraceDistance={6.5}
@@ -444,7 +444,12 @@ function BoardLayout() {
         fontSize={1.5}
       />
       <silkscreentext text="BOOT" pcbX={14.5} pcbY={-3.2} fontSize={0.9} />
-      <silkscreentext text="USB-C" pcbX={-17.6} pcbY={-13.6} fontSize={0.9} />
+      <silkscreentext
+        text="J1 USB-C"
+        pcbX={-15.5}
+        pcbY={-13.6}
+        fontSize={1.1}
+      />
       <silkscreentext text="PIEZO" pcbX={15.3} pcbY={13.4} fontSize={0.9} />
     </>
   )
