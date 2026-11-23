@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
 import { PackageFile } from "@/types/package"
+import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "./use-package-files"
@@ -53,7 +54,7 @@ export interface ICreatePackageProps {
 }
 
 export function useFileManagement({
-  templateCode,
+  templateCode = getSnippetTemplate(undefined).code,
   currentPackage,
   openNewPackageSaveDialog,
   updateLastUpdated,
