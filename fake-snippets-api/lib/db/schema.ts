@@ -252,6 +252,13 @@ export const accountPackageSchema = z.object({
 })
 export type AccountPackage = z.infer<typeof accountPackageSchema>
 
+/**
+ * "cloud" builds ran on tscircuit infrastructure, "local" builds were built by
+ * the user and uploaded with their dist output (tsci push --include-dist)
+ */
+export const packageBuildSourceSchema = z.enum(["cloud", "local"])
+export type PackageBuildSource = z.infer<typeof packageBuildSourceSchema>
+
 export const packageReleaseSchema = z.object({
   package_release_id: z.string(),
   package_id: z.string(),
@@ -339,6 +346,7 @@ export const packageReleaseSchema = z.object({
 
   // Latest Build Reference
   latest_package_build_id: z.string().nullable().optional(),
+  build_source: packageBuildSourceSchema.nullable().optional(),
   commit_message: z.string().nullable().optional(),
   commit_author: z.string().nullable().optional(),
 
@@ -401,6 +409,7 @@ export const publicPackageReleaseSchema = z.object({
   cad_preview_image_url: z.string().nullable().optional(),
   display_status: z.string().nullable().optional(),
   latest_package_build_id: z.string().nullable().optional(),
+  build_source: packageBuildSourceSchema.nullable().optional(),
   user_code_job_started_at: z.string().datetime().nullable().optional(),
   user_code_job_completed_at: z.string().datetime().nullable().optional(),
   user_code_job_error: z.any().nullable().optional(),
@@ -489,6 +498,7 @@ export const packageBuildSchema = z.object({
   package_build_id: z.string().uuid(),
   package_release_id: z.string(),
   created_at: z.string().datetime(),
+  build_source: packageBuildSourceSchema.default("cloud"),
   transpilation_in_progress: z.boolean().default(false),
   transpilation_started_at: z.string().datetime().nullable().optional(),
   transpilation_completed_at: z.string().datetime().nullable().optional(),

@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
+import { LocalBuildNotice } from "./LocalBuildNotice"
 
 const isStderrLog = (log: any): boolean => {
   if (!log) return false
@@ -76,7 +77,7 @@ export const SingleBuildLogs = ({
   }
 
   const buildStatus = isWaitingForBuild
-    ? { status: "queued" as const, label: "Waiting..." }
+    ? { status: "queued" as const, label: "Waiting...", isLocalBuild: false }
     : rawBuildStatus
   const buildErrorMessage = getBuildErrorMessage(packageBuild)
   const buildDuration = getStepDuration(
@@ -129,6 +130,10 @@ export const SingleBuildLogs = ({
         </div>
       </div>
     )
+  }
+
+  if (buildStatus.isLocalBuild) {
+    return <LocalBuildNotice />
   }
 
   return (

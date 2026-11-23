@@ -218,7 +218,8 @@ export default function ReleaseBuildsPage() {
                       <BuildItemRowSkeleton key={i} />
                     ))
                   : filteredBuilds?.map((build, idx) => {
-                      const { status, label } = getBuildStatus(build)
+                      const { status, label, isLocalBuild } =
+                        getBuildStatus(build)
                       const buildDuration = formatBuildDuration(
                         build.user_code_job_started_at,
                         build.user_code_job_completed_at,
@@ -236,7 +237,8 @@ export default function ReleaseBuildsPage() {
                             )
                           }
                           statusLabel={label}
-                          duration={buildDuration || null}
+                          isLocalBuild={isLocalBuild}
+                          duration={isLocalBuild ? null : buildDuration || null}
                           createdAt={build.created_at}
                           errorMessage={errorMessage}
                           dropdownActions={[
