@@ -1,0 +1,40 @@
+.package-system-viewer > label {
+  --toolbar-border: #e5e7eb;
+  --toolbar-background: #f3f4f6;
+  --toolbar-text: #374151;
+  --select-border: #d1d5db;
+  --select-background: #fff;
+  --select-hover-background: #f9fafb;
+
+  border-bottom: 1px solid var(--toolbar-border);
+  background: var(--toolbar-background);
+  color: var(--toolbar-text);
+  color-scheme: light;
+}
+
+.dark .package-system-viewer > label {
+  --toolbar-border: #30363d;
+  --toolbar-background: #161b22;
+  --toolbar-text: #c9d1d9;
+  --select-border: #30363d;
+  --select-background: #21262d;
+  --select-hover-background: #30363d;
+
+  color-scheme: dark;
+}
+
+.package-system-viewer > label > select {
+  min-width: 0;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  border: 1px solid var(--select-border);
+  border-radius: calc(var(--radius) - 2px);
+
+  /* The shared viewer sets the native select's colors inline. */
+  background: var(--select-background) !important;
+  color: inherit !important;
+}
+
+.package-system-viewer > label > select:hover {
+  background: var(--select-hover-background) !important;
+}

@@ -4,6 +4,7 @@ import {
 } from "@tscircuit/system-block-viewer"
 import { ErrorBoundary } from "react-error-boundary"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import "./system-view.css"
 
 export default function SystemView({
   onComponentClick,
@@ -22,7 +23,7 @@ export default function SystemView({
       </div>
     )
   return (
-    <div className="h-[620px]">
+    <div className="h-[620px] overflow-hidden rounded-md border border-gray-200 bg-white dark:border-[#30363d] dark:bg-[#0d1117]">
       <ErrorBoundary
         resetKeys={[circuitJson]}
         fallback={<div role="alert">Error loading System diagram</div>}
@@ -30,7 +31,8 @@ export default function SystemView({
         <SystemBlockViewer
           circuitJson={circuitJson}
           onComponentClick={onComponentClick}
-          containerStyle={{ height: 620 }}
+          className="package-system-viewer"
+          containerStyle={{ background: "transparent" }}
         />
       </ErrorBoundary>
     </div>

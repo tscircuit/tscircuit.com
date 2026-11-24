@@ -91,6 +91,47 @@ test("System is absent without a page and an unavailable #system falls back to F
   ).toHaveCount(0)
 })
 
+test("System page picker follows the site theme and switches diagrams", async ({
+  page,
+}) => {
+  await page.addInitScript(() => localStorage.setItem("theme", "light"))
+  await page.route("**/package_releases/get_preview_circuit_json?*", (route) =>
+    route.fulfill({
+      json: {
+        preview_circuit_json_response: {
+          circuit_json_found: true,
+          circuit_json: [
+            ...systemJson,
+            {
+              ...systemJson[0],
+              system_block_page_id: "second",
+              name: "second",
+            },
+          ],
+        },
+      },
+    }),
+  )
+  await page.goto("http://127.0.0.1:5177/testuser/my-test-board#system")
+
+  const select = page.getByRole("combobox", { name: "System page" })
+  const toolbar = page.locator("label").filter({ has: select })
+  await expect(toolbar).toHaveCSS("background-color", "rgb(243, 244, 246)")
+  await expect(select).toHaveCSS("background-color", "rgb(255, 255, 255)")
+
+  await page
+    .locator("html")
+    .evaluate((element) => element.classList.add("dark"))
+  await expect(toolbar).toHaveCSS("background-color", "rgb(22, 27, 34)")
+  await expect(select).toHaveCSS("background-color", "rgb(33, 38, 45)")
+  await expect(select).toHaveCSS("color-scheme", "dark")
+
+  await select.selectOption("second")
+  await expect(
+    page.getByRole("img", { name: "second", exact: true }),
+  ).toBeVisible()
+})
+
 test("System renders custom connection styles and legible labels", async ({
   page,
 }) => {
