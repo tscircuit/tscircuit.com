@@ -86,6 +86,15 @@ describe("renderPackagePageContent", () => {
     expect(html).toContain("Use &lt;Board /&gt;")
   })
 
+  // Repro: AI fetchers only see the SSR HTML, which has no tsci commands
+  test.failing("renders tsci clone/install commands and a tsci primer", () => {
+    const html = renderPackagePageContent(baseData)
+
+    expect(html).toContain("tsci clone alice/board")
+    expect(html).toContain("tsci install alice/board")
+    expect(html).toContain("npm install -g tscircuit")
+  })
+
   test("renders the selected file content without allowing HTML injection", () => {
     const html = renderPackagePageContent({
       ...baseData,
