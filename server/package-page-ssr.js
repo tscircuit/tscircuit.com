@@ -464,6 +464,17 @@ const renderRelatedPackages = (relatedPackages) => {
     .join("")}</ul></section>`
 }
 
+const renderTsciUsage = ({ route }) => {
+  if (route.kind === "settings") return ""
+  const { author, packageName } = route
+  return `<section><h2>Use with the tscircuit CLI</h2><p><code>tsci</code> is the tscircuit CLI. Install it with <code>npm install -g tscircuit</code>.</p><pre><code>${escapeHtml(
+    [
+      `tsci clone ${author}/${packageName}  # download the package files into ./${packageName}`,
+      `tsci add ${author}/${packageName}    # add it to your project as @tsci/${author}.${packageName}`,
+    ].join("\n"),
+  )}</code></pre><p>In a cloned or new (<code>tsci init</code>) project: <code>tsci dev</code> starts a local preview, <code>tsci build</code> outputs Circuit JSON, and <code>tsci push</code> publishes to tscircuit.com.</p></section>`
+}
+
 export function renderPackagePageContent(data) {
   const { route, packageInfo, packageRelease } = data
   const packageDescription =
@@ -490,7 +501,7 @@ export function renderPackagePageContent(data) {
     ["Version", packageRelease?.version || packageInfo.latest_version],
     ["License", packageInfo.license],
     ["Stars", packageInfo.star_count],
-  ])}</header>${renderRouteContent(data)}${renderRelatedPackages(
+  ])}</header>${renderTsciUsage({ route })}${renderRouteContent(data)}${renderRelatedPackages(
     data.relatedPackages,
   )}</main>`
 }
