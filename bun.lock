@@ -88,7 +88,7 @@
         "@vercel/analytics": "^1.4.1",
         "@vitejs/plugin-react": "^4.3.1",
         "autoprefixer": "^10.4.20",
-        "circuit-json": "^0.0.556",
+        "circuit-json": "^0.0.563",
         "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#1a50d0dd2c0737cf940d92c0315852dc0111dd87",
         "circuit-json-to-pnp-csv": "0.0.18",
         "circuit-json-to-step": "^0.0.57",
@@ -178,7 +178,7 @@
   ],
   "overrides": {
     "altiumts": "0.0.59",
-    "circuit-json": "^0.0.556",
+    "circuit-json": "^0.0.563",
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
@@ -1129,7 +1129,7 @@
 
     "chownr": ["chownr@3.0.0", "", {}, "sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g=="],
 
-    "circuit-json": ["circuit-json@0.0.556", "", { "dependencies": { "zod": "3" }, "peerDependencies": { "format-si-unit": "*" } }, "sha512-TgFqspsbhdWrdpimjh2T2tcldSE4AiniZMOmJeEhDm4G1Q9vGnK+4dsmWBmnpqkvIlvRNUzdto5g4OBCHlAZWQ=="],
+    "circuit-json": ["circuit-json@0.0.563", "", { "peerDependencies": { "format-si-unit": "*" } }, "sha512-oUL4pB9OqdQOMx73OtU2gs0f/JyOFUEOJIJEG3BpL9baBlz3ASVQH0jdmg0GSLDq4wi0bdmIm3G8aRK0+507Mg=="],
 
     "circuit-json-to-altium": ["circuit-json-to-altium@github:tscircuit/circuit-json-to-altium#1a50d0d", { "dependencies": { "altiumts": "github:tscircuit/altiumts#6da231316118720feead2ebd4ff2dd5f71f8c8a9", "cfb": "^1.2.2", "circuit-json": "^0.0.480", "color-string": "2.1.4", "jszip": "^3.10.1", "schematic-symbols": "^0.0.239", "transformation-matrix": "^3.1.0" } }, "tscircuit-circuit-json-to-altium-1a50d0d", "sha512-J2+YNSQpzZ2ft030DPhgYmznvaWTbMHIPaSlzXGKuledSGYBl8qBdbDcfCHzdIH/2nSndSbUhr/Dz4ZdPVKlfQ=="],
 
