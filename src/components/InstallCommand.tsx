@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Copy, Check } from "lucide-react"
+import { getTsciAddCommand } from "@/lib/get-tsci-add-command"
 
 export function InstallCommand({
   packageName,
@@ -9,7 +10,7 @@ export function InstallCommand({
   version?: string | null
 }) {
   const [copied, setCopied] = useState(false)
-  const installCmd = `tsci add ${packageName}${version ? `@${version}` : ""}`
+  const installCmd = getTsciAddCommand(packageName, version)
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(installCmd)

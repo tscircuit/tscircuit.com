@@ -35,6 +35,7 @@ import {
 import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
+import { getTsciAddCommand } from "@/lib/get-tsci-add-command"
 import PreviewFileSelector from "./preview-file-selector"
 import ReleaseVersionSelector from "./release-version-selector"
 
@@ -66,17 +67,21 @@ export default function MainContentHeader({
   const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
     "copy",
   )
+  const packageName = packageInfo?.name || "@tscircuit/keyboard-default60"
+  const installCommand = getTsciAddCommand(
+    packageName,
+    packageInfo && packageRelease?.version,
+  )
+  const cloneCommand = `tsci clone ${packageName}`
 
   const handleCopyInstall = () => {
-    const command = `tsci add ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
-    navigator.clipboard.writeText(command)
+    navigator.clipboard.writeText(installCommand)
     setCopyInstallState("copied")
     setTimeout(() => setCopyInstallState("copy"), 2000)
   }
 
   const handleCopyClone = () => {
-    const command = `tsci clone ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
-    navigator.clipboard.writeText(command)
+    navigator.clipboard.writeText(cloneCommand)
     setCopyCloneState("copied")
     setTimeout(() => setCopyCloneState("copy"), 2000)
   }
@@ -195,8 +200,7 @@ export default function MainContentHeader({
                 </div>
                 <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
                   <code className="flex-1 overflow-x-auto">
-                    tsci add{" "}
-                    {packageInfo?.name || "@tscircuit/keyboard-default60"}
+                    {installCommand}
                   </code>
                   <button
                     className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
@@ -217,10 +221,7 @@ export default function MainContentHeader({
                   Clone
                 </div>
                 <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
-                  <code className="flex-1 overflow-x-auto">
-                    tsci clone{" "}
-                    {packageInfo?.name || "@tscircuit/keyboard-default60"}
-                  </code>
+                  <code className="flex-1 overflow-x-auto">{cloneCommand}</code>
                   <button
                     className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
                     onClick={handleCopyClone}
