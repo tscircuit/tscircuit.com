@@ -175,6 +175,7 @@ export function HeaderNavigation({
         onNavigate={onNavigate}
       />
       <a href="https://docs.tscircuit.com/">Docs</a>
+      <a href="https://shop.tscircuit.com/">Shop</a>
       <HeaderNavigationDropdown
         label="Solutions"
         links={solutionLinks}
