@@ -63,6 +63,12 @@ export default function Footer() {
               >
                 Docs
               </a>
+              <a
+                href="https://shop.tscircuit.com/"
+                className="hover:underline w-fit"
+              >
+                Shop
+              </a>
             </footer>
           </div>
 
